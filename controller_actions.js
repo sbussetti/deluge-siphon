@@ -80,7 +80,7 @@ function handle_readystatechange(http,type,port){
 		var popups = localStorage['inpage_notification'];
 		if ( payload.error ) {
 			// error
-			port.postMessage({error:'Comm error: '+payload.error,notify:popups});
+			port.postMessage({error:'Comm error: '+payload.error.message,notify:popups});
 		} else {
 			if ( type == 'downloadlink' ) {
 				localStorage['tmp_download_file'] = payload.result;
