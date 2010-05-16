@@ -17,7 +17,7 @@
   ],
   "content_scripts": [{
     "all_frames": true,
-    "matches":    ["http://*/*", "https://*/*", "ftp://*/*", "file://*/*"],
+    "matches":    ["http://*/*", "https://*/*", "ftp://*/*"], 
     "js":         ["content_handler.js"],
     "css":	  ["content_styles.css"]
   }],
