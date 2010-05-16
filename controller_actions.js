@@ -102,7 +102,7 @@ function handle_readystatechange(http,type,port){
 				if ( payload.result ) {
 					_getCurrentConfig(port);
 				} else {
-					port.postMessage({error:'Login failed, check password.',notify:popups});
+					port.postMessage({error:'Login failed.',notify:popups});
 				}
 			} else {
 				// error
