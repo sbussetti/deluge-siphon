@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>DelugeSyphon Options</title>
+<script type="text/javascript" src="options_actions.js"></script>
+<style type="text/css">
+	#left_col,#right_col { float:left; margin:3px; }
+	#left_col { width:156px; text-align:center; }
+	html,body { font-family:helvetica, sans; }
+	h1 { padding:0; margin:4px 0 6px; }
+	td {  padding:3px;  }
+	tr.opts td { border-bottom:1px dotted #CCC; }
+</style>
+</head>
+<body>
+
+<div id="left_col">
+	<img src="icon-128.png" border=0/> 
+</div>
+<div id="right_col">
+	<h1>DelugeSiphon Options</h1>
+	<table cellspacing=0 cellpadding=0 >
+	<tr class="opts"><td align="right">Deluge Server URL (fully qualified with port):</td><td><input type="text" id="server_url" size="60"/></td></tr>
+	<tr class="opts"><td align="right">Display in-page status notifications:</td><td><input type="checkbox" id="inpage_notification" value="yes"/></td></tr>
+	<tr class="opts"><td align="right">Deluge Server WebUI Password:</td><td><input type="password" id="server_pass" size="40"/></td></tr>
+	<tr><td align="right"><button id="submit_button">Save Options</button></td><td><span id="status"></span></td></tr>
+</div>
+
+<script type="text/javascript">
+		document.getElementById('submit_button').addEventListener('click',save_options,false);
+		restore_options();
+</script>
+</body>
+</html>

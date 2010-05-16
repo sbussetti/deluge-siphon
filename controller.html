@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>controller</title>
+	<script type="text/javascript" src="JSON.js"></script>
+    <script type="text/javascript" src="controller_communicator.js"></script>
+    <script type="text/javascript" src="controller_actions.js"></script>
+    <script type="text/javascript">
+      communicator.connectToContentScript();
+      communicator.observe(addLinkToDeluge);
+    </script>
+  </head>
+</html>
+
