@@ -7,21 +7,26 @@ function listen(event_owner, event_name, callback)
 var communicator = {
   _alreadyConnectedToContentScript: false,
   _observers: [],
-  connectToContentScript: function(){
+
+  connectToContentScript: function()
+  {
     if (this._alreadyConnectedToContentScript) return;
 
-
-	var observers = this._observers;
-	chrome.extension.onConnect.addListener(function(port){contentScriptMessageProcessor(port,observers);});
-    this._alreadyConnectedToContentScript = true;
-  },
-  _contentScriptMessageProcessor: function (port,observers){
+    var observers = this._observers;
+    function contentScriptMessageProcessor(port)
+    {
 	  console.assert(port.name == 'delugesiphon');
 	  port.onMessage.addListener(function(msg) {
         for (var order_num in observers) observers[order_num](port,msg);
       });
+    }
+
+	chrome.extension.onConnect.addListener(contentScriptMessageProcessor);
+    this._alreadyConnectedToContentScript = true;
   },
-  observe: function(callback) {
+
+  observe: function(callback)
+  {
     this._observers.push(callback);
   }
 };
