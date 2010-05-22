@@ -6,13 +6,11 @@ var OPTIONS = [
 				if ( ! string )
 					return string;
 
-				string = string.replace(/(^\s*|\s*$)/g,'').replace(/\/+$/,'');
-				if ( ! string.match(/^https?\:\/\//) )
-					string = 'http://'+string 
-
-				return string;
+				var regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+				return regexp.test(string) && ! string.match(/\/$/);				
 			},
-			validate_message:'Invalid server url.'
+			validate_message:'Invalid server url.',
+			required: true
 		},
 	},
 	{
@@ -21,7 +19,9 @@ var OPTIONS = [
 	},
 	{
 		name:'server_pass',
-		opts:{}
+		opts:{
+			required: true
+		}
 	}
 ];
 
@@ -48,15 +48,18 @@ function save_options() {
 	  } else {
 
 	  }
+
+	  var errorNotice = document.createElement('span');
+	  errorNotice.style.color = 'red';
+	  errorNotice.className = 'validation-message';
 	  
-	  var validate = OPTIONS[i].opts['validate'], validate_message = OPTIONS[i].opts['validate_message'];
-	  if ( validate && ! valudate(val) ) {
-		var errorNotice = document.createElement('span');
-		span.style.color = 'red';
-		span.innerHTML = ( validate_message || 'Invalid entry.' );
-		span.className = 'validation-message';
+	  var validate = OPTIONS[i].opts['validate'], validate_message = OPTIONS[i].opts['validate_message'], required = OPTIONS[i].opts['required'];
+	  if ( required && ( typeof val == 'undefined' || val == null || val == '' ) ) {
+		errorNotice.innerHTML = 'Required field.';
 		element.parentNode.insertBefore( errorNotice, element.nextSibling );
-		return;
+	  } else if ( validate && ! validate(val) ) {
+		errorNotice.innerHTML = ( validate_message || 'Invalid entry.' );
+		element.parentNode.insertBefore( errorNotice, element.nextSibling );
 	  } else {
 		localStorage.setItem(o,val);
 	  }
