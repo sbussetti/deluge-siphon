@@ -12,8 +12,14 @@
   <div style="width:300px;">
 	<h4>DelugeSiphon</h4>
 	Right click on torrent links while holding the Control key to add torrents directly to your Deluge server.<br/>
-	Don't forget to configure your server info in this extension's Options page.
+	Don't forget to configure your server info in this extension's <br/>
+	<a href="" id="opt-link" target="_blank">Options Page</a>.
    </div>
+	<script>
+		var opturl = chrome.extension.getURL("options.html");
+		var a = document.getElementById('opt-link');
+		a.href = opturl;
+	</script>   
   <body>
 </html>
 

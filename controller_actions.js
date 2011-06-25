@@ -1,11 +1,17 @@
 function addLinkToDeluge(port,url){
 	//console.log('addLinkToDeluge');
+	var popup = localStorage['inpage_notification'];
+	if ( ! localStorage['server_url'] ) {
+		port.postMessage({error:'Please configure extension.',notify:true});
+		return;
+	}
+	
 	if ( ! url || url.charAt((url.length - 1)) == '/' ) {
-		port.postMessage({error:'Invalid URL.',notify:localStorage['inpage_notification']});
+		port.postMessage({error:'Invalid URL.',notify:popup});
 		return;
 	}
 	localStorage['tmp_download_url'] = url;
-	port.postMessage({message:'Requesting link...',notify:localStorage['inpage_notification']});
+	port.postMessage({message:'Requesting link...',notify:popup});
 	_getSession(port);
 }
 
@@ -129,6 +135,7 @@ function handle_readystatechange(http,type,port){
 			// error
 			port.postMessage({error:'Comm error: '+payload.error.message,notify:popups});
 		} else {
+			//console.log(type, payload.result);		
 			if ( type == 'downloadlink' ) {
 				localStorage['tmp_download_file'] = payload.result;
 				_addLocalTorrent(port);
@@ -157,7 +164,7 @@ function handle_readystatechange(http,type,port){
 					_getCurrentConfig(port);
 				} else {
 					_getDaemons(port);
-					port.postMessage({message:'Reconnecting webUI...',notify:popups});
+					port.postMessage({message:'Reconnecting...',notify:popups});
 				}
 			} else if ( type == 'getdaemons' ) {
 				if ( payload.result ) {
@@ -195,7 +202,6 @@ function handle_readystatechange(http,type,port){
 }
 
 function ajax(method,url,params,callback,content_type){
-	console.log('Requesting: '+url);
 	var http = new XMLHttpRequest();
 	method = method || 'GET';
 	callback = typeof callback == 'function' ? callback : function(){};
@@ -206,3 +212,6 @@ function ajax(method,url,params,callback,content_type){
 	http.onreadystatechange = function(){ callback(http); };
 	http.send(params);
 }
+
+
+
