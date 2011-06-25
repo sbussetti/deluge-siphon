@@ -12,5 +12,6 @@ Changelist
 v. 0.6 Bugfix
 	* Improved options page: automatic save, some url cleanup.
 	* Now automatically reconnects your webui to your deluge daemon.  Will not attempt to start an offline daemon.
+	* Password no longer a required field.
 	
 v. 0.5 Initial Release

@@ -33,9 +33,7 @@ var OPTIONS = [
 	},
 	{
 		name:'server_pass',
-		opts:{
-			required: true
-		}
+		opts:{}
 	}
 ];
 
