@@ -28,5 +28,5 @@ var communicator = {
   observe: function(callback)
   {
     this._observers.push(callback);
-  }
+  },
 };

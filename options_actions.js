@@ -1,6 +1,6 @@
 var OPTIONS = [
 	{
-		name:'server_url', 
+		id:'server_url', 
 		opts:{
 			validate:function(string){
 				if ( ! string )
@@ -28,11 +28,15 @@ var OPTIONS = [
 		},
 	},
 	{
-		name:'inpage_notification',
+		id:'inpage_notification',
 		opts:{},
 	},
 	{
-		name:'server_pass',
+		id:'server_pass',
+		opts:{}
+	},
+	{
+		id:'enable_keyboard_macro',
 		opts:{}
 	}
 ];
@@ -47,9 +51,9 @@ function save_options() {
 	}
 
 	for ( var i = 0, l = OPTIONS.length; i < l; i++ ) {
-	  var o = OPTIONS[i].name;
+	  var o = OPTIONS[i].id;
 	  var element = document.getElementById(o);
-	  var val;
+	  var val = '';
 	  if ( element.nodeName == 'INPUT' ) {
 			if ( element.type == 'checkbox' ) {
 				if ( element.checked )
@@ -80,7 +84,7 @@ function save_options() {
 		errorNotice.innerHTML = ( validate_message || 'Invalid entry.' );
 		element.parentNode.insertBefore( errorNotice, element.nextSibling );
 	  } else {
-		localStorage.setItem(o,val);
+		localStorage.setItem(o,val,element);
 	  }
 	}
 	// Update status to let user know options were saved.
@@ -95,7 +99,7 @@ function save_options() {
 // Restores select box state to saved value from localStorage.
 function restore_options() {
 	for ( var i = 0, l = OPTIONS.length; i < l; i++ ) {
-	  var o = OPTIONS[i].name;
+	  var o = OPTIONS[i].id;
 	  var val = localStorage.getItem(o);
 	  var element = document.getElementById(o);
 	  if ( typeof val != 'undefined' && element ) {

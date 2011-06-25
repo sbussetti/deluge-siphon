@@ -20,8 +20,9 @@
 	<h1>DelugeSiphon Options</h1>
 	<table cellspacing=0 cellpadding=0 >
 	<tr class="opts"><td align="right">Deluge Server URL:</td><td><input type="text" id="server_url" size="60" class="option_field"/></td></tr>
-	<tr class="opts"><td align="right">Display in-page status notifications:</td><td><input type="checkbox" id="inpage_notification" value="yes" class="option_field"/></td></tr>
 	<tr class="opts"><td align="right">Deluge Server WebUI Password:</td><td><input type="password" id="server_pass" size="40" class="option_field"/></td></tr>
+	<tr class="opts"><td align="right">Display in-page status notifications:</td><td><input type="checkbox" id="inpage_notification" value="yes" class="option_field"/></td></tr>	
+	<tr class="opts"><td align="right">Enable Control + Right Click Macro:</td><td><input type="checkbox" id="enable_keyboard_macro" value="yes" class="option_field"/></td></tr>	
 	<tr><td align="right"><!-- button id="submit_button">Save Options</button --></td><td><span id="status"></span></td></tr>
 </div>
 
@@ -29,7 +30,15 @@
 		//document.getElementById('submit_button').addEventListener('click',save_options,false);
 		var option_fields = document.getElementsByClassName('option_field');
 		for ( var i = 0; i < option_fields.length; i++) {
-			option_fields[i].addEventListener('blur',save_options,false);
+			var field = option_fields[i];
+			var event = '';
+			if ( field.type == 'checkbox' ) {
+				event = 'change';
+			} else {
+				event = 'blur';
+			}
+			field.addEventListener(event,save_options,false);
+				
 		}
 		restore_options();
 </script>

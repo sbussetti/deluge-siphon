@@ -9,6 +9,8 @@
     <script type="text/javascript">
 		communicator.connectToContentScript();
 		communicator.observe(addLinkToDeluge);
+		
+		chrome.extension.onRequest.addListener(handleRequests);
     </script>
   </head>
 </html>

@@ -1,5 +1,20 @@
+function retrieveStorage(port,key){
+	port.postMessage({key:localStorage[key]});
+}
+
+function handleRequests(request, sender, sendResponse){
+    if (request.method.substring(0,8) == "storage-") {
+	  var bits = request.method.split('-');
+	  var key = bits[1];
+      sendResponse({'value': localStorage[key]});
+    } else {
+      sendResponse({}); // snub them.	
+	}
+}
+
+
 function addLinkToDeluge(port,url){
-	//console.log('addLinkToDeluge');
+	//console.log('addLinkToDeluge', port);		
 	var popup = localStorage['inpage_notification'];
 	if ( ! localStorage['server_url'] ) {
 		port.postMessage({error:'Please configure extension.',notify:true});
@@ -213,5 +228,14 @@ function ajax(method,url,params,callback,content_type){
 	http.send(params);
 }
 
-
-
+//oh hooray for new context menu api	
+chrome.extension.onConnect.addListener(function(port){
+	function handle_context_click(info, tab) {
+		addLinkToDeluge(port, info.linkUrl);
+	}
+	var ctx_id = chrome.contextMenus.create({
+			'title': 'Send to deluge',
+			'contexts': ['link'],
+			'onclick':handle_context_click
+		});
+});

@@ -9,6 +9,11 @@
 
 Changelist
 
+v 0.62 Encontextening
+	* Added context menu item.
+	* Added Options item "Enable Control + Rightclick Macro".  Old macro disabled by default.
+	* Unbroke saving options (sorry about that).
+
 v 0.61 Bugfix
 	* More consistent styles for inpage notifications
 	* Better direction of user to options page.
