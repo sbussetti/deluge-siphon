@@ -112,7 +112,6 @@ function _addLocalTorrent (port) {
 	var SERVER_URL = localStorage['server_url'];
 	var torrent_file = localStorage['tmp_download_file'];
 	var options = JSON.parse(localStorage['local_deluge_config']);
-	console.log('DOWNLOAD OPTS:', options);
 	var params = JSON.stringify({	
 					"method":"web.add_torrents",
 					"params":[[{'path': torrent_file, 'options': options}]],
@@ -196,6 +195,7 @@ function handle_readystatechange(http,type,port){
 }
 
 function ajax(method,url,params,callback,content_type){
+	console.log('Requesting: '+url);
 	var http = new XMLHttpRequest();
 	method = method || 'GET';
 	callback = typeof callback == 'function' ? callback : function(){};
