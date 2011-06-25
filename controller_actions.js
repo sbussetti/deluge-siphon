@@ -1,4 +1,5 @@
 function addLinkToDeluge(port,url){
+	//console.log('addLinkToDeluge');
 	if ( ! url || url.charAt((url.length - 1)) == '/' ) {
 		port.postMessage({error:'Invalid URL.',notify:localStorage['inpage_notification']});
 		return;
@@ -8,7 +9,11 @@ function addLinkToDeluge(port,url){
 	_getSession(port);
 }
 
+
+/* This is silly and when i stop being lazy should be reafactored */
+
 function _getSession(port){
+	//console.log('_getSession');
 	var SERVER_URL = localStorage['server_url'];
 	var url = SERVER_URL+'/json';
 	var params = JSON.stringify({
@@ -19,7 +24,46 @@ function _getSession(port){
 	ajax('POST',url,params,function(http){ handle_readystatechange(http,'getsession',port) },'application/json');
 }
 
+
+function _checkDaemonConnection (port) {
+	//console.log('_checkDaemonConnection');
+	var SERVER_URL = localStorage['server_url'];
+	var url = SERVER_URL+'/json';
+	var params = JSON.stringify({
+              'method': 'web.connected',
+			  'params':[],
+			  'id':'-16990'
+	});
+	ajax('POST',url,params,function(http){ handle_readystatechange(http,'checkdaemonconnection',port) },'application/json');
+}
+
+function _getDaemons (port) {
+	//console.log('_getDaemons');
+	var SERVER_URL = localStorage['server_url'];
+	var url = SERVER_URL+'/json';
+	var params = JSON.stringify({
+              'method': 'web.get_hosts',
+			  'params':[],
+			  'id':'-16990'
+	});
+	ajax('POST',url,params,function(http){ handle_readystatechange(http,'getdaemons',port) },'application/json');
+}
+
+function _connectDaemon (port) {
+	//console.log('_connectDaemon');
+	var SERVER_URL = localStorage['server_url'];
+	var HOST_ID = localStorage['host_id'];
+	var url = SERVER_URL+'/json';
+	var params = JSON.stringify({
+              'method': 'web.connect',
+			  'params':[HOST_ID],
+			  'id':'-16991'
+	});
+	ajax('POST',url,params,function(http){ handle_readystatechange(http,'connectdaemon',port) },'application/json');
+}
+
 function _doLogin(port){
+	//console.log('_doLogin');
 	var SERVER_URL = localStorage['server_url'];
 	var SERVER_PASS = localStorage['server_pass'];
 	var url = SERVER_URL+'/json';
@@ -32,6 +76,7 @@ function _doLogin(port){
 }
 
 function _getCurrentConfig(port){
+	//console.log('_getCurrentConfig');
 	var SERVER_URL = localStorage['server_url'];
 	if ( localStorage['local_deluge_config'] ) {
 		_downloadTorrent(port);
@@ -50,6 +95,7 @@ function _getCurrentConfig(port){
 }
 
 function _downloadTorrent (port) {
+	//console.log('_downloadTorrent');
 	var SERVER_URL = localStorage['server_url'];
 	var torrent_url = localStorage['tmp_download_url'];
 	var params = JSON.stringify({	
@@ -62,9 +108,11 @@ function _downloadTorrent (port) {
 }
 
 function _addLocalTorrent (port) {
+	//console.log('_addLocalTorrent');
 	var SERVER_URL = localStorage['server_url'];
 	var torrent_file = localStorage['tmp_download_file'];
 	var options = JSON.parse(localStorage['local_deluge_config']);
+	console.log('DOWNLOAD OPTS:', options);
 	var params = JSON.stringify({	
 					"method":"web.add_torrents",
 					"params":[[{'path': torrent_file, 'options': options}]],
@@ -93,17 +141,50 @@ function handle_readystatechange(http,type,port){
 				_downloadTorrent(port);
 			} else if ( type == 'getsession' ) {
 				if ( payload.result ) {
-					_getCurrentConfig(port);
+					_checkDaemonConnection(port);			
 				} else {
 					port.postMessage({message:'Logging in...',notify:popups});
-					_doLogin(port);
+					_doLogin(port);					
 				}
 			} else if ( type == 'dologin' ) {
 				if ( payload.result ) {
-					_getCurrentConfig(port);
+					//_getCurrentConfig(port);
+					_checkDaemonConnection(port);			
 				} else {
 					port.postMessage({error:'Login failed.',notify:popups});
+				}				
+			} else if ( type == 'checkdaemonconnection' ) {
+				if ( payload.result ) {
+					_getCurrentConfig(port);
+				} else {
+					_getDaemons(port);
+					port.postMessage({message:'Reconnecting webUI...',notify:popups});
 				}
+			} else if ( type == 'getdaemons' ) {
+				if ( payload.result ) {
+					for (var i = 0; i < payload.result.length; i++){
+						var host = payload.result[i];
+						if ( host[3] == 'Online' ) {
+							localStorage['host_id'] = host[0];
+							break;
+						}
+					}
+					// if none online pick the first one and hope for the best...
+					// my current version appears to incorrectly report online state...
+					localStorage['host_id'] = payload.result[0][0];
+					_connectDaemon(port);
+				} else {
+					port.postMessage({message:'Failed, check your deluge server...',notify:popups});
+				}				
+			} else if ( type == 'connectdaemon' ) {
+				//pretty cool, deluge returns the names of all available webui methods in result onconnect
+				if ( payload.result ) {
+					//get config and carry on with execution...
+					port.postMessage({message:'Reconnected to host.',notify:popups});
+					_getCurrentConfig(port);
+				} else {
+					port.postMessage({message:'Failed, check your deluge server...',notify:popups});
+				}								
 			} else {
 				// error
 				port.postMessage({error:'I do not understand: '+type,notify:popups});
@@ -111,7 +192,7 @@ function handle_readystatechange(http,type,port){
 		}
 	} else if(http.readyState == 4) {
 		port.postMessage({error:'Communications Error: '+type,notify:popups});
-	}
+	} 
 }
 
 function ajax(method,url,params,callback,content_type){

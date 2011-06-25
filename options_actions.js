@@ -6,11 +6,25 @@ var OPTIONS = [
 				if ( ! string )
 					return string;
 
-				var regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+				var regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
 				return regexp.test(string) && ! string.match(/\/$/);				
 			},
 			validate_message:'Invalid server url.',
-			required: true
+			required: true,
+			scrubber:function(string){
+				//no trailing / on url makes construction simpler..
+				if ( ! string ) 
+					return '';
+					
+				if ( string.substring(0,4) != 'http' )
+					string = 'http://' + string;					
+					
+				li = string.length - 1
+				if ( string.charAt(li) == '/' )
+					string = string.substring(0, string.length-1);
+
+				return string;					
+			}
 		},
 	},
 	{
@@ -53,7 +67,14 @@ function save_options() {
 	  errorNotice.style.color = 'red';
 	  errorNotice.className = 'validation-message';
 	  
-	  var validate = OPTIONS[i].opts['validate'], validate_message = OPTIONS[i].opts['validate_message'], required = OPTIONS[i].opts['required'];
+	  var validate = OPTIONS[i].opts['validate'];
+	  var validate_message = OPTIONS[i].opts['validate_message'];
+	  var required = OPTIONS[i].opts['required'];
+	  var scrubber = OPTIONS[i].opts['scrubber'];
+	  //apply helpers
+	  if (scrubber)
+		val = scrubber(val);
+	  
 	  if ( required && ( typeof val == 'undefined' || val == null || val == '' ) ) {
 		errorNotice.innerHTML = 'Required field.';
 		element.parentNode.insertBefore( errorNotice, element.nextSibling );
@@ -81,7 +102,6 @@ function restore_options() {
 	  var element = document.getElementById(o);
 	  if ( typeof val != 'undefined' && element ) {
 		  if ( element.nodeName == 'INPUT' ) {
-			  console.log(element.type);
 			  if ( element.type == 'checkbox' ) {
 				  if ( val )
 					  element.checked = true;
