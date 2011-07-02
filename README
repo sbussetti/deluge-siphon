@@ -9,8 +9,8 @@
 
 Changelist
 
-v 0.63 Bugfix
-	* Sorry about creating endless context menu entries.  This is now fixed.
+v 0.63 & 0.63.1 Bugfix
+	* Sorry about all the context menu bugs.  Fixed the "no context menu" and "too many context menu" entries bugs, now you get the right amount all the time.
 
 v 0.62 Encontextening
 	* Added context menu item.

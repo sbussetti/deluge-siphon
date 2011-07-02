@@ -231,14 +231,14 @@ function ajax(method,url,params,callback,content_type){
 //oh hooray for new context menu api	
 var contextCreated = false;
 chrome.extension.onConnect.addListener(function(port){
-	if (! contextCreated){
-		chrome.contextMenus.create({
+	if (contextCreated) 
+		chrome.contextMenus.remove(contextCreated);
+	// have to keep remaking it to keep the port entact.
+	contextCreated = chrome.contextMenus.create({
 			'title': 'Send to deluge',
 			'contexts': ['link'],
 			'onclick':function (info, tab) {
 					addLinkToDeluge(port, info.linkUrl);
 				}
 		});
-		contextCreated = true;
-	}
 });
