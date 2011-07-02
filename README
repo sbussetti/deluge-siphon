@@ -9,6 +9,9 @@
 
 Changelist
 
+v 0.63 Bugfix
+	* Sorry about creating endless context menu entries.  This is now fixed.
+
 v 0.62 Encontextening
 	* Added context menu item.
 	* Added Options item "Enable Control + Rightclick Macro".  Old macro disabled by default.

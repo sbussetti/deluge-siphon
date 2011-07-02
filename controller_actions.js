@@ -229,13 +229,16 @@ function ajax(method,url,params,callback,content_type){
 }
 
 //oh hooray for new context menu api	
+var contextCreated = false;
 chrome.extension.onConnect.addListener(function(port){
-	function handle_context_click(info, tab) {
-		addLinkToDeluge(port, info.linkUrl);
-	}
-	var ctx_id = chrome.contextMenus.create({
+	if (! contextCreated){
+		chrome.contextMenus.create({
 			'title': 'Send to deluge',
 			'contexts': ['link'],
-			'onclick':handle_context_click
+			'onclick':function (info, tab) {
+					addLinkToDeluge(port, info.linkUrl);
+				}
 		});
+		contextCreated = true;
+	}
 });
