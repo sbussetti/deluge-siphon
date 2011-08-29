@@ -6,27 +6,30 @@ function listen(event_owner, event_name, callback)
 
 var communicator = {
   _alreadyConnectedToContentScript: false,
-  _observers: [],
+  _connect_observers: [],
+  _request_observers: [],  
 
   connectToContentScript: function()
   {
     if (this._alreadyConnectedToContentScript) return;
 
-    var observers = this._observers;
-    function contentScriptMessageProcessor(port)
-    {
-	  console.assert(port.name == 'delugesiphon');
-	  port.onMessage.addListener(function(msg) {
-        for (var order_num in observers) observers[order_num](port,msg);
-      });
-    }
-
-	chrome.extension.onConnect.addListener(contentScriptMessageProcessor);
+    var connect_observers = this._connect_observers;
+	chrome.extension.onConnect.addListener(function (port){
+							  console.assert(port.name == 'delugesiphon');
+							  port.onMessage.addListener(function(msg) {
+								for (var order_num in connect_observers) connect_observers[order_num](port,msg);
+							  });
+							});
+	var request_observers = this._request_observers;								
+	chrome.extension.onRequest.addListener(function (method, sender, sendResponse){
+							  for (var order_num in request_observers) request_observers[order_num](method, sender, sendResponse);
+							});
     this._alreadyConnectedToContentScript = true;
   },
-
-  observe: function(callback)
-  {
-    this._observers.push(callback);
+  observeConnect: function(callback){
+    this._connect_observers.push(callback);
   },
+  observeRequest: function(callback){
+    this._request_observers.push(callback);
+  }
 };

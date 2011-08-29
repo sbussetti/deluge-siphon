@@ -6,12 +6,6 @@
 	<script type="text/javascript" src="JSON.js"></script>
     <script type="text/javascript" src="controller_communicator.js"></script>
     <script type="text/javascript" src="controller_actions.js"></script>
-    <script type="text/javascript">
-		communicator.connectToContentScript();
-		communicator.observe(addLinkToDeluge);
-		
-		chrome.extension.onRequest.addListener(handleRequests);
-    </script>
   </head>
 </html>
 

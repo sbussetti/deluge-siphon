@@ -3,20 +3,7 @@
 	var CONTROL_KEY = 17,RIGHT_CLICK = 2;
 	var keycode,timeout;
 
-	port_to_controller.onMessage.addListener(function(msg){
-		if ( msg.error ) {
-			//error
-			message('error',msg.error,msg.notify);
-		} else if ( msg.message ) {
-			//message
-			message('message',msg.message,msg.notify);
-		} else {
-			//error
-			message('error','Extension Communications Error.',msg.notify);
-		}
-	});
-
-	function message(type,msg_txt,notify){
+	/*function message(type,msg_txt,notify){
 		if ( notify ) {
 			if ( timeout )
 				clearTimeout(timeout);
@@ -45,9 +32,24 @@
 			var label = ( type == 'message' ? 'MESSAGE' : 'ERROR' );
 			console.log('MESSAGE:',msg_txt);
 		}
-	}
+	}*/
 
-	function addToDeluge(url) { port_to_controller.postMessage(url); }
+	function addToDeluge(url) { 
+		chrome.extension.sendRequest({method:'addlink-todeluge', url:url});
+		
+		/*, function(response){
+				if ( response.error ) {
+					//error
+					message('error',response.error,response.notify);
+				} else if ( response.message ) {
+					//message
+					message('message',response.message,response.notify);
+				} else {
+					//error
+					message('error','Extension Communications Error.',response.notify);
+				}
+			});*/
+	}
 
 	function handle_keydown(e) {
 		keycode = e.keyCode;
