@@ -1,76 +1,27 @@
 (function(){
-	var port_to_controller = chrome.extension.connect({name: "delugesiphon"});
+	var port_to_controller;
 	var CONTROL_KEY = 17,RIGHT_CLICK = 2;
 	var keycode,timeout;
-
-	/*function message(type,msg_txt,notify){
-		if ( notify ) {
-			if ( timeout )
-				clearTimeout(timeout);
-
-			var notifyEle = document.getElementById('delugesiphon-popup-notify');
-			var icon_col = document.getElementById('delugesiphon-icon'),message_col = document.getElementById('delugesiphon-message');
-			if ( !notifyEle) {
-				notifyEle = document.createElement('div');
-				notifyEle.id = 'delugesiphon-popup-notify';
-
-				icon_col = document.createElement('div'), message_col = document.createElement('div');
-				icon_col.id = 'delugesiphon-icon',	message_col.id = 'delugesiphon-message';
-				notifyEle.appendChild(icon_col); notifyEle.appendChild(message_col);
-				document.body.appendChild(notifyEle);
-			}
-			var icon = chrome.extension.getURL('icon.png');
-			icon_col.style.backgroundImage = "url('"+icon+"')";
-			message_col.innerHTML = msg_txt;
-
-			timeout=setTimeout(function(){
-				document.body.removeChild(notifyEle);
-			},5000);
-			
-
-		} else {
-			var label = ( type == 'message' ? 'MESSAGE' : 'ERROR' );
-			console.log('MESSAGE:',msg_txt);
-		}
-	}*/
+	var flag = 'Chrome_Extension_DelugeSiphon_Installed';
 
 	function addToDeluge(url) { 
 		chrome.extension.sendRequest({method:'addlink-todeluge', url:url});
-		
-		/*, function(response){
-				if ( response.error ) {
-					//error
-					message('error',response.error,response.notify);
-				} else if ( response.message ) {
-					//message
-					message('message',response.message,response.notify);
-				} else {
-					//error
-					message('error','Extension Communications Error.',response.notify);
-				}
-			});*/
 	}
-
 	function handle_keydown(e) {
 		keycode = e.keyCode;
 	}
-
 	function handle_keyup(e) {
 		keycode = null;
 	}
-
 	function handle_click(e) {
 		var button = e.button;
 		if ( keycode != CONTROL_KEY || button != RIGHT_CLICK )
 			return;
-
 		e.preventDefault();
 		e.stopPropagation();
-
 		addToDeluge(this.href);
 	}
-
-	var flag = 'Chrome_Extension_DelugeSiphon_Installed';
+	/* install keyboard macro */
 	if (!document[flag])  {			
 		chrome.extension.sendRequest({method: "storage-enable_keyboard_macro"}, function(response) {
 			if ( response.value ) {

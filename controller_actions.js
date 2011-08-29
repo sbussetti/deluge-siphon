@@ -1,10 +1,8 @@
-
-function delugeConnection(sendResponse, url){
-	this.sendResponse = function(msg) { sendResponse(msg) };
+function delugeConnection(url){
 	this.torrent_url = url;
 	this.torrent_file = '';	
 	this.state = '';
-	
+	notify('Deluge Siphon', 'Requesting link...');//post back to FE
 	this._getSession(); // right now getSession cascades through and ultimately downloads, to ensure we always have a fresh session with the server.
 };
 delugeConnection.prototype._getSession = function(){
@@ -116,6 +114,10 @@ delugeConnection.prototype._addLocalTorrent = function() {
 	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http) },'application/json');
 };
 delugeConnection.prototype.handle_readystatechange = function(http){  // this dispatches all the communication...
+	if (xmlHttpTimeout) {
+		clearTimeout(xmlHttpTimeout)
+		xmlHttpTimeout = null;
+	}
 	if(http.readyState == 4 && http.status == 200) {
 		var payload = JSON.parse(http.responseText||'{}');
 		if ( payload.error ) {
@@ -126,7 +128,6 @@ delugeConnection.prototype.handle_readystatechange = function(http){  // this di
 				localStorage['tmp_download_file'] = payload.result;
 				this._addLocalTorrent();
 			} else if ( this.state == 'addtorrent' ) {
-				//notify success
 				notify('Deluge Siphon', 'Torrent added successfully');
 			} else if ( this.state == 'getconfig' ) {
 				localStorage['local_deluge_config'] = JSON.stringify(payload.result);
@@ -184,7 +185,7 @@ delugeConnection.prototype.handle_readystatechange = function(http){  // this di
 		notify('Deluge Siphon', 'Communications Error: '+this.state);
 	} 
 }
-
+var xmlHttpTimeout;
 function ajax(method, url, params, callback, content_type){
 	var http = new XMLHttpRequest();
 	method = method || 'GET';
@@ -195,6 +196,10 @@ function ajax(method, url, params, callback, content_type){
 	http.setRequestHeader("Content-type", content_type);
 	http.onreadystatechange = function(){ callback(http); };
 	http.send(params);
+	xmlHttpTimeout=setTimeout(function(){
+		if (http.readyState) //still going..
+			http.abort();
+	},5000);
 }
 
 function handleRequests(request, sender, sendResponse){
@@ -216,17 +221,19 @@ function handleRequests(request, sender, sendResponse){
 			notify('Deluge Siphon', 'Error: Invalid URL ['+url+']');
 			return;
 	  }
-	  notify('Deluge Siphon', 'Requesting link...');//post back to FE
-	  new delugeConnection(sendResponse, url);
+	  new delugeConnection(url);
     } else {
       sendResponse({}); // snub them.	
 	}
 }
 
-function notify(title, message) {
+function notify(title, message, decay) {
+	if (!decay)
+		decay = 3000;
 	if (localStorage['inpage_notification']) {
-		var notification = webkitNotifications.createHTMLNotification('icon.png',title,message); 
+		var notification = webkitNotifications.createNotification('icon-48.png',title,message); 
 		notification.show();
+		setTimeout(function(){ notification.cancel() }, decay);
 	}
 }
 
@@ -238,5 +245,5 @@ communicator.observeRequest(handleRequests);
 chrome.contextMenus.create({
 		'title': 'Send to deluge',
 		'contexts': ['link'],
-		'onclick':function (info, tab) { new delugeConnection(function(message) { }, info.linkUrl); }
+		'onclick':function (info, tab) { new delugeConnection(info.linkUrl); }
 	});

@@ -9,6 +9,12 @@
 
 Changelist
 
+v 0.63.2 Bugfix
+	* Spelling error in options page.
+	* Major refactor including:
+		* Ditched old in-page notifications in favor of standard Chrome notifications which are compatible with context menu actions.
+		* Context menu update to resolve issue where right-click menu fails.
+
 v 0.63 & 0.63.1 Bugfix
 	* Sorry about all the context menu bugs.  Fixed the "no context menu" and "too many context menu" entries bugs, now you get the right amount all the time.
 
