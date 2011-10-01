@@ -1,9 +1,11 @@
 (function(){
-	var port_to_controller;
 	var CONTROL_KEY = 17,RIGHT_CLICK = 2;
 	var keycode,timeout;
 	var flag = 'Chrome_Extension_DelugeSiphon_Installed';
 
+	function getDelugeSession() {
+		chrome.extension.sendRequest({method:'addlink-todeluge', url:'file://login', breakpoint:'checkdaemonconnection', silent:true});
+	}
 	function addToDeluge(url) { 
 		chrome.extension.sendRequest({method:'addlink-todeluge', url:url});
 	}
@@ -21,9 +23,21 @@
 		e.stopPropagation();
 		addToDeluge(this.href);
 	}
+	function handle_visibilityChange() {
+		if (! document.webkitHidden) 
+			chrome.extension.sendRequest({method: "storage-set-client_cookie", value:document.cookie});
+	}
+	
+	/* 	Send the document cookie to the backend so that deluge can masquerade as the user.
+		Once on load, and then every time we become the active tab 
+	*/
+	handle_visibilityChange()
+	document.addEventListener("webkitvisibilitychange", handle_visibilityChange, false);
+	/* ensure we just have a valid deluge web ui session */
+	getDelugeSession(); 
 	/* install keyboard macro */
-	if (!document[flag])  {			
-		chrome.extension.sendRequest({method: "storage-enable_keyboard_macro"}, function(response) {
+	if (!document[flag])  {	
+		chrome.extension.sendRequest({method: "storage-get-enable_keyboard_macro"}, function(response) {
 			if ( response.value ) {
 					var anchor_tags = document.getElementsByTagName('a');
 					for ( var i = 0, l = anchor_tags.length; i < l; i++ ) {
