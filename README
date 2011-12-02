@@ -9,6 +9,9 @@
 
 Changelist
 
+v 0.63.4 Bugfix
+	* Fixed a small bug related to connection polling.
+
 v 0.63.3 Bugfix
 	* Added support for all private trackers that do not include authentication tokens in their torrent urls, or require cookies to download torrent files. Should make this compatible with many many more trackers.
 	* Added a link to log into your web-ui from extension tooltip.

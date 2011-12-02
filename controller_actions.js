@@ -121,7 +121,7 @@ delugeConnection.prototype.handle_readystatechange = function(http){  // this di
 		clearTimeout(xmlHttpTimeout)
 		xmlHttpTimeout = null;
 	}
-	if((http.readyState == 4 && http.status == 200) || this.state == 'checkdaemonconnection') { //no matter what comes back from checkcon, just keep going
+	if((http.readyState == 4 && http.status == 200)) {
 		var payload = JSON.parse(http.responseText||'{}');
 		if ( payload.error ) {
 			// probably deluged error
@@ -154,11 +154,12 @@ delugeConnection.prototype.handle_readystatechange = function(http){  // this di
 						notify('Deluge Siphon', 'Error: Login failed');
 				}				
 			} else if ( this.state == 'checkdaemonconnection' ) {
+				//console.log('checkdaemonconnection', payload.error, payload.result, http.responseText);
 				if ( payload.result ) {
 					this._getCurrentConfig();
 				} else {
 					if (! this.silent)
-						notify('Deluge Siphon', 'Reconnecting...');
+						notify('Deluge Siphon', 'Reconnecting');
 					this._getDaemons();					
 				}
 			} else if ( this.state == 'getdaemons' ) {
@@ -172,7 +173,8 @@ delugeConnection.prototype.handle_readystatechange = function(http){  // this di
 					}
 					// if none online pick the first one and hope for the best...
 					// my current deluged version appears to incorrectly report online state...
-					localStorage['host_id'] = payload.result[0][0];
+					//console.log('getdaemons', payload.result);
+					localStorage['host_id'] = typeof payload.result[0] == 'object' ? payload.result[0][0] : payload.result[0];
 					this._connectDaemon();
 				} else {
 					if (! this.silent)
@@ -182,6 +184,7 @@ delugeConnection.prototype.handle_readystatechange = function(http){  // this di
 				//pretty cool, deluge returns the names of all available webui methods in result onconnect
 				if ( payload.result ) {
 					//get config and carry on with execution...
+					//console.log('connectdaemon', payload.error  + ' :: ' + http.responseText);
 					if (! this.silent)
 						notify('Deluge Siphon', 'Reconnected to server');
 					this._getCurrentConfig();
