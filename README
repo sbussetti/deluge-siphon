@@ -9,6 +9,10 @@
 
 Changelist
 
+v 0.63.5 Bugfix
+	* Issue 4: Cleaned up background getsession process, removed some related hacks/debug code.
+	* Issue 5: manifest.json was missing permissions to make XHR requests over https and ftp, despite allowing content scripts to access links of the same protocol.
+
 v 0.63.4 Bugfix
 	* Fixed a small bug related to connection polling.
 
