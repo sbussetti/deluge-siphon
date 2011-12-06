@@ -86,7 +86,7 @@ delugeConnection.prototype._getDaemons = function() {
 	var connection = this;
 	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._getDaemons__callback) },'application/json');
 };
-delugeConnection.prototype._getDaemons__callback = function() {
+delugeConnection.prototype._getDaemons__callback = function(http, payload) {
 	if ( payload.result ) {
 		for (var i = 0; i < payload.result.length; i++){
 			var host = payload.result[i];
