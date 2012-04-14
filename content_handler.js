@@ -3,9 +3,9 @@
 	var keycode,timeout;
 	var flag = 'Chrome_Extension_DelugeSiphon_Installed';
 
-	function getDelugeSession() {
+	/*function getDelugeSession() {
 		chrome.extension.sendRequest({method:'login-todeluge', silent:true});
-	}
+	}*/
 	function addToDeluge(url) { 
 		chrome.extension.sendRequest({method:'addlink-todeluge', url:url});
 	}
@@ -33,7 +33,7 @@
 	handle_visibilityChange()
 	document.addEventListener("webkitvisibilitychange", handle_visibilityChange, false);
 	/* ensure we just have a valid deluge web ui session */
-	getDelugeSession(); 
+	//getDelugeSession(); 
 	/* install keyboard macro */
 	if (!document[flag])  {	
 		chrome.extension.sendRequest({method: "storage-get-enable_keyboard_macro"}, function(response) {

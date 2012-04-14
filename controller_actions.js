@@ -135,7 +135,7 @@ delugeConnection.prototype._connectDaemon__callback = function(http, payload) {
 delugeConnection.prototype._getCurrentConfig = function(){
 	var SERVER_URL = localStorage['server_url'];
 	if ( localStorage['local_deluge_config'] ) { // already cached
-		this._downloadTorrent();
+		this._addTorrent();
 	} else {
 		var url = SERVER_URL+'/json';
 		var params = JSON.stringify({
@@ -154,7 +154,7 @@ delugeConnection.prototype._getCurrentConfig__callback = function(http, payload)
 	//if not this is as far as we can cascade down the automatic
 	//chain...
 	if ( this.torrent_url )
-		this._downloadTorrent();
+		this._addTorrent();
 };
 /* join point */
 delugeConnection.prototype._downloadTorrent = function() {
@@ -176,6 +176,13 @@ delugeConnection.prototype._downloadTorrent__callback = function(http, payload) 
 	this._addLocalTorrent();
 };
 /* join point */
+delugeConnection.prototype._addTorrent = function() {
+	if (this.torrent_url.substr(0,7) == 'magnet:') {
+		this._addRemoteTorrent();
+	} else {
+		this._downloadTorrent(); // which will download and then cascade to adding a local torrent
+	}
+};
 delugeConnection.prototype._addLocalTorrent = function() {
 	var SERVER_URL = localStorage['server_url'];
 	var torrent_file = localStorage['tmp_download_file'];
@@ -191,6 +198,24 @@ delugeConnection.prototype._addLocalTorrent = function() {
 	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._addLocalTorrent__callback) },'application/json');
 };
 delugeConnection.prototype._addLocalTorrent__callback = function(http, payload) {
+	if (! this.silent)
+		notify('Deluge Siphon', 'Torrent added successfully');
+};
+delugeConnection.prototype._addRemoteTorrent = function() {
+	var SERVER_URL = localStorage['server_url'];
+	var torrent_file = this.torrent_url;
+	var options = JSON.parse(localStorage['local_deluge_config']);
+	var params = JSON.stringify({	
+					"method":"web.add_torrents",
+					"params":[[{'path': torrent_file, 'options': options}]],
+					"id":"-17003"
+				});
+	var url = SERVER_URL+'/json';
+	this.state = 'addtorrent';
+	var connection = this;
+	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._addLocalTorrent__callback) },'application/json');
+};
+delugeConnection.prototype._addRemoteTorrent__callback = function(http, payload) {
 	if (! this.silent)
 		notify('Deluge Siphon', 'Torrent added successfully');
 };
@@ -250,7 +275,8 @@ function handleContentRequests(request, sender, sendResponse){
 	  //always return the current value as a response..
       sendResponse({'value': localStorage[key]});
 	  
-	} else if (request.method.substring(0,6) == "login-" ) { // poll for login
+	} /* This just does not work right and seems to really piss the deluge webui off
+	else if (request.method.substring(0,6) == "login-" ) { // poll for login
 	  var bits = request.method.split('-');
 	  var addtype = bits[1];
 	  var silent = request['silent'];	  
@@ -260,7 +286,7 @@ function handleContentRequests(request, sender, sendResponse){
 	  }
 	  new delugeConnection('', 'checkdaemonconnection', silent);
 	  
-	} else if (request.method.substring(0,8) == "addlink-" ) { //add to server request
+	} */ else if (request.method.substring(0,8) == "addlink-" ) { //add to server request
 	  var bits = request.method.split('-');
 	  var addtype = bits[1];
 	  var url = request['url'];

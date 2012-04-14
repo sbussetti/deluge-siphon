@@ -8,6 +8,8 @@
 
 
 Changelist
+v 0.63.6 Magnet Support
+	* Issue 7: Now supporting sending remote magnet links to your deluge server.
 
 v 0.63.5 Bugfix
 	* Issue 4: Cleaned up background getsession process, removed some related hacks/debug code.

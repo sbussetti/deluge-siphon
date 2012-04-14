@@ -6,28 +6,37 @@
 	<style> 
 		* { font-family:helvetica,sans; font-size:11px; }
 		h4 { margin:3px 0 5px; padding:0; }
-		#server-url { padding-left:20px; background:url(login-icon.png) 2px 0 no-repeat; float:right; }
+		#links { float:right; }
+		#server-url, #options { float:right; }
+		#options { margin-right:10px; }
+		#server-url { padding-left:20px; background:url(login-icon.png) 2px 0 no-repeat; }
 	</style>
   </head>
   <body>
   <div style="width:300px;">
-	<h4>DelugeSiphon<div id="server-url" style="display:none;"><a id="server-url-link" target="_deluge_web" href="">Login to Deluge Web UI</a></div></h4>
-
+	<h4>DelugeSiphon 
+		<div id="links">
+			<div id="server-url" style="display:none;"><a id="server-url-link" target="_deluge_web" href="">Web UI</a></div>		
+			<div id="options"><a href="" id="opt-link" target="_blank">Options Page</a></div>
+		</div>
+	</h4>
 	Right click on torrent links to send them to your Deluge server.<br/>
-	Don't forget to configure your server info in this extension's <br/>
-	<a href="" id="opt-link" target="_blank">Options Page</a>.
+	<span id="reminder"></span>
    </div>
-	<script>
+   <script type="text/javascript">
+		var opturl = chrome.extension.getURL("options.html");
+		document.getElementById('opt-link').href = opturl;
+		
 		//ask the backend nicely to tell us the server url entered in Options
 		chrome.extension.sendRequest({method: "storage-get-server_url"}, function(response) {
 			var servurl = response.value;
 			if (servurl) {
 				document.getElementById('server-url').style.display = 'block';
 				document.getElementById('server-url-link').href = servurl;
+			} else {
+				document.getElementById('reminder').innerHTML = 'Don\'t forget to configure your server info first!';
 			}
 		});
-		var opturl = chrome.extension.getURL("options.html");
-		document.getElementById('opt-link').href = opturl;
 	</script>   
   <body>
 </html>
