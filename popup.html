@@ -17,27 +17,12 @@
 	<h4>DelugeSiphon 
 		<div id="links">
 			<div id="server-url" style="display:none;"><a id="server-url-link" target="_deluge_web" href="">Web UI</a></div>		
-			<div id="options"><a href="" id="opt-link" target="_blank">Options Page</a></div>
+			<div id="options"><a href="options.html" id="opt-link" target="_blank">Options Page</a></div>
 		</div>
 	</h4>
 	Right click on torrent links to send them to your Deluge server.<br/>
 	<span id="reminder"></span>
    </div>
-   <script type="text/javascript">
-		var opturl = chrome.extension.getURL("options.html");
-		document.getElementById('opt-link').href = opturl;
-		
-		//ask the backend nicely to tell us the server url entered in Options
-		chrome.extension.sendRequest({method: "storage-get-server_url"}, function(response) {
-			var servurl = response.value;
-			if (servurl) {
-				document.getElementById('server-url').style.display = 'block';
-				document.getElementById('server-url-link').href = servurl;
-			} else {
-				document.getElementById('reminder').innerHTML = 'Don\'t forget to configure your server info first!';
-			}
-		});
-	</script>   
   <body>
 </html>
 
