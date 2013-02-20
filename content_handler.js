@@ -16,12 +16,14 @@
 		keycode = null;
 	}
 	function handle_click(e) {
+
 		var button = e.button;
-		if ( ! (keycode == CONTROL_KEY && button == RIGHT_CLICK) )
-			return;
+		var element = e.target;
+		if ( ! (keycode == CONTROL_KEY && button == RIGHT_CLICK && element.href) ) return;
+		var href = element.href;
 		e.preventDefault();
 		e.stopPropagation();
-		addToDeluge(this.href);
+		addToDeluge(href);
 	}
 	function handle_visibilityChange() {
 		if (! document.webkitHidden) 
@@ -38,15 +40,12 @@
 	if (!document[flag])  {	
 		chrome.extension.sendRequest({method: "storage-get-enable_keyboard_macro"}, function(response) {
 			if ( response.value ) {
-					var anchor_tags = document.getElementsByTagName('a');
-					for ( var i = 0, l = anchor_tags.length; i < l; i++ ) {
-						var a = anchor_tags[i];
-						a.addEventListener('contextmenu',handle_click,false);
-					}
+				// if "Right click" macro enabled
+					window.addEventListener('contextmenu',handle_click,false);
 					document.body.addEventListener('keydown',handle_keydown,false);
 					document.body.addEventListener('keyup',handle_keyup,false);
 			} // else rely on default context menu method		  
 		});
 		document[flag] = true;
 	}
-}());
+}(document));
