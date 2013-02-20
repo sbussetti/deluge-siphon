@@ -1,3 +1,4 @@
+
 var OPTIONS = [
 	{
 		id:'server_url', 
@@ -131,3 +132,23 @@ function getElementsByClassName(classname, node)  {
         if(re.test(els[i].className))a.push(els[i]);
     return a;
 }
+
+
+(function(){
+		//document.getElementById('submit_button').addEventListener('click',save_options,false);
+		var option_fields = document.getElementsByClassName('option_field');
+		for ( var i = 0; i < option_fields.length; i++) {
+			var field = option_fields[i];
+			var event = '';
+			if ( field.type == 'checkbox' ) {
+				event = 'change';
+			} else {
+				event = 'blur';
+			}
+			field.addEventListener(event,save_options,false);
+				
+		}
+		restore_options();
+
+}(document))
+	

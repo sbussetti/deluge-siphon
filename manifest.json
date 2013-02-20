@@ -25,6 +25,9 @@
     "js":         ["content_handler.js"],
     "css":	  []
   }],
+  "manifest_version": 2,
   "options_page": "options.html",
-  "background_page": "controller.html"
+  "background": {
+    "scripts": [ "JSON.js","controller_communicator.js", "controller_actions.js" ]
+  }
 }

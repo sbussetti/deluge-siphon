@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head><title>DelugeSiphon Options</title>
-<script type="text/javascript" src="options_actions.js"></script>
 <style type="text/css">
 	#left_col,#right_col { float:left; margin:3px; }
 	#left_col { width:156px; text-align:center; }
@@ -25,22 +24,7 @@
 	<tr class="opts"><td align="right">Enable Control + Right Click Macro:</td><td><input type="checkbox" id="enable_keyboard_macro" value="yes" class="option_field"/></td></tr>	
 	<tr><td align="right"><!-- button id="submit_button">Save Options</button --></td><td><span id="status"></span></td></tr>
 </div>
+<script type="text/javascript" src="options_actions.js"></script>
 
-<script type="text/javascript">
-		//document.getElementById('submit_button').addEventListener('click',save_options,false);
-		var option_fields = document.getElementsByClassName('option_field');
-		for ( var i = 0; i < option_fields.length; i++) {
-			var field = option_fields[i];
-			var event = '';
-			if ( field.type == 'checkbox' ) {
-				event = 'change';
-			} else {
-				event = 'blur';
-			}
-			field.addEventListener(event,save_options,false);
-				
-		}
-		restore_options();
-</script>
 </body>
 </html>
