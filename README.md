@@ -5,11 +5,11 @@
 
 ## Changelist
 
-### v 0.65 Added support for left-click handling (@lawrencealan)
+### v 0.65 Added support for left-click handling ([lawrencealan]: http://github.com/lawrencealan)
   * Fixed magnet link handling 
   * Added support for regular click handling, with regular expression matching of HREF attributes
 
-### v 0.64 Upgrade to Manifiest 2.0, AJAX link support (@lawrencealan)
+### v 0.64 Upgrade to Manifiest 2.0, AJAX link support ([lawrencealan]: http://github.com/lawrencealan)
   * Upgraded manifest.json and relative files to 2.0
   * Modified event listeners to use a single global "contextmenu" event listener on the window, so that sites that use AJAX updating to insert new links will work without having to re-scan the DOM for new anchor elements. This is also less work for the browser (versus scanning anchor elements) -- any contextmenu events will bubble up to this listener without having multiples. 
 
