@@ -2,6 +2,7 @@
 var OPTIONS = [
 	{
 		id:'server_url', 
+		def: 'http://localhost/user/deluge',
 		opts:{
 			validate:function(string){
 				if ( ! string )
@@ -28,18 +29,11 @@ var OPTIONS = [
 			}
 		},
 	},
-	{
-		id:'inpage_notification',
-		opts:{},
-	},
-	{
-		id:'server_pass',
-		opts:{}
-	},
-	{
-		id:'enable_keyboard_macro',
-		opts:{}
-	}
+	{ id:'inpage_notification',	def: true, opts:{} },
+	{ id:'server_pass', def: "", opts:{}},
+	{ id:'enable_keyboard_macro', def: true, opts:{} },
+	{ id:'enable_leftclick', def: true, opts:{} },
+	{ id:'link_regex', def: "\\.torrent|^magnet:", opts:{} }
 ];
 
 // Saves options to localStorage.
@@ -101,7 +95,7 @@ function save_options() {
 function restore_options() {
 	for ( var i = 0, l = OPTIONS.length; i < l; i++ ) {
 	  var o = OPTIONS[i].id;
-	  var val = localStorage.getItem(o);
+	  var val = localStorage.getItem(o) || OPTIONS[i].def;
 	  var element = document.getElementById(o);
 	  if ( typeof val != 'undefined' && element ) {
 		  if ( element.nodeName == 'INPUT' ) {
