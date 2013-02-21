@@ -287,15 +287,23 @@ function handleContentRequests(request, sender, sendResponse){
 	  new delugeConnection('', 'checkdaemonconnection', silent);
 	  
 	} */ else if (request.method.substring(0,8) == "addlink-" ) { //add to server request
+	  var url_match = false;
 	  var bits = request.method.split('-');
 	  var addtype = bits[1];
 	  var url = request['url'];
 	  var silent = request['silent'];
+	  
 	  if ( ! localStorage['server_url'] ) {
 			notify('Deluge Siphon', 'Please configure extension');
 			return;
 	  }
-	  if ( ! url || ! url.match(/^((file|(ht|f)tp(s?))\:\/\/).+/) ) {
+	  if (!url) {
+			notify('Deluge Siphon', 'Error: Empty URL detected');
+			return;
+	  }
+
+	  url_match = url.match(/^(magnet\:)|((file|(ht|f)tp(s?))\:\/\/).+/) ;
+	  if (!url_match) {
 			notify('Deluge Siphon', 'Error: Invalid URL ['+url+']');
 			return;
 	  }
@@ -310,7 +318,11 @@ function notify(title, message, decay) {
 	if (!decay)
 		decay = 3000;
 	if (localStorage['inpage_notification']) {
-		var notification = webkitNotifications.createNotification('icon-48.png',title,message); 
+		var notification = webkitNotifications.createNotification(
+			  chrome.extension.getURL('/images/notify.png'),
+			title,
+			message
+			); 
 		notification.show();
 		setTimeout(function(){ notification.cancel() }, decay);
 	}
