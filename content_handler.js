@@ -75,7 +75,7 @@
 
 		/* install leftclick handling */
 		chrome.extension.sendRequest({method: "storage-get-enable_leftclick"}, function(response) {
-			console.log(response.value, listeners['click']);
+			//console.log(response.value, listeners['click']);
 			if ( response.value ) {
 				// if "Left click handling" enabled
 				if (! listeners['click'])
