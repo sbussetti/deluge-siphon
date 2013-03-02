@@ -45,49 +45,67 @@ function save_options() {
 		messages[i] = null;
 	}
 
+	var validation_error = false;
+	var mutator = [];
 	for ( var i = 0, l = OPTIONS.length; i < l; i++ ) {
-	  var o = OPTIONS[i].id;
-	  var element = document.getElementById(o);
-	  var val = '';
-	  if ( element.nodeName == 'INPUT' ) {
+		var o = OPTIONS[i].id;
+		var element = document.getElementById(o);
+		var val = '';
+		if ( element.nodeName == 'INPUT' ) {
 			if ( element.type == 'checkbox' ) {
 				if ( element.checked )
 					val = element.value;
 			} else if ( element.type == 'text' || element.type == 'password' ) {
 				val = element.value;
 			}
-	  } else {
+		} else {
 
-	  }
+		}
 
-	  var errorNotice = document.createElement('span');
-	  errorNotice.style.color = 'red';
-	  errorNotice.className = 'validation-message';
-	  
-	  var validate = OPTIONS[i].opts['validate'];
-	  var validate_message = OPTIONS[i].opts['validate_message'];
-	  var required = OPTIONS[i].opts['required'];
-	  var scrubber = OPTIONS[i].opts['scrubber'];
-	  //apply helpers
-	  if (scrubber)
-		val = scrubber(val);
-	  
-	  if ( required && ( typeof val == 'undefined' || val == null || val == '' ) ) {
-		errorNotice.innerHTML = 'Required field.';
-		element.parentNode.insertBefore( errorNotice, element.nextSibling );
-	  } else if ( validate && ! validate(val) ) {
-		errorNotice.innerHTML = ( validate_message || 'Invalid entry.' );
-		element.parentNode.insertBefore( errorNotice, element.nextSibling );
-	  } else {
-		localStorage.setItem(o,val,element);
-	  }
+		var errorNotice = document.createElement('span');
+		errorNotice.style.color = 'red';
+		errorNotice.className = 'validation-message';
+
+		var validate = OPTIONS[i].opts['validate'];
+		var validate_message = OPTIONS[i].opts['validate_message'];
+		var required = OPTIONS[i].opts['required'];
+		var scrubber = OPTIONS[i].opts['scrubber'];
+		
+		//apply helpers
+		if (scrubber) val = scrubber(val);
+
+		//validate
+		if ( required && ( typeof val == 'undefined' || val == null || val == '' ) ) {
+			errorNotice.innerHTML = 'Required field.';
+			element.parentNode.insertBefore( errorNotice, element.nextSibling );
+			validation_error = true;
+		} else if ( validate && ! validate(val) ) {
+			errorNotice.innerHTML = ( validate_message || 'Invalid entry.' );
+			element.parentNode.insertBefore( errorNotice, element.nextSibling );
+			validation_error = true;
+		} else {
+			mutator.push({opt_id: o, opt_val: val, opt_ele: element});
+		}
 	}
-	// Update status to let user know options were saved.
-	var status = document.getElementById("status");
-	status.innerHTML = "Options Saved.";
-	setTimeout(function() {
-		status.innerHTML = "";
-	}, 2000);
+	
+	if (! validation_error) {
+		// if validation passed, then apply the mutator
+		for (var i = 0, l = mutator.length; i < l; i++) {
+			var m = mutator[i];
+			localStorage.setItem(m.opt_id, m.opt_val, m.opt_ele);
+		}
+	
+		// Update status to let user know options were saved.
+		var status = document.getElementById("status");
+		status.innerHTML = "Options Saved.";
+		setTimeout(function() {
+			status.innerHTML = "";
+		}, 2000);
+	}
+}
+
+//show/hides fields that are only relevant to other fields
+function toggleRelatedFields(){
 
 }
 
@@ -128,10 +146,12 @@ function getElementsByClassName(classname, node)  {
 }
 
 
+
+
 (function(){
 		//document.getElementById('submit_button').addEventListener('click',save_options,false);
 		var option_fields = document.getElementsByClassName('option_field');
-		for ( var i = 0; i < option_fields.length; i++) {
+		for ( var i = 0, l = option_fields.length; i < l; i++) {
 			var field = option_fields[i];
 			var event = '';
 			if ( field.type == 'checkbox' ) {

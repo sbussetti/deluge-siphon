@@ -1,12 +1,12 @@
 {
   "name": "DelugeSiphon",
-  "version": "0.65",
+  "version": "0.65.1",
   "description": "Adds links to a remote Deluge server",
   "browser_action": {
     "defaultTitle":"DelugeSiphon",
-    "default_icon": {                    // optional
-      "19": "icon-16.png",           // optional
-      "38": "icon-48.png"           // optional
+    "default_icon": {
+      "19": "icon-19.png",
+      "38": "icon-38.png"
     },
 	"default_popup": "popup.html"
   },

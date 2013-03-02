@@ -4,10 +4,11 @@
 <style type="text/css">
 	#left_col,#right_col { float:left; margin:3px; }
 	#left_col { width:156px; text-align:center; }
-	html,body { font-family:helvetica, sans; }
+	html,body { font-family:helvetica, sans; background: #FFF; }
 	h1 { padding:0; margin:4px 0 6px; }
 	td {  padding:3px;  }
-	tr.opts td { border-bottom:1px dotted #CCC; }
+	tbody.opts tr td { vertical-align: baseline; background: #EEE;}
+	table tbody.opts tr:last-child td { border-bottom:3px solid #FFF; }
 </style>
 </head>
 <body>
@@ -18,20 +19,27 @@
 <div id="right_col">
 	<h1>DelugeSiphon Options</h1>
 	<table cellspacing=0 cellpadding=0 >
-	<tr class="opts"><td align="right">Deluge Server URL:</td><td><input type="text" id="server_url" size="60" class="option_field"/></td></tr>
-	<tr class="opts"><td align="right">Deluge Server WebUI Password:</td><td><input type="password" id="server_pass" size="40" class="option_field"/></td></tr>
-	<tr class="opts"><td align="right">Display notifications:</td><td><input type="checkbox" id="inpage_notification" value="yes" class="option_field"/></td></tr>	
-
-	<tr class="opts"><td align="right">Enable Left Click handling</td><td><input type="checkbox" id="enable_leftclick" value="yes" class="option_field"/></td></tr>	
-
-	<tr class="opts"><td align="right">RegEx pattern for torrent links (left click only):</td><td><input type="text" id="link_regex" size="60" class="option_field"/><br>
-		ex: <small>\.torrent|^magnet:</small></td></tr>
-
-	<tr class="opts"><td align="right">Enable Control + Right Click Macro:</td><td><input type="checkbox" id="enable_keyboard_macro" value="yes" class="option_field"/></td></tr>	
-	
-	<tr><td align="right"><!-- button id="submit_button">Save Options</button --></td><td><span id="status"></span></td></tr>
+	<tbody class="opts">
+		<tr><td align="right">Deluge Server URL:</td><td><input type="text" id="server_url" size="60" class="option_field"/></td></tr>
+	</tbody>
+	<tbody class="opts">
+		<tr><td align="right">Deluge Server WebUI Password:</td><td><input type="password" id="server_pass" size="40" class="option_field"/></td></tr>
+	</tbody>
+	<tbody class="opts">
+		<tr><td align="right">Display notifications:</td><td><input type="checkbox" id="inpage_notification" value="yes" class="option_field"/></td></tr>	
+	</tbody>
+	<tbody class="opts">
+		<tr><td align="right">Enable Left Click handling</td><td><input type="checkbox" id="enable_leftclick" value="yes" class="option_field"/></td></tr>	
+		<tr><td align="right">RegEx pattern for Left Click on torrent links:</td><td><input type="text" id="link_regex" size="60" class="option_field"/><br>
+			ex: <small>\.torrent|^magnet:</small></td></tr>
+	</tbody>
+	<tbody class="opts">
+		<tr><td align="right">Enable Control + Right Click Macro:</td><td><input type="checkbox" id="enable_keyboard_macro" value="yes" class="option_field"/></td></tr>	
+	</tbody>
+	<tbody>
+		<tr><td align="right"><!-- button id="submit_button">Save Options</button --></td><td><span id="status"></span></td></tr>
+	</tbody>
 </div>
 <script type="text/javascript" src="options_actions.js"></script>
-
 </body>
 </html>

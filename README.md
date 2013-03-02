@@ -5,6 +5,11 @@
 
 ## Changelist
 
+### v 0.65.1 Visual updates.
+  * Added nice new toolbar icons that follow Google size recommendations
+  * Minor restyle of options and popup pages for clarity.
+  * better validation/save functionality on options page.
+
 ### v 0.65 Added support for left-click handling ([lawrencealan](http://github.com/lawrencealan))
   * Fixed magnet link handling 
   * Added support for regular click handling, with regular expression matching of HREF attributes
