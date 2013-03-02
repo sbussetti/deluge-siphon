@@ -5,6 +5,9 @@
 
 ## Changelist
 
+### v 0.65.3 Bugfix
+  * Committed .2 too early, it was not the correct solution.
+
 ### v 0.65.2 Bugfix
   * Fixed bug introduced with default settings logic in 0.65 that prevented turning off some options.
 
