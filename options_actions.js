@@ -29,10 +29,10 @@ var OPTIONS = [
 			}
 		},
 	},
-	{ id:'inpage_notification',	def: true, opts:{} },
+	{ id:'inpage_notification',	def: 'no', opts:{ scrubber:function(value){ if (! value) value = 'no'; return value; } } },
 	{ id:'server_pass', def: "", opts:{}},
-	{ id:'enable_keyboard_macro', def: true, opts:{} },
-	{ id:'enable_leftclick', def: true, opts:{} },
+	{ id:'enable_keyboard_macro', def: 'no', opts:{ scrubber:function(value){ if (! value) value = 'no'; return value; } } },
+	{ id:'enable_leftclick', def: 'no', opts:{ scrubber:function(value){ if (! value) value = 'no'; return value;} } },
 	{ id:'link_regex', def: "\\.torrent|^magnet:", opts:{} }
 ];
 
@@ -104,12 +104,7 @@ function save_options() {
 	}
 }
 
-//show/hides fields that are only relevant to other fields
-function toggleRelatedFields(){
-
-}
-
-// Restores select box state to saved value from localStorage.
+// Restores state to saved value from localStorage.
 function restore_options() {
 	for ( var i = 0, l = OPTIONS.length; i < l; i++ ) {
 	  var o = OPTIONS[i].id;
@@ -118,7 +113,7 @@ function restore_options() {
 	  if ( typeof val != 'undefined' && element ) {
 		  if ( element.nodeName == 'INPUT' ) {
 			  if ( element.type == 'checkbox' ) {
-				  if ( val )
+				  if ( val == 'yes' )
 					  element.checked = true;
 			  } else if ( element.type == 'text' || element.type == 'password' ) {
 				  element.value = val;

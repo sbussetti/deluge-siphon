@@ -5,6 +5,9 @@
 
 ## Changelist
 
+### v 0.65.2 Bugfix
+  * Fixed bug introduced with default settings logic in 0.65 that prevented turning off some options.
+
 ### v 0.65.1 Visual updates.
   * Added nice new toolbar icons that follow Google size recommendations
   * Minor restyle of options and popup pages for clarity.
