@@ -30,17 +30,13 @@ function getElementsByClassName(classname, node)  {
 
 var maxDepth = 20;
 function getParentElementByName(name, node, depth) {
+	if(!node) return;
 	if(!depth) depth = 0;
 	else if (depth >= maxDepth) return;
-	
-	if(!node) node = document.getElementsByTagName("body")[0];
-	
 	var parent = node.parentNode;
 	if(!parent) return;
-	
 	if (name.toUpperCase() != parent.nodeName)
 		parent = getParentElementByName(name, parent, ++depth);
-		
 	return parent;	
 	
 }
