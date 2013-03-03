@@ -1,6 +1,6 @@
 {
   "name": "DelugeSiphon",
-  "version": "0.65.3.1",
+  "version": "0.65.4",
   "description": "Adds links to a remote Deluge server",
   "browser_action": {
     "defaultTitle":"DelugeSiphon",
@@ -25,13 +25,13 @@
   "content_scripts": [{
     "all_frames": true,
     "matches":    ["http://*/*", "https://*/*", "ftp://*/*"], 
-    "js":         ["content_handler.js"],
+    "js":         ["utils.js", "content_handler.js"],
     "css":	  []
   }],
   "manifest_version": 2,
   "options_page": "options.html",
   "background": {
-    "scripts": [ "JSON.js","controller_communicator.js", "controller_actions.js" ]
+    "scripts": [ "JSON.js", "utils.js", "controller_communicator.js", "controller_actions.js" ]
   },
   "web_accessible_resources": [
     "images/notify.png"

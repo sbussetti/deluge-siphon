@@ -5,6 +5,11 @@
 
 ## Changelist
 
+### v 0.65.4 Improvements
+  * Improved handling of server identification.
+  * Used improved server ident to warn users with Deluge < 1.3.3 that they need to upgrade in order to use magnet links.
+  * Improved click event targeting making DelugeSiphon better at getting the torrent url out of the page.  This fixes issues with adding certain types of torrents from thepiratebay and other sites like it.
+
 ### v 0.65.3 Bugfix
   * Committed .2 too early, it was not the correct solution.
 

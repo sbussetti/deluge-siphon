@@ -9,17 +9,22 @@
 	function addToDeluge(url) { 
 		chrome.extension.sendRequest({method:'addlink-todeluge', url:url});
 	}
+	
 	function handle_keydown(e) {
 		keycode = e.keyCode;
 	}
+	
 	function handle_keyup(e) {
 		keycode = null;
 	}
+	
 	function handle_contextmenu(e) {
-
 		var button = e.button;
 		var element = e.target;
-		if ( ! (keycode == CONTROL_KEY && button == RIGHT_CLICK && element.href) ) return;
+		// deal with sites like piratebay with weird markup.
+		if (!element.href) element = getParentElementByName('a', element);
+				
+		if (!element || !(keycode == CONTROL_KEY && button == RIGHT_CLICK && element.href) ) return;
 		var href = element.href;
 		e.preventDefault();
 		e.stopPropagation();
@@ -28,7 +33,10 @@
 
 	function handle_leftclick(e) {
 		var element = e.target;
-		if (!(element.href && element.href.match(torrent_regex))) return;
+		// deal with sites like piratebay with weird markup.
+		if (!element.href) element = getParentElementByName('a', element);
+		
+		if (!element || !(element.href && element.href.match(torrent_regex))) return;
 		var href = element.href;
 		e.preventDefault();
 		e.stopPropagation();
@@ -47,7 +55,10 @@
 	function install_configurable_handlers(){
 		/*	so, this is a step towards a more automated event
 			handler registry, but for now some of this stuff
-			still happens long-hand.
+			still happens long-hand.  Following this pattern
+			lets us turn the event handlers on and off on the
+			fly based on a users settings.  Without it they'd
+			have to refresh any open tabs after a config change.
 		 */
 	
 		/* install control + rightclick keyboard macro */
@@ -75,7 +86,6 @@
 
 		/* install leftclick handling */
 		chrome.extension.sendRequest({method: "storage-get-enable_leftclick"}, function(response) {
-			//console.log(response.value, listeners['click']);
 			if ( response.value ) {
 				// if "Left click handling" enabled
 				if (! listeners['click'])
@@ -100,7 +110,9 @@
 		Once on load, and then every time we become the active tab.  Also rescans handlers. */
 	handle_visibilityChange()
 	// watch for tab changes
-	listeners['webkitvisibilitychange'] = document.addEventListener("webkitvisibilitychange", handle_visibilityChange, false);
+	document.addEventListener("webkitvisibilitychange", handle_visibilityChange, false);
+	listeners['webkitvisibilitychange'] = handle_visibilityChange;
 	// contextmenu is always on, minimally
-	listeners['contextmenu'] = window.addEventListener('contextmenu',handle_contextmenu,false);
+	window.addEventListener('contextmenu',handle_contextmenu,false);
+	listeners['contextmenu'] = handle_contextmenu;
 }(document));
