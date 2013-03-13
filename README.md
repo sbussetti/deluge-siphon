@@ -13,7 +13,6 @@
   * Improved click event targeting making DelugeSiphon better at getting the torrent url out of the page.  This fixes issues with adding certain types of torrents from thepiratebay and other sites like it.
 
 ### v 0.65.3 Bugfix
-  * Committed .2 too early, it was not the correct solution.
 
 ### v 0.65.2 Bugfix
   * Fixed bug introduced with default settings logic in 0.65 that prevented turning off some options.

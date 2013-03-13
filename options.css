@@ -6,3 +6,8 @@ html,body { font-family: 'VT323', cursive; background: #FFF; }
 .content h3 { margin-left: 10px; }
 .sidebar-content { margin: 2px 4px 2px 10px; }
 .validation-message { margin: 0 6px; }
+.navigation h1 { 
+	background:url(icon-19.png) transparent 0 0 no-repeat; 
+	-webkit-margin-start: 13px;
+	padding-left: 26px;
+}

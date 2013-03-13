@@ -144,5 +144,9 @@
 			if (this.checked ) { lcre.removeAttribute('disabled'); }
 			else { lcre.disabled = 'disabled'; }
 		}, false);
+		
+	//display current version
+	var manifest = chrome.runtime.getManifest();
+	document.getElementById('version').innerHTML = manifest.version;
 }(document))
 	
