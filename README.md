@@ -5,6 +5,8 @@
 
 ## Changelist
 
+### v 0.65.5 Visual updates
+
 ### v 0.65.4 Improvements
   * Improved handling of server identification.
   * Used improved server ident to warn users with Deluge < 1.3.3 that they need to upgrade in order to use magnet links.

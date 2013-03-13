@@ -89,18 +89,11 @@
 		}
 		
 		if (! validation_error) {
-			// if validation passed, then apply the mutator
+			// if validation passed, then apply the mutator (save)
 			for (var i = 0, l = mutator.length; i < l; i++) {
 				var m = mutator[i];
 				localStorage.setItem(m.opt_id, m.opt_val, m.opt_ele);
-			}
-		
-			// Update status to let user know options were saved.
-			var status = document.getElementById("status");
-			status.innerHTML = "Options Saved.";
-			setTimeout(function() {
-				status.innerHTML = "";
-			}, 2000);
+			}		
 		}
 	}
 
@@ -130,7 +123,6 @@
 		localStorage.clear();
 		save_options();
 	}
-
 	
 	var option_fields = document.getElementsByClassName('option_field');
 	for ( var i = 0, l = option_fields.length; i < l; i++) {
@@ -144,5 +136,13 @@
 		field.addEventListener(event,save_options,false);
 	}
 	restore_options();
+	
+	//special handler for combo regex field
+	var elc = document.getElementById('enable_leftclick');
+	var lcre = document.getElementById('link_regex');
+	elc.addEventListener('change', function(e){
+			if (this.checked ) { lcre.removeAttribute('disabled'); }
+			else { lcre.disabled = 'disabled'; }
+		}, false);
 }(document))
 	

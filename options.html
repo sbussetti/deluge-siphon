@@ -1,46 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head><title>DelugeSiphon Options</title>
-<style type="text/css">
-	#left_col,#right_col { float:left; margin:3px; }
-	#left_col { width:156px; text-align:center; }
-	html,body { font-family:helvetica, sans; background: #FFF; }
-	h1 { padding:0; margin:4px 0 6px; }
-	td {  padding:3px;  }
-	tbody.opts tr td { vertical-align: baseline; background: #EEE;}
-	table tbody.opts tr:last-child td { border-bottom:3px solid #FFF; }
-</style>
+<link rel="stylesheet" type="text/css" href="chrome-bootstrap.css">
+<link rel="stylesheet" type="text/css" href="options.css">
 </head>
-<body>
+<body class="frame">
+	<div class="navigation">
+		<h1>DelugeSiphon</h1>
+		<div class="sidebar-content">
+		<img src="icon-128.png" border=0/> 
+		
+		</div>
+	</div>
+	<div class="mainview view">
+		<div id="options" class="selected">
+			<header>
+				<h1>Options</h1>
+			</header>
+			<div class="content">
+				<h2>Connection Info</h2>
+				<h3>Deluge Server URL</h3>
+				<div class="textinput opts">
+					<label>
+						<input type="text" id="server_url" size="60" class="option_field" />
+					</label>
+				</div>
+				<h3>Deluge Server WebUI Password</h3>
+				<div class="textinput opts">
+					<label>
+						<input type="password" id="server_pass" size="40" class="option_field" />		
+					</label>
+				</div>
+				<h2>Notifications</h2>
+				<div class="checkbox opts">
+					<label>
+						<input type="checkbox" id="inpage_notification" value="yes" class="option_field" />
+						<span>Display notifications</span>
+					</label>
+				</div>
+				<h2>Input</h2>
+				<div class="checkbox opts">
+					<label>
+						<input type="checkbox" id="enable_keyboard_macro" value="yes" class="option_field"/>
+						<span>Enable control + right click macro</span>						
+					</label>
+				</div>					
+				<div class="checkbox opts">
+					<label>
+						<input type="checkbox" id="enable_leftclick" value="yes" class="option_field"/>
+						<span>Enable left click handling</span>
+					</label>
+				</div>			
+				<h3>RegEx pattern for left click on torrent links</h3>
+				<div class="textinput opts">
+					<label>
+						<input type="text" id="link_regex" size="60" class="option_field"/>
+						<br/>
+						<span><small>ex: \.torrent|^magnet:</small></span>						
+					</label>
+				</div>
 
-<div id="left_col">
-	<img src="icon-128.png" border=0/> 
-</div>
-<div id="right_col">
-	<h1>DelugeSiphon Options</h1>
-	<table cellspacing=0 cellpadding=0 >
-	<tbody class="opts">
-		<tr><td align="right">Deluge Server URL:</td><td><input type="text" id="server_url" size="60" class="option_field"/></td></tr>
-	</tbody>
-	<tbody class="opts">
-		<tr><td align="right">Deluge Server WebUI Password:</td><td><input type="password" id="server_pass" size="40" class="option_field"/></td></tr>
-	</tbody>
-	<tbody class="opts">
-		<tr><td align="right">Display notifications:</td><td><input type="checkbox" id="inpage_notification" value="yes" class="option_field"/></td></tr>	
-	</tbody>
-	<tbody class="opts">
-		<tr><td align="right">Enable Left Click handling</td><td><input type="checkbox" id="enable_leftclick" value="yes" class="option_field"/></td></tr>	
-		<tr><td align="right">RegEx pattern for Left Click on torrent links:</td><td><input type="text" id="link_regex" size="60" class="option_field"/><br>
-			ex: <small>\.torrent|^magnet:</small></td></tr>
-	</tbody>
-	<tbody class="opts">
-		<tr><td align="right">Enable Control + Right Click Macro:</td><td><input type="checkbox" id="enable_keyboard_macro" value="yes" class="option_field"/></td></tr>	
-	</tbody>
-	<tbody>
-		<tr><td align="right"></td><td><span id="status"></span></td></tr>
-	</tbody>
+			</div>
+		</div>
+	</div>
 </div>
 <script type="text/javascript" src="utils.js"></script>
-<script type="text/javascript" src="options_actions.js"></script>
+<script type="text/javascript" src="options.js"></script>
 </body>
 </html>
