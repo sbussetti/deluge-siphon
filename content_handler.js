@@ -51,8 +51,10 @@
 			if ( response.value ) {
 				// if "Right click" macro enabled
 					window.addEventListener('contextmenu',handle_contextmenu,false);
-					document.body.addEventListener('keydown',handle_keydown,false);
-					document.body.addEventListener('keyup',handle_keyup,false);
+					if(document.body) {
+						document.body.addEventListener('keydown',handle_keydown,false);
+						document.body.addEventListener('keyup',handle_keyup,false);
+					}
 			} // else rely on default context menu method		  
 		});
 
