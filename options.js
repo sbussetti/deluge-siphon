@@ -33,7 +33,7 @@
 		{ id:'server_pass', def: "", opts:{}},
 		{ id:'enable_keyboard_macro', def: true, opts:{} },
 		{ id:'enable_leftclick', def: true, opts:{} },
-		{ id:'link_regex', def: "\\.torrent|^magnet:", opts:{} }
+		{ id:'link_regex', def: "\\.torrent$|^magnet:|^magnet:", opts:{} }
 	];
 
 	// Saves options to localStorage.
