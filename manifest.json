@@ -1,7 +1,7 @@
 {
   "name": "DelugeSiphon",
-  "version": "0.65.5",
-  "description": "Adds links to a remote Deluge server",
+  "version": "0.65.6",
+  "description": "Send your links to a Deluge server.",
   "browser_action": {
     "defaultTitle":"DelugeSiphon",
     "default_icon": {
@@ -19,6 +19,7 @@
 	"http://*/*", 
 	"https://*/*", 
 	"ftp://*/*",
+	"cookies",
 	"contextMenus",
 	"notifications"
   ],

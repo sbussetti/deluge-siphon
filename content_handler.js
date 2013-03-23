@@ -7,7 +7,7 @@
 		chrome.extension.sendRequest({method:'login-todeluge', silent:true});
 	}*/
 	function addToDeluge(url) { 
-		chrome.extension.sendRequest({method:'addlink-todeluge', url:url});
+		chrome.extension.sendRequest({method:'addlink-todeluge', url:url, domain:document.domain});
 	}
 	
 	function handle_keydown(e) {
@@ -45,8 +45,6 @@
 	
 	function handle_visibilityChange() {
 		if (! document.webkitHidden) {
-			// get client cookie of active tab
-			chrome.extension.sendRequest({method: "storage-set-client_cookie", value:document.cookie});
 			// check if settings have changed and adjust handlers accordingly
 			install_configurable_handlers();
 		}

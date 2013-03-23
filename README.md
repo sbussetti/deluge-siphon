@@ -5,6 +5,10 @@
 
 ## Changelist
 
+### v 0.65.6 Bugfix
+  * Improved adding links from some sites.
+  * Resolved issue: https://github.com/sbussetti/deluge-siphon/issues/2
+
 ### v 0.65.5 Visual updates
 
 ### v 0.65.4 Improvements

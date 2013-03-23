@@ -8,11 +8,13 @@ var DAEMON_INFO = {
 		};
 var SERVER_URL = localStorage['server_url'];
 
-function delugeConnection(url, silent){
+function delugeConnection(url, cookie_domain, silent){
 	this.torrent_url = url;
 	this.torrent_file = '';	
 	this.state = '';
 	this.silent = silent;
+	
+	//console.log(url, cookie_domain, silent);
 	
 	//invalidate cached config info on server change
 	if (SERVER_URL != localStorage['server_url']) {
@@ -24,6 +26,22 @@ function delugeConnection(url, silent){
 		};
 		SERVER_URL = localStorage['server_url'];		
 	}
+	
+	//get cookies for the current domain
+	chrome.cookies.getAll({'domain': cookie_domain}, function(cookies){
+			var cookdict = {};
+			// dedupe by hash collision
+			for (var i = 0; i < cookies.length; i++)  {
+				var cook = cookies[i];
+				cookdict[cook.name] = cook.value;
+			}
+			var cooklist = [];
+			for (var name in cookdict) {
+				cooklist.push(name + '=' + cookdict[name])
+			}
+			//save out of scope..
+			this.cookie = cooklist.join(';');
+		}.bind(this));
 	
 	if (! this.silent)
 		notify('DelugeSiphon', 'Requesting link...');//post back to FE
@@ -87,8 +105,6 @@ delugeConnection.prototype._checkDaemonConnection__callback = function(http, pay
 	if ( payload.result && DAEMON_INFO['host_id']) {
 		this._getCurrentConfig();
 	} else {
-		if (! this.silent)
-			notify('DelugeSiphon', 'Reconnecting');
 		this._getDaemons();					
 	}
 };
@@ -204,13 +220,14 @@ delugeConnection.prototype._addTorrent = function() {
 	}
 };
 delugeConnection.prototype._downloadTorrent = function() {
-	var cookie = localStorage['client_cookie'];
 	var TORRENT_URL = this.torrent_url;
+	var CLIENT_COOKIE = this.cookie;
 	var params = JSON.stringify({	
 					"method":"web.download_torrent_from_url",
-					"params":[TORRENT_URL, cookie],
+					"params":[TORRENT_URL, CLIENT_COOKIE],
 					"id":"-17002"
 				});
+	//console.log('DLPRAMS', params);
 	var url = SERVER_URL+'/json';
 	this.state = 'downloadlink';
 	var connection = this;
@@ -309,6 +326,7 @@ function handleContentRequests(request, sender, sendResponse){
 	  var addtype = bits[1];
 	  var url = request['url'];
 	  var silent = request['silent'];
+	  var domain = request['domain'];
 	  
 	  if ( ! localStorage['server_url'] ) {
 			notify('DelugeSiphon', 'Please configure extension options', -1);
@@ -324,7 +342,7 @@ function handleContentRequests(request, sender, sendResponse){
 			notify('DelugeSiphon', 'Error: Invalid URL ['+url+']');
 			return;
 	  }
-	  new delugeConnection(url, null, silent);
+	  new delugeConnection(url, domain, silent);
 	  
     } else {
       sendResponse({}); // snub them.	
@@ -354,5 +372,11 @@ communicator.observeRequest(handleContentRequests);
 chrome.contextMenus.create({
 		'title': 'Send to deluge',
 		'contexts': ['link'],
-		'onclick':function (info, tab) { new delugeConnection(info.linkUrl); }
+		'onclick':function (info, tab) { 
+			var s1 = info.linkUrl.indexOf('//') + 2;
+			var domain = info.linkUrl.substring(s1);
+			var s2 = domain.indexOf('/');
+			if (s2 >= 0) { domain = domain.substring(0, s2); }
+			new delugeConnection(info.linkUrl, domain);
+		}
 	});
