@@ -1,6 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=VT323);
-
-html,body { font-family: 'VT323', cursive; background: #FFF; }
+html,body { background: #FFF; }
 .textinput { margin: 10px 0; }
 .opts { margin-left: 10px; }
 .content h3 { margin-left: 10px; }

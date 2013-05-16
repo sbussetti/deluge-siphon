@@ -11,6 +11,7 @@ var SERVER_URL = localStorage['server_url'];
 function delugeConnection(url, cookie_domain, silent){
 	this.torrent_url = url;
 	this.torrent_file = '';	
+	this.tmp_download_file = '';
 	this.state = '';
 	this.silent = silent;
 	
@@ -234,16 +235,46 @@ delugeConnection.prototype._downloadTorrent = function() {
 	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._downloadTorrent__callback) },'application/json');
 };
 delugeConnection.prototype._downloadTorrent__callback = function(http, payload) {
-	localStorage['tmp_download_file'] = payload.result;
-	this._addLocalTorrent();
+	this.tmp_download_file = payload.result;
+	this._getTorrentInfo();
 };
+
+
+delugeConnection.prototype._getTorrentInfo = function() {
+	var TORRENT_URL = this.torrent_url;
+	var CLIENT_COOKIE = this.cookie;
+	var params = JSON.stringify({	
+					"method":"web.get_torrent_info",
+					"params":[this.tmp_download_file],
+					"id":"-17003"
+				});
+
+	var url = SERVER_URL+'/json';
+	this.state = 'checklink';
+	var connection = this;
+	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._getTorrentInfo__callback) },'application/json');
+};
+delugeConnection.prototype._getTorrentInfo__callback = function(http, payload) {
+	//console.log(this.state, http, payload);
+	if (! payload || ! payload.result) {
+		if (! this.silent)
+			notify('DelugeSiphon', 'Not a valid torrent: ' + this.torrent_url);
+	} else {	
+		this._addLocalTorrent();
+	}
+};
+
+
+
+
+
 delugeConnection.prototype._addLocalTorrent = function() {
-	var torrent_file = localStorage['tmp_download_file'];
+	var torrent_file = this.tmp_download_file;
 	var options = JSON.parse(DELUGE_CONFIG);
 	var params = JSON.stringify({	
 					"method":"web.add_torrents",
 					"params":[[{'path': torrent_file, 'options': options}]],
-					"id":"-17003"
+					"id":"-17004.0"
 				});
 	var url = SERVER_URL+'/json';
 	this.state = 'addtorrent';
@@ -251,7 +282,7 @@ delugeConnection.prototype._addLocalTorrent = function() {
 	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._addLocalTorrent__callback) },'application/json');
 };
 delugeConnection.prototype._addLocalTorrent__callback = function(http, payload) {
-	if (! this.silent)
+	if (! this.silent) 
 		notify('DelugeSiphon', 'Torrent added successfully');
 };
 delugeConnection.prototype._addRemoteTorrent = function() {
@@ -260,7 +291,7 @@ delugeConnection.prototype._addRemoteTorrent = function() {
 	var params = JSON.stringify({	
 					"method":"web.add_torrents",
 					"params":[[{'path': torrent_file, 'options': options}]],
-					"id":"-17003"
+					"id":"-17004.1"
 				});
 	var url = SERVER_URL+'/json';
 	this.state = 'addtorrent';
@@ -276,24 +307,27 @@ delugeConnection.prototype.handle_readystatechange = function(http, callback){  
 		clearTimeout(xmlHttpTimeout)
 		xmlHttpTimeout = null;
 	}
-	if((http.readyState == 4 && http.status == 200)) {
-		var payload = JSON.parse(http.responseText||'{}');
-		if ( payload.error ) {
-			if (! this.silent)
-				notify('DelugeSiphon', 'Error: ' + (payload.error.message || this.state), 10000);
-		} else {
-			callback.apply(this, [http, payload]);
+	if(http.readyState == 4) {
+		if(http.status == 200) {
+			var payload = JSON.parse(http.responseText||'{}');
+			if ( payload.error ) {
+				if (! this.silent)
+					notify('DelugeSiphon', 'Error: ' + (payload.error.message || this.state), 10000);
+			} else {
+				callback.apply(this, [http, payload]);
+			}
+		} else { //deluge-web error, or a deluged error that causes a web error
+			if (this.state == 'checklink') {
+				if (! this.silent)
+					notify('DelugeSiphon', 'Not a valid torrent: ' + this.torrent_url);
+			} else {
+				if (! this.silent) {
+					notify('DelugeSiphon', 'Your deluge server responded with an error trying to add: ' + this.torrent_url + '. Check the console of the background page for more details.');
+					console.log(this.state, http, payload);
+				}
+			}
 		}
-	} else if(http.readyState == 4) { //deluge-web error, or a deluged error that causes a web error
-		if (this.state == 'downloadlink') { //trying to download something that isn't a torrent file can cause this
-			if (! this.silent)
-				notify('DelugeSiphon', 'Are you sure this is a torrent file? ' + this.torrent_url);
-		} else {
-			if (! this.silent)
-				notify('DelugeSiphon', 'Error: ' + this.state);
-		}
-	} 
-	return;
+	}
 }
 
 function handleContentRequests(request, sender, sendResponse){

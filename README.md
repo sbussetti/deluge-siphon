@@ -5,6 +5,11 @@
 
 ## Changelist
 
+### v 0.65.8 Better torrent checking
+  * Server now pre-checks torrents to try and verify if they are valid before attempting to add them.  This should hopefully improve users' ability to identify issues when adding.
+
+### v 0.65.7 Logging adjustment
+
 ### v 0.65.6 Bugfix
   * Improved adding links from some sites.
   * Resolved issue: https://github.com/sbussetti/deluge-siphon/issues/2
