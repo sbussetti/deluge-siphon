@@ -263,11 +263,6 @@ delugeConnection.prototype._getTorrentInfo__callback = function(http, payload) {
 		this._addLocalTorrent();
 	}
 };
-
-
-
-
-
 delugeConnection.prototype._addLocalTorrent = function() {
 	var torrent_file = this.tmp_download_file;
 	var options = JSON.parse(DELUGE_CONFIG);

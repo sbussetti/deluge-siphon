@@ -1,6 +1,6 @@
 # DelugeSiphon - Open Source Extension for Chrome
   Author: S Bussetti
-  Web: http://deluge-siphon.googlecode.com/
+  Web: https://github.com/sbussetti/deluge-siphon
   Released under the Apache License 2.0
 
 ## Changelist
