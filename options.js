@@ -34,7 +34,7 @@
 		{ id:'enable_context_menu', def: true, opts:{} },
 		{ id:'enable_keyboard_macro', def: true, opts:{} },
 		{ id:'enable_leftclick', def: false, opts:{} },
-		{ id:'link_regex', def: "\\.torrent$|^magnet:|^magnet:", opts:{} }
+		{ id:'link_regex', def: "\\.torrent$|torrents\\.php\\?.+|^magnet:", opts:{} }
 	];
 
 	// Saves options to localStorage.
