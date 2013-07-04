@@ -31,8 +31,9 @@
 		},
 		{ id:'inpage_notification',	def: true, opts:{} },
 		{ id:'server_pass', def: "", opts:{}},
+		{ id:'enable_context_menu', def: true, opts:{} },
 		{ id:'enable_keyboard_macro', def: true, opts:{} },
-		{ id:'enable_leftclick', def: true, opts:{} },
+		{ id:'enable_leftclick', def: false, opts:{} },
 		{ id:'link_regex', def: "\\.torrent$|^magnet:|^magnet:", opts:{} }
 	];
 
@@ -143,6 +144,13 @@
 	elc.addEventListener('change', function(e){
 			if (this.checked ) { lcre.removeAttribute('disabled'); }
 			else { lcre.disabled = 'disabled'; }
+		}, false);
+	
+	//special handler to refire context menu registration
+	var ecm = document.getElementById('enable_context_menu');
+	ecm.addEventListener('change', function(e){
+			if (this.checked ) { chrome.extension.sendRequest({method:'contextmenu', toggle:true}); }
+			else { chrome.extension.sendRequest({method:'contextmenu', toggle:false}); }
 		}, false);
 		
 	//display current version

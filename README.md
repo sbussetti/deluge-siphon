@@ -5,6 +5,8 @@
 
 ## Changelist
 
+### v 0.65.9 Context menu now configurable from settings
+
 ### v 0.65.8 Better torrent checking
   * Server now pre-checks torrents to try and verify if they are valid before attempting to add them.  This should hopefully improve users' ability to identify issues when adding.
 

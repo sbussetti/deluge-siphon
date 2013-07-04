@@ -319,15 +319,45 @@ delugeConnection.prototype.handle_readystatechange = function(http, callback){  
 		} else { //deluge-web error, or a deluged error that causes a web error
 			if (this.state == 'checklink') {
 				if (! this.silent)
-					notify('DelugeSiphon', 'Not a valid torrent: ' + this.torrent_url);
+					notify('DelugeSiphon', 'Not a valid torrent: ' + this.torrent_url, 10000);
 			} else {
 				if (! this.silent) {
-					notify('DelugeSiphon', 'Your deluge server responded with an error trying to add: ' + this.torrent_url + '. Check the console of the background page for more details.');
+					notify('DelugeSiphon', 'Your deluge server responded with an error trying to add: ' + this.torrent_url + '. Check the console of the background page for more details.', 10000);
 					console.log(this.state, http, payload);
 				}
 			}
 		}
 	}
+}
+
+function notify(title, message, decay) {
+	if (!decay)
+		decay = 3000;
+	if (localStorage['inpage_notification']) {
+		var notification = webkitNotifications.createNotification(
+			  chrome.extension.getURL('/images/notify.png'),
+			title,
+			message
+			); 
+		notification.show();
+		//negative decay means the user will have to close the window.
+		if (decay != -1)
+			setTimeout(function(){ notification.cancel() }, decay);
+	}
+}
+
+function createContextMenu(){
+	chrome.contextMenus.create({
+			'title': 'Send to deluge',
+			'contexts': ['link'],
+			'onclick':function (info, tab) { 
+				var s1 = info.linkUrl.indexOf('//') + 2;
+				var domain = info.linkUrl.substring(s1);
+				var s2 = domain.indexOf('/');
+				if (s2 >= 0) { domain = domain.substring(0, s2); }
+				new delugeConnection(info.linkUrl, domain);
+			}
+		});
 }
 
 function handleContentRequests(request, sender, sendResponse){
@@ -342,19 +372,18 @@ function handleContentRequests(request, sender, sendResponse){
 	  //always return the current value as a response..
       sendResponse({'value': localStorage[key]});
 	  
-	} /* This just does not work right and seems to really piss the deluge webui off
-	else if (request.method.substring(0,6) == "login-" ) { // poll for login
-	  var bits = request.method.split('-');
-	  var addtype = bits[1];
-	  var silent = request['silent'];	  
-	  if ( ! localStorage['server_url'] ) {
-			notify('DelugeSiphon', 'Please configure extension');
-			return;
+	} else if (request.method == "contextmenu") {
+	  //this is so the options page can also toggle the context menu on and off easily
+	  //without this, would require a refactor to allow the central adder object to be
+	  //acessible from the options page as well (in order to include the call within the
+	  //static closure that you have to pass to the context-menu API facility.
+	  console.log(request);
+	  if (request['toggle']) {
+		createContextMenu();
+	  } else {
+		chrome.contextMenus.removeAll();
 	  }
-	  new delugeConnection('', 'checkdaemonconnection', silent);
-	  
-	} */ 
-	else if (request.method.substring(0,8) == "addlink-" ) { //add to server request
+	} else if (request.method.substring(0,8) == "addlink-" ) { //add to server request
 	  var url_match = false;
 	  var bits = request.method.split('-');
 	  var addtype = bits[1];
@@ -382,35 +411,12 @@ function handleContentRequests(request, sender, sendResponse){
       sendResponse({}); // snub them.	
 	}
 }
-function notify(title, message, decay) {
-	if (!decay)
-		decay = 3000;
-	if (localStorage['inpage_notification']) {
-		var notification = webkitNotifications.createNotification(
-			  chrome.extension.getURL('/images/notify.png'),
-			title,
-			message
-			); 
-		notification.show();
-		//negative decay means the user will have to close the window.
-		if (decay != -1)
-			setTimeout(function(){ notification.cancel() }, decay);
-	}
-}
 
 /* Setup */
 communicator.connectToContentScript();
 /* process all requests */
 communicator.observeRequest(handleContentRequests);
 /* setup right-click handler */
-chrome.contextMenus.create({
-		'title': 'Send to deluge',
-		'contexts': ['link'],
-		'onclick':function (info, tab) { 
-			var s1 = info.linkUrl.indexOf('//') + 2;
-			var domain = info.linkUrl.substring(s1);
-			var s2 = domain.indexOf('/');
-			if (s2 >= 0) { domain = domain.substring(0, s2); }
-			new delugeConnection(info.linkUrl, domain);
-		}
-	});
+if (localStorage['enable_context_menu']) {
+	createContextMenu();
+}
