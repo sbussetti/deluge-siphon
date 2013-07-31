@@ -1,12 +1,12 @@
 {
   "name": "DelugeSiphon",
-  "version": "0.65",
-  "description": "Adds links to a remote Deluge server",
+  "version": "0.65.9",
+  "description": "Send your links to a Deluge server.",
   "browser_action": {
     "defaultTitle":"DelugeSiphon",
-    "default_icon": {                    // optional
-      "19": "icon-16.png",           // optional
-      "38": "icon-48.png"           // optional
+    "default_icon": {
+      "19": "icon-19.png",
+      "38": "icon-38.png"
     },
 	"default_popup": "popup.html"
   },
@@ -19,19 +19,20 @@
 	"http://*/*", 
 	"https://*/*", 
 	"ftp://*/*",
+	"cookies",
 	"contextMenus",
 	"notifications"
   ],
   "content_scripts": [{
     "all_frames": true,
     "matches":    ["http://*/*", "https://*/*", "ftp://*/*"], 
-    "js":         ["content_handler.js"],
+    "js":         ["utils.js", "content_handler.js"],
     "css":	  []
   }],
   "manifest_version": 2,
   "options_page": "options.html",
   "background": {
-    "scripts": [ "JSON.js","controller_communicator.js", "controller_actions.js" ]
+    "scripts": [ "JSON.js", "utils.js", "controller_communicator.js", "controller_actions.js" ]
   },
   "web_accessible_resources": [
     "images/notify.png"

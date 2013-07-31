@@ -1,9 +1,39 @@
 # DelugeSiphon - Open Source Extension for Chrome
   Author: S Bussetti
-  Web: http://deluge-siphon.googlecode.com/
+  
+  Web: https://github.com/sbussetti/deluge-siphon
+  
   Released under the Apache License 2.0
 
 ## Changelist
+
+### v 0.65.9 Context menu now configurable from settings
+
+### v 0.65.8 Better torrent checking
+  * Server now pre-checks torrents to try and verify if they are valid before attempting to add them.  This should hopefully improve users' ability to identify issues when adding.
+
+### v 0.65.7 Logging adjustment
+
+### v 0.65.6 Bugfix
+  * Improved adding links from some sites.
+  * Resolved issue: https://github.com/sbussetti/deluge-siphon/issues/2
+
+### v 0.65.5 Visual updates
+
+### v 0.65.4 Improvements
+  * Improved handling of server identification.
+  * Used improved server ident to warn users with Deluge < 1.3.3 that they need to upgrade in order to use magnet links.
+  * Improved click event targeting making DelugeSiphon better at getting the torrent url out of the page.  This fixes issues with adding certain types of torrents from thepiratebay and other sites like it.
+
+### v 0.65.3 Bugfix
+
+### v 0.65.2 Bugfix
+  * Fixed bug introduced with default settings logic in 0.65 that prevented turning off some options.
+
+### v 0.65.1 Visual updates.
+  * Added nice new toolbar icons that follow Google size recommendations
+  * Minor restyle of options and popup pages for clarity.
+  * better validation/save functionality on options page.
 
 ### v 0.65 Added support for left-click handling ([lawrencealan](http://github.com/lawrencealan))
   * Fixed magnet link handling 
