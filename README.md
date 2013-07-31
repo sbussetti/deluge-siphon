@@ -7,6 +7,9 @@
 
 ## Changelist
 
+### v 0.65.91 Moved to jQuery's delegate click event listener (link elements) ([lawrencealan](http://github.com/lawrencealan))
+
+
 ### v 0.65.9 Context menu now configurable from settings
 
 ### v 0.65.8 Better torrent checking
