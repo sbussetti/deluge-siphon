@@ -34,7 +34,7 @@
 		{ id:'enable_context_menu', def: true, opts:{} },
 		{ id:'enable_keyboard_macro', def: true, opts:{} },
 		{ id:'enable_leftclick', def: false, opts:{} },
-		{ id:'link_regex', def: "\\.torrent$|torrents\\.php\\?.+|^magnet:", opts:{} }
+		{ id:'link_regex', def: "(\\.|\/)torrent(s\\.php)?($|\\?)|^magnet:", opts:{} }
 	];
 
 	// Saves options to localStorage.
@@ -122,7 +122,7 @@
 
 	function clear_options() {
 		localStorage.clear();
-		save_options();
+		restore_options();
 	}
 	
 	var option_fields = document.getElementsByClassName('option_field');
@@ -134,7 +134,7 @@
 		} else {
 			event = 'blur';
 		}
-		field.addEventListener(event,save_options,false);
+		field.addEventListener(event, save_options, false);
 	}
 	restore_options();
 	
@@ -156,5 +156,11 @@
 	//display current version
 	var manifest = chrome.runtime.getManifest();
 	document.getElementById('version').innerHTML = manifest.version;
+	
+	//reset to defaults
+	var res = document.getElementById('reset_options');
+	res.addEventListener('click', function(e){
+		clear_options();
+	});
 }(document))
 	

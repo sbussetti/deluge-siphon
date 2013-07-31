@@ -7,6 +7,8 @@
 
 ## Changelist
 
+### v 0.65.10 Improved options section.
+
 ### v 0.65.9 Context menu now configurable from settings
 
 ### v 0.65.8 Better torrent checking

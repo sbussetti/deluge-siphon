@@ -372,7 +372,7 @@ function handleContentRequests(request, sender, sendResponse){
 	  //without this, would require a refactor to allow the central adder object to be
 	  //acessible from the options page as well (in order to include the call within the
 	  //static closure that you have to pass to the context-menu API facility.
-	  console.log(request);
+	  //console.log(request);
 	  if (request['toggle']) {
 		createContextMenu();
 	  } else {
