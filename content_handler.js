@@ -62,7 +62,7 @@
 		chrome.extension.sendRequest({method: "storage-get-enable_leftclick"}, function(response) {
 			if ( response.value ) {
 				// if "Left click handling" enabled
-					window.addEventListener('click',handle_leftclick,false);
+					$('html').on('click','a',handle_leftclick,false);
 			} 		  
 		});
 
