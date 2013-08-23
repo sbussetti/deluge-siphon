@@ -7,6 +7,15 @@
 
 ## Changelist
 
+### v 0.65.11 Notifications Update ([lawrencealan](http://github.com/lawrencealan))
+  * Started tracking notifications with IDs (url hashes)
+  * Only one notification per ID will be shown
+  * Added optional notification type(s):
+  	* request
+    * added
+    * error
+  * Added icons that indicate notification type(s)
+  
 ### v 0.65.10 Improved options section.
 
 ### v 0.65.9 Context menu now configurable from settings
