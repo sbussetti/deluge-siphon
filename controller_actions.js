@@ -57,7 +57,7 @@ function delugeConnection(url, cookie_domain, silent){
 		}.bind(this));
 	
 	if (! this.silent)
-		notify('DelugeSiphon', 'Requesting link...',1,this.torrent_url.hashCode(),'request');
+		notify('Requesting link...', 1000, this.torrent_url.hashCode(), 'request');
 		//post back to FE
 	this._getSession(); /* 	right now getSession cascades through and ultimately downloads 
 							(or until it hits a breakpoint, e.g. without a torrent_url it will never download...)
@@ -99,7 +99,7 @@ function delugeConnection(url, cookie_domain, silent){
 								this._checkDaemonConnection();			
 							} else {
 								if (! this.silent)
-									notify('DelugeSiphon', 'Error: Login failed',3,"server",'error');
+									notify('Error: Login failed', 3000, 'server', 'error');
 							}	
 						};
 						/* join point */
@@ -155,7 +155,7 @@ delugeConnection.prototype._getDaemons__callback = function(http, payload) {
 							DAEMON_INFO['version'] = payload.result[4];
 						} else {
 							if (! connection.silent)
-								notify('DelugeSiphon', 'Error: cannot connect to deluge server',3,"server",'error');						
+								notify('Error: cannot connect to deluge server', 3000, 'server', 'error');						
 						}
 					})}, 'application/json', false);
 			// we're already connected
@@ -170,7 +170,7 @@ delugeConnection.prototype._getDaemons__callback = function(http, payload) {
 		
 	} else {
 		if (! this.silent)
-			notify('DelugeSiphon', 'Error: cannot connect to deluge server',3,"server",'error');
+			notify('Error: cannot connect to deluge server', 3000, 'server', 'error');
 	}				
 };
 delugeConnection.prototype._connectDaemon = function() {
@@ -190,11 +190,11 @@ delugeConnection.prototype._connectDaemon__callback = function(http, payload) {
 		//get config and carry on with execution...
 		//console.log('connectdaemon', payload.error  + ' :: ' + http.responseText);
 		if (! this.silent)
-			notify('DelugeSiphon', 'Reconnected to server',3,"server",'reconnected');
+			notify('Reconnected to server', 3000, 'server', 'reconnected');
 		this._getCurrentConfig();
 	} else {
 		if (! this.silent)
-			notify('DelugeSiphon', 'Error: cannot connect to deluge server',3,"server",'error');
+			notify('Error: cannot connect to deluge server', 3000, 'server', 'error');
 	}								
 };
 /* join point */
@@ -226,7 +226,7 @@ delugeConnection.prototype._getCurrentConfig__callback = function(http, payload)
 delugeConnection.prototype._addTorrent = function() {
 	if (this.torrent_url.substr(0,7) == 'magnet:') {
 		if (DAEMON_INFO['version'] < "1.3.3") 
-			notify('DelugeSiphon', 'Your version of Deluge [' + DAEMON_INFO['version'] + '] does not support magnet links. Consider upgrading.', -1)  //this ends the cascade.
+			notify('Your version of Deluge [' + DAEMON_INFO['version'] + '] does not support magnet links. Consider upgrading.', -1, 'server', 'error')  //this ends the cascade.
 		else
 			this._addRemoteTorrent();
 	} else {
@@ -271,7 +271,7 @@ delugeConnection.prototype._getTorrentInfo__callback = function(http, payload) {
 	//console.log(this.state, http, payload);
 	if (! payload || ! payload.result) {
 		if (! this.silent)
-			notify('DelugeSiphon', 'Not a valid torrent: ' + this.torrent_url,3,this.torrent_url,'error');
+			notify('Not a valid torrent: ' + this.torrent_url, 3000, this.torrent_url.hashCode(), 'error');
 	} else {	
 		this._addLocalTorrent();
 	}
@@ -292,8 +292,8 @@ delugeConnection.prototype._addLocalTorrent = function() {
 delugeConnection.prototype._addLocalTorrent__callback = function(http, payload) {
 	if (! this.silent) 
 
-		notify('DelugeSiphon', 'Torrent added successfully',1,this.torrent_url.hashCode(),'added');
-	console.log(this.torrent_url);
+		notify('Torrent added successfully', 1000, this.torrent_url.hashCode(), 'added');
+	//console.log(this.torrent_url);
 };
 delugeConnection.prototype._addRemoteTorrent = function() {
 	var torrent_file = this.torrent_url;
@@ -310,7 +310,7 @@ delugeConnection.prototype._addRemoteTorrent = function() {
 };
 delugeConnection.prototype._addRemoteTorrent__callback = function(http, payload) {
 	if (! this.silent)
-		notify('DelugeSiphon', 'Torrent added successfully',1,this.torrent_url.hashCode(),'added');
+		notify('Torrent added successfully', 1000, this.torrent_url.hashCode(), 'added');
 };
 delugeConnection.prototype.handle_readystatechange = function(http, callback){  // this dispatches all the communication...
 	if (xmlHttpTimeout) {
@@ -322,83 +322,78 @@ delugeConnection.prototype.handle_readystatechange = function(http, callback){  
 			var payload = JSON.parse(http.responseText||'{}');
 			if ( payload.error ) {
 				if (! this.silent)
-					notify('DelugeSiphon', 'Error: ' + (payload.error.message || this.state), 10000,this.torrent_url,'error');
+					notify('Error: ' + (payload.error.message || this.state), 10000, this.torrent_url.hashCode(), 'error');
 			} else {
 				callback.apply(this, [http, payload]);
 			}
 		} else { //deluge-web error, or a deluged error that causes a web error
 			if (this.state == 'checklink') {
 				if (! this.silent)
-					notify('DelugeSiphon', 'Not a valid torrent: ' + this.torrent_url, 10000,this.torrent_url,'error');
+					notify('Not a valid torrent: ' + this.torrent_url, 10000, this.torrent_url.hashCode(), 'error');
 			} else {
 				if (! this.silent) {
-					notify('DelugeSiphon', 'Your deluge server responded with an error trying to add: ' + this.torrent_url + '. Check the console of the background page for more details.', 10000,this.torrent_url,'error');
-					console.log(this.state, http, payload);
+					notify('Your deluge server responded with an error trying to add: ' + this.torrent_url + '. Check the console of the background page for more details.', 10000, this.torrent_url.hashCode(), 'error');
+					//console.log(this.state, http, payload);
 				}
 			}
 		}
 	}
 }
 var notifications = {};
-function notify(title, message, decay, id, type) {
-	var notification,
-	_type = "notify", 
-	_icon ='/images/notify.png';
-	
-
-	if (localStorage['inpage_notification']) {	
-			console.log('[notify]',_type,id,decay,message);
-
-		if (type != null) {
-			_type += "_";
-			_type += type;
-			_icon = '/images/'+_type+'.png'
-		}
-
-		if (!decay)	decay = 3000;
-		if (decay<10) decay*=1000;
-		if(id == null || (id!=null && notifications[id] == null)){
-
-			notification = webkitNotifications.createNotification(
-				chrome.extension.getURL(_icon),
-				title,
-				message
-				); 
-			if(id!=null) {
-				notifications[id] = [notification,-1];
-			}
-		} else {
-
-			// * cannot modify a notification, so instead of this: 
-			// notification = notifications[id][0];
-			// notification.title = title;
-			// notification.message = message;
-
-			// * we do this:
-			var oldnote = notifications[id][0];
-			oldnote.cancel();
-
-			notification = webkitNotifications.createNotification(
-				chrome.extension.getURL(_icon),
-				title,
-				message
-				); 
-			notifications[id][0] = notification;
-			
-		}
+function notify(message, decay, id, type) {
+	if (! localStorage['inpage_notification'])
+		return; // this is just a noop if you have notifications off...
 		
-		notification.show();
-		//negative decay means the user will have to close the window.
-		if (decay != -1) {
-			if(id!=null && notifications[id]!=null && notifications[id].length>1) clearTimeout(notifications[id][1]);
-			var _timeout = setTimeout(function(){ 
-				notification.cancel(); 
-				if(id!=null) delete notifications[id];
-			}, decay);
-			if(id!=null) notifications[id][1] = _timeout;
-		}
+	var notification,
+	title = 'DelugeSiphon',
+	_decay = decay || 3000,
+	_type = type ? 'notify_' + type : 'notify', 
+	_icon = _icon = '/images/'+_type+'.png';
+	
+	//console.log('[notify]',  _type, _decay, id, message, id);
+	
+	// object attr misses are undefined, not null..
+	if (notifications[id]){
+		// * cannot modify a notification, so instead of this: 
+		// notification = notifications[id][0];
+		// notification.title = title;
+		// notification.message = message;
 
+		// * we do this (to replace the notification).. 
+		notifications[id][0].cancel();
+		notification = webkitNotifications.createNotification(
+			chrome.extension.getURL(_icon),
+			title,
+			message
+			); 
+	} else {
+		// create a new notification  if we were sent no ID or if we're not tracking this hash
+		notification = webkitNotifications.createNotification(
+			chrome.extension.getURL(_icon),
+			title,
+			message
+		); 
 	}
+	notification.show();
+	
+	var _timeout;
+	//negative decay means the user will have to close the window.
+	if (_decay != -1) {
+		if (notifications[id] && notifications[id][1])
+			clearTimeout(notifications[id][1]);
+			
+		_timeout = setTimeout(function(){ 
+			notification.cancel(); 
+			if (id != null)
+				delete notifications[id];
+		}, _decay);
+		
+	}
+
+	// we've got a notification no matter what, but if we have no
+	// id we don't track it and let them stack
+	if (id != null)
+		notifications[id] = [notification, _timeout]
 }
 
 function createContextMenu(){
@@ -432,7 +427,6 @@ function handleContentRequests(request, sender, sendResponse){
 	  //without this, would require a refactor to allow the central adder object to be
 	  //acessible from the options page as well (in order to include the call within the
 	  //static closure that you have to pass to the context-menu API facility.
-	  console.log(request);
 	  if (request['toggle']) {
 	  	createContextMenu();
 	  } else {
@@ -447,17 +441,17 @@ function handleContentRequests(request, sender, sendResponse){
 		var domain = request['domain'];
 
 		if ( ! localStorage['server_url'] ) {
-			notify('DelugeSiphon', 'Please configure extension options', -1);
+			notify('Please configure extension options', -1, 'config', 'error');
 			return;
 		}
 		if (!url) {
-			notify('DelugeSiphon', 'Error: Empty URL detected');
+			notify('Error: Empty URL detected', 3000, 'server', 'error');
 			return;
 		}
 
 		url_match = url.match(/^(magnet\:)|((file|(ht|f)tp(s?))\:\/\/).+/) ;
 		if (!url_match) {
-			notify('DelugeSiphon', 'Error: Invalid URL ['+url+']');
+			notify('Error: Invalid URL ['+url+']', 3000, 'server', 'error');
 			return;
 		}
 		new delugeConnection(url, domain, silent);
