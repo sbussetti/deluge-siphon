@@ -8,18 +8,20 @@
 		h4 { margin:3px 0 5px; padding:0; }
 		#links { float:right; }
 		#server-url, #options { float:right; }
-		#options { margin-right:10px; }
-		#server-url { padding-left:20px; background:url(login-icon.png) 2px 0 no-repeat; }
+		#options { padding-left:20px; background:url(images/options-16.png) 0 0 no-repeat; margin-right:10px; }
+		#server-url { padding-left:20px; background:url(images/login-16.png) 0 0 no-repeat; }
+        #title { padding-left:20px; background:url(icon-16.png) 0 0 no-repeat; height: 16px; float:left; }
 	</style>
 </head>
 <body>
 	<div style="width:300px;">
-		<h4>DelugeSiphon 
+		<h4><div id="title">DelugeSiphon</div>
 			<div id="links">
 				<div id="server-url" style="display:none;"><a id="server-url-link" target="_deluge_web" href="">Web UI</a></div>		
 				<div id="options"><a href="options.html" id="opt-link" target="_blank">Options Page</a></div>
 			</div>
 		</h4>
+        <br clear="both"/><br/>
 		Right click on torrent links to send them to your Deluge server.<br/>
 		<span id="reminder"></span>
 	</div>

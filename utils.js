@@ -37,6 +37,36 @@ function getParentElementByName(name, node, depth) {
 	if(!parent) return;
 	if (name.toUpperCase() != parent.nodeName)
 		parent = getParentElementByName(name, parent, ++depth);
-	return parent;	
-	
+	return parent
 }
+
+function getChildElementByName(name, node, depth) {
+  if(!node) return;
+	if(!depth) depth = 0;
+	else if (depth >= maxDepth) return;
+	for (var i=0, l=node.childNodes.length; i<l; i++) {
+		var child = node.childNodes[i];
+		if (name.toUpperCase() != child.nodeName)
+			child = getChildElementByName(name, child, ++depth);
+		return child;
+	}
+}
+
+function getAttr(ele, attr) {
+	// prefer the on-object attributes which are nicer, but fail-back to the raw attribute
+	if (ele) return (ele[attr] ? ele[attr] : ele.getAttribute(attr)); 
+}
+
+function stopEvent(e){
+	// STOP IT STOP IT STOP IT
+	if (e) {
+		e.stopImmediatePropagation(); 
+		e.stopPropagation();
+		e.cancelBubble = true;
+		e.preventDefault();
+	}
+}
+
+function endsWith(string, suffix) { if(string) return string.indexOf(suffix, string.length - suffix.length) !== -1; }
+
+function startsWith(string, prefix) { if(string) return string.indexOf(prefix) == 0; }

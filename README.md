@@ -7,6 +7,11 @@
 
 ## Changelist
 
+### v 0.66 Link scraping refactor
+  * major overhaul to logic for extracting links from the page. includes support of tvtorrents.com
+  * fixed a glitch with reconnecting to the server the first time
+  * standardized icon set
+
 ### v 0.65.11 Notifications Update ([lawrencealan](http://github.com/lawrencealan))
   * Started tracking notifications with IDs (url hashes)
   * Only one notification per ID will be shown

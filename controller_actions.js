@@ -8,7 +8,6 @@ var DAEMON_INFO = {
 };
 var SERVER_URL = localStorage['server_url'];
 
-
 String.prototype.hashCode = function(){
 	var hash = 0, i, char;
 	if (this.length == 0) return hash;
@@ -42,19 +41,19 @@ function delugeConnection(url, cookie_domain, silent){
 	
 	//get cookies for the current domain
 	chrome.cookies.getAll({'domain': cookie_domain}, function(cookies){
-		var cookdict = {};
-			// dedupe by hash collision
-			for (var i = 0; i < cookies.length; i++)  {
-				var cook = cookies[i];
-				cookdict[cook.name] = cook.value;
-			}
-			var cooklist = [];
-			for (var name in cookdict) {
-				cooklist.push(name + '=' + cookdict[name])
-			}
-			//save out of scope..
-			this.cookie = cooklist.join(';');
-		}.bind(this));
+    var cookdict = {};
+    // dedupe by hash collision
+    for (var i = 0; i < cookies.length; i++)  {
+      var cook = cookies[i];
+      cookdict[cook.name] = cook.value;
+    }
+    var cooklist = [];
+    for (var name in cookdict) {
+      cooklist.push(name + '=' + cookdict[name])
+    }
+    //save out of scope..
+    this.cookie = cooklist.join(';');
+  }.bind(this));
 	
 	if (! this.silent)
 		notify('Requesting link...', 1000, this.torrent_url.hashCode(), 'request');
@@ -62,59 +61,59 @@ function delugeConnection(url, cookie_domain, silent){
 	this._getSession(); /* 	right now getSession cascades through and ultimately downloads 
 							(or until it hits a breakpoint, e.g. without a torrent_url it will never download...)
 							this is to ensure we always have a fresh session with the server before we make any DL attempts. */
-						};
-						delugeConnection.prototype._getSession = function(){
-							var url = SERVER_URL+'/json';
-							var params = JSON.stringify({
-								'method': 'auth.check_session',
-								'params':[],
-								'id':'-16990'
-							});
-							this.state = 'getsession';
-							var connection = this;
-							ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._getSession__callback) },'application/json');
-						};
-						delugeConnection.prototype._getSession__callback = function(http, payload){
-							if ( payload.result ) {
-								this._checkDaemonConnection();			
-							} else {
-								this._doLogin();					
-							}
-						};
-						/* start point */
-						delugeConnection.prototype._doLogin = function(){
-							var SERVER_PASS = localStorage['server_pass'];
-							var url = SERVER_URL+'/json';
-							var params = JSON.stringify({
-								'method': 'auth.login',
-								'params':[SERVER_PASS],
-								'id':'-17000'
-							});
-							this.state = 'dologin';
-							var connection = this;
-							ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._doLogin__callback) },'application/json');
-						};
-						delugeConnection.prototype._doLogin__callback = function(http, payload){
-							if ( payload.result ) {
-								this._checkDaemonConnection();			
-							} else {
-								if (! this.silent)
-									notify('Error: Login failed', 3000, 'server', 'error');
-							}	
-						};
-						/* join point */
-						delugeConnection.prototype._checkDaemonConnection = function() {
-							var url = SERVER_URL+'/json';
-							var params = JSON.stringify({
-								'method': 'web.connected',
-								'params':[],
-								'id':'-16991'
-							});
-							this.state = 'checkdaemonconnection';
-							var connection = this;
-							ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._checkDaemonConnection__callback) },'application/json');
-						};
-						delugeConnection.prototype._checkDaemonConnection__callback = function(http, payload) {
+};
+delugeConnection.prototype._getSession = function(){
+  var url = SERVER_URL+'/json';
+  var params = JSON.stringify({
+    'method': 'auth.check_session',
+    'params':[],
+    'id':'-16990'
+  });
+  this.state = 'getsession';
+  var connection = this;
+  ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._getSession__callback) },'application/json');
+};
+delugeConnection.prototype._getSession__callback = function(http, payload){
+  if ( payload.result ) {
+    this._checkDaemonConnection();			
+  } else {
+    this._doLogin();					
+  }
+};
+/* start point */
+delugeConnection.prototype._doLogin = function(){
+  var SERVER_PASS = localStorage['server_pass'];
+  var url = SERVER_URL+'/json';
+  var params = JSON.stringify({
+    'method': 'auth.login',
+    'params':[SERVER_PASS],
+    'id':'-17000'
+  });
+  this.state = 'dologin';
+  var connection = this;
+  ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._doLogin__callback) },'application/json');
+};
+delugeConnection.prototype._doLogin__callback = function(http, payload){
+  if ( payload.result ) {
+    this._checkDaemonConnection();			
+  } else {
+    if (! this.silent)
+      notify('Error: Login failed', 3000, 'server', 'error');
+  }	
+};
+/* join point */
+delugeConnection.prototype._checkDaemonConnection = function() {
+  var url = SERVER_URL+'/json';
+  var params = JSON.stringify({
+    'method': 'web.connected',
+    'params':[],
+    'id':'-16991'
+  });
+  this.state = 'checkdaemonconnection';
+  var connection = this;
+  ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._checkDaemonConnection__callback) },'application/json');
+};
+delugeConnection.prototype._checkDaemonConnection__callback = function(http, payload) {
 	//console.log(payload.result, DAEMON_INFO['host_id']);
 	if ( payload.result && DAEMON_INFO['host_id']) {
 		this._getCurrentConfig();
@@ -155,6 +154,7 @@ delugeConnection.prototype._getDaemons__callback = function(http, payload) {
 							DAEMON_INFO['version'] = payload.result[4];
 						} else {
 							if (! connection.silent)
+								//console.log('getDaemons failed', payload);
 								notify('Error: cannot connect to deluge server', 3000, 'server', 'error');						
 						}
 					})}, 'application/json', false);
@@ -169,8 +169,10 @@ delugeConnection.prototype._getDaemons__callback = function(http, payload) {
 			this._connectDaemon();
 		
 	} else {
-		if (! this.silent)
+		if (! this.silent) {
+			//console.log('getDaemons failed', payload);
 			notify('Error: cannot connect to deluge server', 3000, 'server', 'error');
+		}
 	}				
 };
 delugeConnection.prototype._connectDaemon = function() {
@@ -182,19 +184,21 @@ delugeConnection.prototype._connectDaemon = function() {
 	});
 	this.state = 'connectdaemon';
 	var connection = this;
+	//console.log('connectdaemon', params);
 	ajax('POST',url,params,function(http){ connection.handle_readystatechange(http, connection._connectDaemon__callback) },'application/json');
 };
 delugeConnection.prototype._connectDaemon__callback = function(http, payload) {
-	//pretty cool, deluge returns the names of all available webui methods in result onconnect
-	if ( payload.result ) {
+	if ( ! payload.error ) {
 		//get config and carry on with execution...
 		//console.log('connectdaemon', payload.error  + ' :: ' + http.responseText);
 		if (! this.silent)
-			notify('Reconnected to server', 3000, 'server', 'reconnected');
+			notify('Reconnected to server', 3000, 'server');
 		this._getCurrentConfig();
 	} else {
-		if (! this.silent)
-			notify('Error: cannot connect to deluge server', 3000, 'server', 'error');
+		if (! this.silent) {
+			//console.log('connectDaemons failed', payload);
+			notify('Error: ' + payload.error, 3000, 'server', 'error');
+		}
 	}								
 };
 /* join point */
@@ -251,8 +255,6 @@ delugeConnection.prototype._downloadTorrent__callback = function(http, payload) 
 	this.tmp_download_file = payload.result;
 	this._getTorrentInfo();
 };
-
-
 delugeConnection.prototype._getTorrentInfo = function() {
 	var TORRENT_URL = this.torrent_url;
 	var CLIENT_COOKIE = this.cookie;
@@ -339,6 +341,7 @@ delugeConnection.prototype.handle_readystatechange = function(http, callback){  
 		}
 	}
 }
+
 var notifications = {};
 function notify(message, decay, id, type) {
 	if (! localStorage['inpage_notification'])
@@ -401,32 +404,45 @@ function createContextMenu(){
 		'title': 'Send to deluge',
 		'contexts': ['link'],
 		'onclick':function (info, tab) { 
-			var s1 = info.linkUrl.indexOf('//') + 2;
+      var torrent_url;
+      // extract domain from url..
+      var s1 = info.linkUrl.indexOf('//') + 2;
 			var domain = info.linkUrl.substring(s1);
 			var s2 = domain.indexOf('/');
 			if (s2 >= 0) { domain = domain.substring(0, s2); }
-			new delugeConnection(info.linkUrl, domain);
+      if (endsWith(domain, 'tvtorrents.com')) {
+        // in this case, the linkUrl is bogus
+        torrent_url = localStorage["site_current_url_" + domain];
+      } else {
+        torrent_url = info.linkUrl;
+      }
+			new delugeConnection(torrent_url, domain);
 		}
 	});
 }
 
 function handleContentRequests(request, sender, sendResponse){
 	//field connections from the content-handler via Chrome's secure pipeline hooey
-    if (request.method.substring(0,8) == "storage-") { //storage type request
-    	var bits = request.method.split('-');
-	  var method = bits[1]; //get or set?
-	  var key = bits[2];
+  if (request.method.substring(0,8) == "storage-") { //storage type request
+  	var bits = request.method.split('-');
+    // toss the prefix
+    bits.shift();
+	  var method = bits.shift(); //get or set?
+	  var key = bits.join('-');  //rejoin the remainder in the case where it may have a hyphen in the key..
 	  
-	  if (method == 'set') localStorage[key] = request['value'];
-	  
-	  //always return the current value as a response..
-	  sendResponse({'value': localStorage[key]});
+    // if method is set, set it
+	  if (method == 'set')
+      localStorage[key] = request['value'];
+	  // else respond with the value
+	  else
+      sendResponse({'value': localStorage[key]});
 	  
 	} else if (request.method == "contextmenu") {
-	  //this is so the options page can also toggle the context menu on and off easily
-	  //without this, would require a refactor to allow the central adder object to be
-	  //acessible from the options page as well (in order to include the call within the
-	  //static closure that you have to pass to the context-menu API facility.
+    /*
+      since you can only modify the contextmenu settings from the controller end
+      this command allows the settings page to easily request that we enable or disable
+      the global contextmenu entry.
+    */
 	  if (request['toggle']) {
 	  	createContextMenu();
 	  } else {
@@ -466,6 +482,4 @@ communicator.connectToContentScript();
 /* process all requests */
 communicator.observeRequest(handleContentRequests);
 /* setup right-click handler */
-if (localStorage['enable_context_menu']) {
-	createContextMenu();
-}
+if (localStorage['enable_context_menu']) createContextMenu();
