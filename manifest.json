@@ -32,5 +32,15 @@
   }],
   "background": {
     "scripts": [ "utils.js", "controller_communicator.js", "controller_actions.js" ]
-  }
+  },
+  "web_accessible_resources": [
+    "images/login-16.png",
+    "images/login.png",
+    "images/notify.png",
+    "images/notify_added.png",
+    "images/notify_error.png",
+    "images/notify_request.png",
+    "images/options-16.png",
+    "images/options.png"
+  ]
 }
