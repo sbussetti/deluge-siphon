@@ -213,7 +213,6 @@
       function blockit(elements) {
         for (var i = 0, l = elements.length; i < l; i++) {
           var element = elements[i];
-          console.log(i, element);
           // we explicitly want the txt in  this case.. not a vivified function..
           var onclick_txt = element.getAttribute('onclick');
           if (startsWith(onclick_txt, 'return loadTorrent') || startsWith(onclick_txt, 'loadTorrent')) {
