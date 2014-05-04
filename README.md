@@ -7,6 +7,11 @@
 
 ## Changelist
 
+### v 0.66.1 Bugfix
+  * accept pull request  from pstackle to update notification api call
+  * minor cleanup / review
+  * another update to TvTorrents handling to prevent local download of torrent file.
+
 ### v 0.66 Link scraping refactor
   * major overhaul to logic for extracting links from the page. includes support of tvtorrents.com
   * fixed a glitch with reconnecting to the server the first time

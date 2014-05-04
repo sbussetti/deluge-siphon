@@ -172,6 +172,7 @@
       such as tvtorrent's additional hash and digest info.
     */
     //WHERE AM I?! 
+    
     if (endsWith(SITE_META['DOMAIN'], 'tvtorrents.com') && ! SITE_META['INSTALLED']) {
       SITE_META['TORRENT_REGEX'] = 'loadTorrent(HTTPS)?\\([\'"]([^\'"]+)[\'"]\\)';
       SITE_META['TORRENT_URL_ATTRIBUTE'] = 'onclick';
@@ -210,14 +211,29 @@
       // and then we also need to actually rewrite the inline onclick attributes to prevent the function from firing =/
       // and we actually have to check every anchor and every input b/c TVT has no selectors on  it.
       function blockit(elements) {
-        var clickblock_txt = 'return false;'
         for (var i = 0, l = elements.length; i < l; i++) {
           var element = elements[i];
+          console.log(i, element);
           // we explicitly want the txt in  this case.. not a vivified function..
           var onclick_txt = element.getAttribute('onclick');
           if (startsWith(onclick_txt, 'return loadTorrent') || startsWith(onclick_txt, 'loadTorrent')) {
-            //neuter any inline onclicks b/c they cannot be stopped..
-            element.setAttribute('onclick', clickblock_txt + ' ' + onclick_txt);
+            // neuter any inline onclicks b/c they cannot be stopped.  Just patching the object won't do it
+            // must recreate a clean copy of the element and replace it...
+            // TODO: going this route we could extract the hash at this point and remove the call to loadTorrent altogether...
+            if (element.nodeName == 'INPUT') {
+              var new_element = document.createElement('input');
+              new_element.setAttribute('type', 'button');
+              new_element.setAttribute('value', element.getAttribute('value'));
+              new_element.setAttribute('class', element.getAttribute('class'));
+              new_element.setAttribute('onclick', 'return false; ' + onclick_txt);
+              element.parentNode.replaceChild(new_element, element);
+            } else if (element.nodeName == 'A')  {
+              var new_element = document.createElement('a');
+              new_element.setAttribute('href', element.getAttribute('href'));
+              new_element.setAttribute('onclick', 'return false; ' + onclick_txt);
+              new_element.appendChild(element.firstChild);
+              element.parentNode.replaceChild(new_element, element);            
+            }
           }
         }
       }    
