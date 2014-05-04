@@ -363,21 +363,12 @@ function notify(message, decay, id, type) {
 		// notification.message = message;
 
 		// * we do this (to replace the notification).. 
-		notifications[id][0].cancel();
-		notification = webkitNotifications.createNotification(
-			chrome.extension.getURL(_icon),
-			title,
-			message
-			); 
-	} else {
-		// create a new notification  if we were sent no ID or if we're not tracking this hash
-		notification = webkitNotifications.createNotification(
-			chrome.extension.getURL(_icon),
-			title,
-			message
-		); 
+		notifications[id][0].close();
 	}
-	notification.show();
+	notification = new Notification(title, {
+		body: message,
+		icon: chrome.extension.getURL(_icon)
+	});
 	
 	var _timeout;
 	//negative decay means the user will have to close the window.
@@ -386,7 +377,7 @@ function notify(message, decay, id, type) {
 			clearTimeout(notifications[id][1]);
 			
 		_timeout = setTimeout(function(){ 
-			notification.cancel(); 
+			notification.close();
 			if (id != null)
 				delete notifications[id];
 		}, _decay);
