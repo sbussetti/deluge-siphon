@@ -7,6 +7,9 @@
 
 ## Changelist
 
+### v 0.66.3 Bugfix
+  * minor update to improve support of tvtorrents.com
+
 ### v 0.66.1 Bugfix
   * accept pull request  from pstackle to update notification api call
   * minor cleanup / review

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "DelugeSiphon",
   "short_name": "DelugeSiphon",
-  "version": "0.66.2",
+  "version": "0.66.3",
   "description": "Send your links to a Deluge server.",
   "browser_action": {
     "defaultTitle": "DelugeSiphon",
