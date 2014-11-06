@@ -1,5 +1,7 @@
 (function(){
-	chrome.extension.sendRequest({method: "storage-get-server_url"}, function(response) {
+	chrome.runtime.sendMessage(chrome.runtime.id, {
+    method: "storage-get-deluge_server_url"
+  }, {}, function(response) {
 		var servurl = response.value;
 		if (servurl) {
 			document.getElementById('server-url').style.display = 'block';

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "DelugeSiphon",
   "short_name": "DelugeSiphon",
-  "version": "0.66.3",
+  "version": "0.66.4",
   "description": "Send your links to a Deluge server.",
   "browser_action": {
     "defaultTitle": "DelugeSiphon",
@@ -28,11 +28,22 @@
   ],  
   "content_scripts": [{
     "all_frames": true,
-    "matches": ["http://*/*", "https://*/*", "ftp://*/*"], 
-    "js": ["utils.js", "content_handler.js"]
+    "matches": [
+      "http://*/*", 
+      "https://*/*", 
+      "ftp://*/*"
+    ], 
+    "js": [
+      "utils.js", 
+      "content_handler.js"
+    ]
   }],
   "background": {
-    "scripts": [ "utils.js", "controller_communicator.js", "controller_actions.js" ]
+    "scripts": [
+      "utils.js", 
+      "controller_communicator.js", 
+      "controller_actions.js"
+    ]
   },
   "web_accessible_resources": [
     "images/login-16.png",

@@ -10,15 +10,12 @@
       },
       listeners = {};
   
-  /*function getDelugeSession() {
-    chrome.extension.sendRequest({method:'login-todeluge', silent:true});
-  }*/
   function extract_torrent_url(e, site_meta){
     var element,
         torrent_match,
         torrent_url,
-        attr = site_meta['TORRENT_URL_ATTRIBUTE'],
-        regex = new RegExp(site_meta['TORRENT_REGEX']);
+        attr = site_meta.TORRENT_URL_ATTRIBUTE,
+        regex = new RegExp(site_meta.TORRENT_REGEX);
 
     if (getAttr(e.target, attr)) element = e.target;
     if (!getAttr(element, attr)) element = getChildElementByName('a', e.target);
@@ -29,7 +26,7 @@
     if (torrent_match) {
       //TODO: can't this just also go into site meta as a matching callback..
       //then all the site specific logic ends up in the same place..
-      if (endsWith(site_meta['DOMAIN'], 'tvtorrents.com')) {
+      if (endsWith(site_meta.DOMAIN, 'tvtorrents.com')) {
         /* 
           this block is specifically for tvtorrents' weird-ass forms and onclick handlers
           Detail page:
@@ -43,9 +40,9 @@
         // we could also  try and extract  this from the src, but I'm currently naively assuming these urls
         // won't change... realistically any kind of serious site change will break  this since TVT is so specific..
         if (is_https)  {
-          torrent_url = 'https://www.tvtorrents.com/FetchTorrentServlet?info_hash='+info_hash+'&digest='+site_meta['digest']+'&hash='+site_meta['hash'];
+          torrent_url = 'https://www.tvtorrents.com/FetchTorrentServlet?info_hash=' + info_hash + '&digest=' + site_meta.digest + '&hash=' + site_meta.hash;
         }  else {
-          torrent_url = 'http://torrent.tvtorrents.com/FetchTorrentServlet?info_hash='+info_hash+'&digest='+site_meta['digest']+'&hash='+site_meta['hash'];
+          torrent_url = 'http://torrent.tvtorrents.com/FetchTorrentServlet?info_hash=' + info_hash + '&digest=' + site_meta.digest + '&hash=' + site_meta.hash;
         }
       } else {
         // for vanilla sites just return the whole matching string...
@@ -60,7 +57,10 @@
     var torrent_url = extract_torrent_url(e, SITE_META);
     if  (torrent_url) {
       stopEvent(e);
-      chrome.extension.sendRequest({method:'addlink-todeluge', url:torrent_url, domain: SITE_META['DOMAIN']});
+      //console.log('addlink', torrent_url, SITE_META.DOMAIN);
+      chrome.runtime.sendMessage(chrome.runtime.id, {
+        method:'addlink-todeluge', url:torrent_url, domain: SITE_META.DOMAIN
+      });
     }  
   }
   
@@ -85,7 +85,9 @@
       
       var torrent_url = extract_torrent_url(e, SITE_META);
       if  (torrent_url) {
-        chrome.extension.sendRequest({method: "storage-set-site_current_url_" + SITE_META['DOMAIN'], value: torrent_url});
+        chrome.runtme.sendMessage(chrome.runtime.id, {
+          method: "storage-set-site_current_url_" + SITE_META.DOMAIN, value: torrent_url
+        });
       }
   }
 
@@ -94,7 +96,7 @@
   }
   
   function handle_visibilityChange() {
-    if (! document.webkitHidden) {
+    if (! document.webkitHidden && document.webkitVisibilityState != 'prerender') {
       site_init();
       // check if settings have changed and adjust handlers accordingly
       install_configurable_handlers();
@@ -107,8 +109,8 @@
   // and we actually have to check every anchor and every input b/c TVT has no selectors on  it.
   function TVTblockLoadTorrent() {
     var nodenames = ['INPUT', 'A'];
-    for (var i in nodenames) {
-      var elements = document.body.getElementsByTagName(nodenames[i]);
+    for (var nodei in nodenames) {
+      var elements = document.body.getElementsByTagName(nodenames[nodei]);
       for (var i = 0, l = elements.length; i < l; i++) {
         var element = elements[i];
         // we explicitly want the txt in  this case.. not a vivified function..
@@ -117,15 +119,16 @@
           // neuter any inline onclicks b/c they cannot be stopped.  Just patching the object won't do it
           // must recreate a clean copy of the element and replace it...
           // TODO: going this route we could extract the hash at this point and remove the call to loadTorrent altogether...
+          var new_element;
           if (element.nodeName == 'INPUT') {
-            var new_element = document.createElement('input');
+            new_element = document.createElement('input');
             new_element.setAttribute('type', 'button');
             new_element.setAttribute('value', element.getAttribute('value'));
             new_element.setAttribute('class', element.getAttribute('class'));
             new_element.setAttribute('onclick', 'return false; ' + onclick_txt);
             element.parentNode.replaceChild(new_element, element);
           } else if (element.nodeName == 'A')  {
-            var new_element = document.createElement('a');
+            new_element = document.createElement('a');
             new_element.setAttribute('href', element.getAttribute('href'));
             new_element.setAttribute('class', element.getAttribute('class'));
             new_element.setAttribute('onclick', 'return false; ' + onclick_txt);
@@ -152,85 +155,89 @@
     */
     
     /* install control + rightclick keyboard macro */
-    chrome.extension.sendRequest({method: "storage-get-enable_keyboard_macro"}, function(response) {
+    chrome.runtime.sendMessage(chrome.runtime.id, {
+      method: "storage-get-enable_keyboard_macro"
+    }, {}, function(response) {
       if ( response.value ) {
         // if "control + right click" macro enabled
-        if (! listeners['keydown']) {
-          listeners['keydown'] = handle_keydown;
+        if (! listeners.keydown) {
+          listeners.keydown = handle_keydown;
           document.addEventListener('keydown', handle_keydown,false);
         }
 
-        if (! listeners['keyup']) {
-          listeners['keyup'] = handle_keyup;
+        if (! listeners.keyup) {
+          listeners.keyup = handle_keyup;
           document.addEventListener('keyup', handle_keyup,false);
         }
         
         // contextmenu event is just generic rightclick..
-        if (! listeners['contextmenu'])  {
+        if (! listeners.contextmenu)  {
           document.addEventListener('contextmenu', handle_rightclick_for_macro, false);
-          listeners['contextmenu'] = handle_rightclick_for_macro;
+          listeners.contextmenu = handle_rightclick_for_macro;
         }
 
-        if (endsWith(SITE_META['DOMAIN'], 'tvtorrents.com')) {
+        if (endsWith(SITE_META.DOMAIN, 'tvtorrents.com')) {
           /* install this helper */
-          if (! listeners['contextmenu_helper']) {
+          if (! listeners.contextmenu_helper) {
             document.addEventListener('contextmenu', handle_rightclick_for_contextmenu, false);
-            listeners['contextmenu_helper'] = handle_rightclick_for_contextmenu;
+            listeners.contextmenu_helper = handle_rightclick_for_contextmenu;
           }
         }
       } else {
         // it may have been turned off in settings, so remove if it exists.
-        if (listeners['keydown']) {
-          document.removeEventListener('keydown', listeners['keydown']);
-          listeners['keydown'] = null;
+        if (listeners.keydown) {
+          document.removeEventListener('keydown', listeners.keydown);
+          listeners.keydown = null;
         }
         
-        if (listeners['keyup']) {
-          document.removeEventListener('keyup', listeners['keyup']);
-          listeners['keyup'] = null;
+        if (listeners.keyup) {
+          document.removeEventListener('keyup', listeners.keyup);
+          listeners.keyup = null;
         }
 
-        if (listeners['contextmenu']) {
-          document.removeEventListener('contextmenu', listeners['contextmenu']);
-          listeners['contextmenu'] = null;
+        if (listeners.contextmenu) {
+          document.removeEventListener('contextmenu', listeners.contextmenu);
+          listeners.contextmenu = null;
         }
 
-        if (listeners['contextmenu_helper']) {
-          document.removeEventListener('contextmenu', listeners['contextmenu_helper']);
-          listeners['contextmenu_helper'] = null;
+        if (listeners.contextmenu_helper) {
+          document.removeEventListener('contextmenu', listeners.contextmenu_helper);
+          listeners.contextmenu_helper = null;
         }
       }
     });
 
     /* install leftclick handling */
-    chrome.extension.sendRequest({method: "storage-get-enable_leftclick"}, function(response) {
+    chrome.runtime.sendMessage(chrome.runtime.id, {
+      method: "storage-get-enable_leftclick"
+    }, {}, function(response) {
       if (response.value) {
-        if (! listeners['click']) {
+        if (! listeners.click) {
           document.body.addEventListener('click', handle_leftclick, false);
-          listeners['click'] = handle_leftclick;
+          listeners.click = handle_leftclick;
         }
-        if (endsWith(SITE_META['DOMAIN'], 'tvtorrents.com')) {
+        if (endsWith(SITE_META.DOMAIN, 'tvtorrents.com')) {
           /* hacky mchackerson but TVT is not like the others... */
-          if (! listeners['mutation']){
+          if (! listeners.mutation){
             TVTblockLoadTorrent();
             var observer = new WebKitMutationObserver(TVTblockLoadTorrent, false);
             observer.observe(document, { childList: true, subtree: true });
-            listeners['mutation'] = observer;
+            listeners.mutation = observer;
           }
         }
       } else {
-        if (listeners['click']) {
+        if (listeners.click) {
           // it has been turned off in settings, so remove if it exists.      
-          document.body.removeEventListener('click', listeners['click']);
-          listeners['click'] = null;
+          document.body.removeEventListener('click', listeners.click);
+          listeners.click = null;
         }
-        if (listeners['mutation']){
+        if (listeners.mutation){
           // TODO: we can turn off our mutation listener, but we still need to remove all
           // the "return false's; we had to force into the onclick handlers to resume 
           // normal functionality.
           // TVTunblockLoadTorrent();
-          listeners['mutation'].disconnect();
-          listeners['mutation'] = null;
+          listeners.mutation.disconnect();
+          listeners.mutation = null;
         }
       }
     });
@@ -244,15 +251,15 @@
     */
     //WHERE AM I?! 
     
-    if (endsWith(SITE_META['DOMAIN'], 'tvtorrents.com')) {
-      SITE_META['TORRENT_REGEX'] = 'loadTorrent(HTTPS)?\\([\'"]([^\'"]+)[\'"]\\)';
-      SITE_META['TORRENT_URL_ATTRIBUTE'] = 'onclick';
-      //as far as I can tell  this is pretty much honestly the best way to figure this out. we need these additional pieces of info
-      //TODO: pretty sure i need to send this data back into storage so that the context-menu based add routines can also access
-      //the hash and the digest  since context menus don't actually get access to the page...
-      var scripts = document.head.getElementsByTagName('script');
-      var hash_regex = /\bhash=['"]([^'"]+)['"];/
-      var digest_regex = /\bdigest=['"]([^'"]+)['"];/
+    if (endsWith(SITE_META.DOMAIN, 'tvtorrents.com')) {
+      SITE_META.TORRENT_REGEX = 'loadTorrent(HTTPS)?\\([\'"]([^\'"]+)[\'"]\\)';
+      SITE_META.TORRENT_URL_ATTRIBUTE = 'onclick';
+      /* as far as I can tell  this is pretty much honestly the best way to figure this out. we need these additional pieces of info
+         TODO: pretty sure i need to send this data back into storage so that the context-menu based add routines can also access
+         the hash and the digest  since context menus don't actually get access to the page... */
+      var scripts = document.head.getElementsByTagName('script'),
+          hash_regex = /\bhash=['"]([^'"]+)['"];/;
+          digest_regex = /\bdigest=['"]([^'"]+)['"];/;
       for (var i = 0, l = scripts.length; i < l; i++) {
         var script = scripts[i];
         //we're looking for an inpage script
@@ -270,8 +277,8 @@
             var hash = hash_match ? hash_match[1] : null;
             var digest = digest_match ? digest_match[1] : null;
             if (hash && digest) {
-              SITE_META['hash'] = hash;
-              SITE_META['digest'] = digest;
+              SITE_META.hash = hash;
+              SITE_META.digest = digest;
             } else {
               console.log("Failed to parse hash/digest from page.  Programmer error =(");
             }
@@ -281,19 +288,21 @@
     } else {
       // all  other sites besides TVT get the standard regex you set..
       /* get regex for link checking from settings */ 
-      chrome.extension.sendRequest({method: 'storage-get-link_regex'}, function(response){
-        SITE_META['TORRENT_REGEX'] = response.value;
+      chrome.runtime.sendMessage(chrome.runtime.id, {
+        method: 'storage-get-link_regex'
+      }, {}, function(response){
+        SITE_META.TORRENT_REGEX = response.value;
       });    
     }    
   } /* end site_init */
   
   // initialize once, then
-  handle_visibilityChange()
+  handle_visibilityChange();
   // watch for tab changes
-  if (! listeners['webkitvisibilitychange']) {
+  if (! listeners.webkitvisibilitychange) {
     document.addEventListener('webkitvisibilitychange', handle_visibilityChange, false);
-    listeners['webkitvisibilitychange'] = handle_visibilityChange;  
+    listeners.webkitvisibilitychange = handle_visibilityChange;  
   }
 
-  SITE_META['INSTALLED'] = true;
+  SITE_META.INSTALLED = true;
 }(window, document));

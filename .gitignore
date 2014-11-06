@@ -1,1 +1,4 @@
 Thumbs.db
+.DS_Store
+*.sw[nop]
+.ropeproject

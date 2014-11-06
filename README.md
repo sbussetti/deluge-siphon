@@ -5,7 +5,16 @@
   
   Released under the Apache License 2.0
 
+  Just a simple Chrome extension for sending torrent links directly to your Deluge server
+
 ## Changelist
+
+### v 0.66.4 Bugfix / Upgrade
+  * Upgraded use of deprecated chrome.extension Messaging API 
+  * Upgraded notifications to use new Rich Notifications API
+  * Added configurable debug logging in background page for troubleshooting
+  * Fixed lame version comparison bug preventing users of Deluge >1.3.9 from adding magnet links
+  * Various minor fixes / performance improvements.
 
 ### v 0.66.3 Bugfix
   * minor update to improve support of tvtorrents.com

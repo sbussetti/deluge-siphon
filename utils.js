@@ -1,23 +1,35 @@
-var xmlHttpTimeout;
+/* string, xhr and dom utils -- don't want to rely on some big framework for this extension... */
+
+var maxDepth = 20,
+    xmlHttpTimeout;
+
+/* XHR */
 function ajax(method, url, params, callback, content_type, asynchronous){
-	var http = new XMLHttpRequest();
 	method = method || 'GET';
 	callback = typeof callback == 'function' ? callback : function(){};
-	content_type = content_type || 'text/plain';
+	content_type = content_type || 'application/json';
 	params = params || null;
-	asynchronous = asynchronous == null ? true : asynchronous;
-	http.open(method,url,asynchronous);
-	http.setRequestHeader("Content-type", content_type);
-	http.onreadystatechange = function(){ callback(http); };
+	asynchronous = typeof(asynchronous) === 'undefined' ? true : asynchronous;
+  //console.log(method, content_type, asynchronous, params);
+
+	var http = new XMLHttpRequest();
+	http.open(method, url, asynchronous);
+	http.setRequestHeader('Content-type', content_type);
+	http.onreadystatechange = function(){ 
+    if (xmlHttpTimeout) {
+      clearTimeout(xmlHttpTimeout);
+      xmlHttpTimeout = null;
+    }
+    callback(http); 
+  };
 	http.send(params);
-	xmlHttpTimeout=setTimeout(function(){
+	xmlHttpTimeout = setTimeout(function(){
 		if (http.readyState) //still going..
 			http.abort();
-	},5000);
+	}, 5000);
 }
 
-/* dom utils -- don't want to rely on some big framework for this extension... */
-
+/* DOM */
 function getElementsByClassName(classname, node)  {
     if(!node) node = document.getElementsByTagName("body")[0];
     var a = [];
@@ -28,7 +40,6 @@ function getElementsByClassName(classname, node)  {
     return a;
 }
 
-var maxDepth = 20;
 function getParentElementByName(name, node, depth) {
 	if(!node) return;
 	if(!depth) depth = 0;
@@ -37,7 +48,7 @@ function getParentElementByName(name, node, depth) {
 	if(!parent) return;
 	if (name.toUpperCase() != parent.nodeName)
 		parent = getParentElementByName(name, parent, ++depth);
-	return parent
+	return parent;
 }
 
 function getChildElementByName(name, node, depth) {
@@ -57,6 +68,7 @@ function getAttr(ele, attr) {
 	if (ele) return (ele[attr] ? ele[attr] : ele.getAttribute(attr)); 
 }
 
+/* EVENTS */
 function stopEvent(e){
 	// STOP IT STOP IT STOP IT
 	if (e) {
@@ -67,6 +79,60 @@ function stopEvent(e){
 	}
 }
 
-function endsWith(string, suffix) { if(string) return string.indexOf(suffix, string.length - suffix.length) !== -1; }
+/* STRINGS */
+function endsWith(string, suffix) {
+  if(string) return string.indexOf(suffix, string.length - suffix.length) !== -1;
+}
 
-function startsWith(string, prefix) { if(string) return string.indexOf(prefix) == 0; }
+function startsWith(string, prefix) {
+  if(string) return string.indexOf(prefix) === 0;
+}
+
+function versionCompare(v1, v2, options) {
+    /* thanks to TheDistantSea:
+       https://gist.github.com/TheDistantSea/8021359 */
+    var lexicographical = options && options.lexicographical,
+        zeroExtend = options && options.zeroExtend,
+        v1parts = v1.split('.'),
+        v2parts = v2.split('.');
+
+    function isValidPart(x) {
+        return (lexicographical ? /^\d+[A-Za-z]*$/ : /^\d+$/).test(x);
+    }
+
+    if (!v1parts.every(isValidPart) || !v2parts.every(isValidPart)) {
+        return NaN;
+    }
+
+    if (zeroExtend) {
+        while (v1parts.length < v2parts.length) v1parts.push("0");
+        while (v2parts.length < v1parts.length) v2parts.push("0");
+    }
+
+    if (!lexicographical) {
+        v1parts = v1parts.map(Number);
+        v2parts = v2parts.map(Number);
+    }
+
+    for (var i = 0; i < v1parts.length; ++i) {
+        if (v2parts.length == i) {
+            return 1;
+        }
+
+        if (v1parts[i] == v2parts[i]) {
+            continue;
+        }
+        else if (v1parts[i] > v2parts[i]) {
+            return 1;
+        }
+        else {
+            return -1;
+        }
+    }
+
+    if (v1parts.length != v2parts.length) {
+        return -1;
+    }
+
+    return 0;
+}
