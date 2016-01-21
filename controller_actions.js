@@ -349,7 +349,7 @@ delugeConnection.prototype.handle_readystatechange = function(http, callback){  
           notify('Not a valid torrent: ' + this.torrent_url, -1, this.torrent_url.hashCode(), 'error');
       } else {
         if (! this.silent) {
-          notify('Your deluge server responded with an error trying to add: ' + this.torrent_url + '. Check the console of the background page for more details.', -1, this.torrent_url.hashCode(), 'error');
+          notify('Your deluge server responded with an error trying to add: ' + this.torrent_url, -1, this.torrent_url.hashCode(), 'error');
           console.log('COMMS ERROR', this.state, http);
         }
       }

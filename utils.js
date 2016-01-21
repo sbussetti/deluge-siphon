@@ -10,7 +10,7 @@ function ajax(method, url, params, callback, content_type, asynchronous){
 	content_type = content_type || 'application/json';
 	params = params || null;
 	asynchronous = typeof(asynchronous) === 'undefined' ? true : asynchronous;
-  console.log('AJAX', method, content_type, asynchronous, params);
+  // console.log('AJAX', method, content_type, asynchronous, params);
 
 	var http = new XMLHttpRequest();
 	http.open(method, url, asynchronous);
