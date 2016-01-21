@@ -9,6 +9,11 @@
 
 ## Changelist
 
+### v 0.66.5 Bugfix / Cleanup
+  * Removed use of synchronous ajax request when ensuring webui is connected to an online daemon
+  * General cleanup
+  * Removed cruft around tvtorrents support.
+
 ### v 0.66.4 Bugfix / Upgrade
   * Upgraded use of deprecated chrome.extension Messaging API 
   * Upgraded notifications to use new Rich Notifications API
