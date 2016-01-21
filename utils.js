@@ -10,17 +10,19 @@ function ajax(method, url, params, callback, content_type, asynchronous){
 	content_type = content_type || 'application/json';
 	params = params || null;
 	asynchronous = typeof(asynchronous) === 'undefined' ? true : asynchronous;
-  //console.log(method, content_type, asynchronous, params);
+  console.log('AJAX', method, content_type, asynchronous, params);
 
 	var http = new XMLHttpRequest();
 	http.open(method, url, asynchronous);
 	http.setRequestHeader('Content-type', content_type);
-	http.onreadystatechange = function(){ 
+	http.onreadystatechange = function(){
     if (xmlHttpTimeout) {
       clearTimeout(xmlHttpTimeout);
       xmlHttpTimeout = null;
     }
-    callback(http); 
+
+    // NOT CHECKING READYSTATE...
+    callback(http);
   };
 	http.send(params);
 	xmlHttpTimeout = setTimeout(function(){
@@ -65,14 +67,14 @@ function getChildElementByName(name, node, depth) {
 
 function getAttr(ele, attr) {
 	// prefer the on-object attributes which are nicer, but fail-back to the raw attribute
-	if (ele) return (ele[attr] ? ele[attr] : ele.getAttribute(attr)); 
+	if (ele) return (ele[attr] ? ele[attr] : ele.getAttribute(attr));
 }
 
 /* EVENTS */
 function stopEvent(e){
 	// STOP IT STOP IT STOP IT
 	if (e) {
-		e.stopImmediatePropagation(); 
+		e.stopImmediatePropagation();
 		e.stopPropagation();
 		e.cancelBubble = true;
 		e.preventDefault();

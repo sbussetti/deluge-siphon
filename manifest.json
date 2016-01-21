@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "DelugeSiphon",
   "short_name": "DelugeSiphon",
-  "version": "0.66.4",
+  "version": "0.66.5",
   "description": "Send your links to a Deluge server.",
   "browser_action": {
     "defaultTitle": "DelugeSiphon",
@@ -19,19 +19,21 @@
   },
   "options_page": "options.html",
   "permissions": [
-	"http://*/*", 
-	"https://*/*", 
-	"ftp://*/*",
-	"cookies",
-	"contextMenus",
-	"notifications"
+    "http://*/*", 
+    "https://*/*", 
+    "ftp://*/*",
+    "file://*/*",
+    "cookies",
+    "contextMenus",
+    "notifications"
   ],  
   "content_scripts": [{
     "all_frames": true,
     "matches": [
       "http://*/*", 
       "https://*/*", 
-      "ftp://*/*"
+      "ftp://*/*",
+      "file://*/*"
     ], 
     "js": [
       "utils.js", 
