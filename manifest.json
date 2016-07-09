@@ -36,14 +36,17 @@
       "file://*/*"
     ], 
     "js": [
-      "utils.js", 
+      "lib/jquery-3.0.0.min.js",
+      "lib/utils.js", 
       "content_handler.js"
     ]
   }],
   "background": {
     "scripts": [
-      "utils.js", 
-      "controller_communicator.js", 
+      "lib/jquery-3.0.0.min.js",
+      "lib/utils.js", 
+      "lib/controller_communicator.js", 
+      "lib/jquery-3.0.0.min.js",
       "controller_actions.js"
     ]
   },

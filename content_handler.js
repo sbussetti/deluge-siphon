@@ -8,7 +8,7 @@
         TORRENT_URL_ATTRIBUTE: 'href',
         INSTALLED: false
       },
-      listeners = {};
+      LISTENERS = {};
 
   function extract_torrent_url(e, site_meta){
     var element,
@@ -55,20 +55,6 @@
     if (CONTROL_KEY_DEPRESSED) process_event(e);
   }
 
-  function handle_rightclick_for_contextmenu(e) {
-      // some sites, like TVT, add links via javascript and other complex methods.
-      // chrome's contextmenu API however, does not provide access to the dom, therefore
-      // we need to capture what we need from here and kick it to the backend where the
-      // contextmenu function can retrieve it out of localstorage...
-
-      var torrent_url = extract_torrent_url(e, SITE_META);
-      if  (torrent_url) {
-        chrome.runtme.sendMessage(chrome.runtime.id, {
-          method: "storage-set-site_current_url_" + SITE_META.DOMAIN, value: torrent_url
-        });
-      }
-  }
-
   function handle_leftclick(e) {
     process_event(e);
   }
@@ -89,7 +75,7 @@
       fly based on a users settings.  Without it they'd
       have to refresh any open tabs after a config change.
 
-      TODO: functionalize setup and teardown of listeners;
+      TODO: functionalize setup and teardown of LISTENERS;
       this isn't DRY..
     */
 
@@ -99,42 +85,42 @@
     }, {}, function(response) {
       if ( response.value ) {
         // if "control + right click" macro enabled
-        if (! listeners.keydown) {
-          listeners.keydown = handle_keydown;
+        if (! LISTENERS.keydown) {
+          LISTENERS.keydown = handle_keydown;
           document.addEventListener('keydown', handle_keydown,false);
         }
 
-        if (! listeners.keyup) {
-          listeners.keyup = handle_keyup;
+        if (! LISTENERS.keyup) {
+          LISTENERS.keyup = handle_keyup;
           document.addEventListener('keyup', handle_keyup,false);
         }
 
         // contextmenu event is just generic rightclick..
-        if (! listeners.contextmenu)  {
+        if (! LISTENERS.contextmenu)  {
           document.addEventListener('contextmenu', handle_rightclick_for_macro, false);
-          listeners.contextmenu = handle_rightclick_for_macro;
+          LISTENERS.contextmenu = handle_rightclick_for_macro;
         }
 
       } else {
         // it may have been turned off in settings, so remove if it exists.
-        if (listeners.keydown) {
-          document.removeEventListener('keydown', listeners.keydown);
-          listeners.keydown = null;
+        if (LISTENERS.keydown) {
+          document.removeEventListener('keydown', LISTENERS.keydown);
+          LISTENERS.keydown = null;
         }
 
-        if (listeners.keyup) {
-          document.removeEventListener('keyup', listeners.keyup);
-          listeners.keyup = null;
+        if (LISTENERS.keyup) {
+          document.removeEventListener('keyup', LISTENERS.keyup);
+          LISTENERS.keyup = null;
         }
 
-        if (listeners.contextmenu) {
-          document.removeEventListener('contextmenu', listeners.contextmenu);
-          listeners.contextmenu = null;
+        if (LISTENERS.contextmenu) {
+          document.removeEventListener('contextmenu', LISTENERS.contextmenu);
+          LISTENERS.contextmenu = null;
         }
 
-        if (listeners.contextmenu_helper) {
-          document.removeEventListener('contextmenu', listeners.contextmenu_helper);
-          listeners.contextmenu_helper = null;
+        if (LISTENERS.contextmenu_helper) {
+          document.removeEventListener('contextmenu', LISTENERS.contextmenu_helper);
+          LISTENERS.contextmenu_helper = null;
         }
       }
     });
@@ -143,25 +129,13 @@
     chrome.runtime.sendMessage(chrome.runtime.id, {
       method: "storage-get-enable_leftclick"
     }, {}, function(response) {
-      if (response.value) {
-        if (! listeners.click) {
-          document.body.addEventListener('click', handle_leftclick, false);
-          listeners.click = handle_leftclick;
-        }
-      } else {
-        if (listeners.click) {
-          // it has been turned off in settings, so remove if it exists.
-          document.body.removeEventListener('click', listeners.click);
-          listeners.click = null;
-        }
-        if (listeners.mutation){
-          // TODO: we can turn off our mutation listener, but we still need to remove all
-          // the "return false's; we had to force into the onclick handlers to resume
-          // normal functionality.
-          // TVTunblockLoadTorrent();
-          listeners.mutation.disconnect();
-          listeners.mutation = null;
-        }
+      if (!!response.value && !LISTENERS.click) {
+        document.body.addEventListener('click', handle_leftclick, false);
+        LISTENERS.click = handle_leftclick;
+      } else if (!!LISTENERS.click) {
+        // it has been turned off in settings, so remove if it exists.
+        document.body.removeEventListener('click', LISTENERS.click);
+        LISTENERS.click = null;
       }
     });
   }
@@ -185,9 +159,9 @@
   handle_visibilityChange();
 
   // watch for tab changes
-  if (! listeners.webkitvisibilitychange) {
+  if (! LISTENERS.webkitvisibilitychange) {
     document.addEventListener('webkitvisibilitychange', handle_visibilityChange, false);
-    listeners.webkitvisibilitychange = handle_visibilityChange;
+    LISTENERS.webkitvisibilitychange = handle_visibilityChange;
   }
 
   SITE_META.INSTALLED = true;
