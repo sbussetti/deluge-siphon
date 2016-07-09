@@ -81,45 +81,6 @@
     }
   }
 
-  /* BEGIN site specific stuff */
-
-  // and then we also need to actually rewrite the inline onclick attributes to prevent the function from firing =/
-  // and we actually have to check every anchor and every input b/c TVT has no selectors on  it.
-  function TVTblockLoadTorrent() {
-    var nodenames = ['INPUT', 'A'];
-    for (var nodei in nodenames) {
-      var elements = document.body.getElementsByTagName(nodenames[nodei]);
-      for (var i = 0, l = elements.length; i < l; i++) {
-        var element = elements[i];
-        // we explicitly want the txt in  this case.. not a vivified function..
-        var onclick_txt = element.getAttribute('onclick');
-        if (startsWith(onclick_txt, 'return loadTorrent') || startsWith(onclick_txt, 'loadTorrent')) {
-          // neuter any inline onclicks b/c they cannot be stopped.  Just patching the object won't do it
-          // must recreate a clean copy of the element and replace it...
-          // TODO: going this route we could extract the hash at this point and remove the call to loadTorrent altogether...
-          var new_element;
-          if (element.nodeName == 'INPUT') {
-            new_element = document.createElement('input');
-            new_element.setAttribute('type', 'button');
-            new_element.setAttribute('value', element.getAttribute('value'));
-            new_element.setAttribute('class', element.getAttribute('class'));
-            new_element.setAttribute('onclick', 'return false; ' + onclick_txt);
-            element.parentNode.replaceChild(new_element, element);
-          } else if (element.nodeName == 'A')  {
-            new_element = document.createElement('a');
-            new_element.setAttribute('href', element.getAttribute('href'));
-            new_element.setAttribute('class', element.getAttribute('class'));
-            new_element.setAttribute('onclick', 'return false; ' + onclick_txt);
-            new_element.appendChild(element.firstChild);
-            element.parentNode.replaceChild(new_element, element);
-          }
-        }
-      }
-    }
-  }
-
-  /* END site specific stuff */
-
   function install_configurable_handlers(){
     /*
       so, this provides a rudimentary event
@@ -211,7 +172,6 @@
       needed to parse for torrent hrefs, or other more site-specific requirements
       such as tvtorrent's additional hash and digest info.
     */
-    //WHERE AM I?!
 
     /* get regex for link checking from settings */
     chrome.runtime.sendMessage(chrome.runtime.id, {
@@ -223,6 +183,7 @@
 
   // initialize once, then
   handle_visibilityChange();
+
   // watch for tab changes
   if (! listeners.webkitvisibilitychange) {
     document.addEventListener('webkitvisibilitychange', handle_visibilityChange, false);
