@@ -1,7 +1,7 @@
 (function(){
 	var OPTIONS = [
 		{
-			id:'deluge_server_url', 
+			id:'deluge_server_url',
 			def: 'http://localhost/user/deluge',
 			opts:{
 				validate:function(string){
@@ -9,23 +9,23 @@
 						return string;
 
 					var regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-					return regexp.test(string) && ! string.match(/\/$/);				
+					return regexp.test(string) && ! string.match(/\/$/);
 				},
 				validate_message:'Invalid server url.',
 				required: true,
 				scrubber:function(string){
 					//no trailing / on url makes construction simpler..
-					if ( ! string ) 
+					if ( ! string )
 						return '';
-						
+
 					if ( string.substring(0,4) != 'http' )
-						string = 'http://' + string;					
-						
+						string = 'http://' + string;
+
 					li = string.length - 1;
 					if ( string.charAt(li) == '/' )
 						string = string.substring(0, string.length-1);
 
-					return string;					
+					return string;
 				}
 			},
 		},
@@ -41,27 +41,22 @@
 	// Saves options to localStorage.
 	function save_options() {
 
-		var messages = getElementsByClassName('validation-message');
-		for ( var i = 0, l = messages.length; i < l; i++ ) {
-			messages[i].parentNode.removeChild(messages[i]);
-			messages[i] = null;
-		}
+		$('.validation-message').empty();
 
 		var validation_error = false;
 		var mutator = [];
 		for ( var ii = 0, ll = OPTIONS.length; ii < ll; ii++ ) {
 			var o = OPTIONS[ii].id;
-			var element = document.getElementById(o);
+			var element = $('#' + o);
 			var val = '';
-			if ( element.nodeName == 'INPUT' ) {
-				if ( element.type == 'checkbox' ) {
-					if ( element.checked )
-						val = element.value;
-				} else if ( element.type == 'text' || element.type == 'password' ) {
-					val = element.value;
-				}
+      if (element.is('input[type=checkbox]')) {
+        if (element.prop('checked')) {
+          val = element.val();
+        }
+      } else if (element.is('input[type=text]') || element.is('input[type=password]')) {
+        val = element.val();
 			} else {
-
+        throw 'unknown element';
 			}
 
 			var errorNotice = document.createElement('span');
@@ -86,16 +81,18 @@
 				element.parentNode.insertBefore( errorNotice, element.nextSibling );
 				validation_error = true;
 			} else {
-				mutator.push({opt_id: o, opt_val: val, opt_ele: element});
+				mutator.push({opt_id: o, opt_val: val, opt_ele: element[0]});
 			}
 		}
-		
+
+    console.log(mutator);
+
 		if (! validation_error) {
 			// if validation passed, then apply the mutator (save)
 			for (var iii = 0, lll = mutator.length; iii < lll; iii++) {
 				var m = mutator[iii];
 				localStorage.setItem(m.opt_id, m.opt_val, m.opt_ele);
-			}		
+			}
 		}
 	}
 
@@ -105,19 +102,18 @@
 		  var o = OPTIONS[i].id;
 		  var val = localStorage.getItem(o);
 		  val = val === null ? OPTIONS[i].def : val;
-		  var element = document.getElementById(o);
+		  var element = $('#' + o);
 		  if ( typeof val != 'undefined' && element ) {
-			  if ( element.nodeName == 'INPUT' ) {
-				  if ( element.type == 'checkbox' ) {
-					  if ( val )
-						  element.checked = true;
-				  } else if ( element.type == 'text' || element.type == 'password' ) {
-					  element.value = val;
-				  }
-			  } else { //selects.. radio groups..
-
-			  }
+        if (element.is('input[type=checkbox]')) {
+          element.prop('checked', !!val);
+        } else if (element.is('input[type=text]') || element.is('input[type=password]')) {
+          element.val(val);
+        } else {
+          throw 'unknown element: ' + element;
+        }
 		  }
+
+      $('#link_regex').prop('disabled', !$('#enable_leftclick').prop('checked'));
 		}
 	}
 
@@ -125,48 +121,40 @@
 		localStorage.clear();
 		restore_options();
 	}
-	
-	var option_fields = document.getElementsByClassName('option_field');
-	for ( var i = 0, l = option_fields.length; i < l; i++) {
-		var field = option_fields[i];
-		var event = '';
-		if ( field.type == 'checkbox' ) {
-			event = 'change';
-		} else {
-			event = 'blur';
-		}
-		field.addEventListener(event, save_options, false);
-	}
+
+  /* EVENT LISTENERS */
+
+  $('.option_field[type=checkbox]').each(function () {
+		this.addEventListener('change', save_options, false);
+  });
+  $('.option_field').not('[type=checkbox]').each(function () {
+		this.addEventListener('blur', save_options, false);
+  });
 	restore_options();
-	
+
 	//special handler for combo regex field
-	document.getElementById('enable_leftclick').addEventListener('change', function(e){
-      var lcre = document.getElementById('link_regex');
-			if (this.checked ) { 
-        lcre.removeAttribute('disabled'); 
-      } else { 
-        lcre.disabled = 'disabled'; 
-      }
+	$('#enable_leftclick')[0].addEventListener('change', function(e){
+      $('#link_regex').prop('disabled', !this.checked);
 		}, false);
-	
+
 	//special handler to refire context menu registration
-	document.getElementById('enable_context_menu').addEventListener('change', function(e){
+	$('#enable_context_menu')[0].addEventListener('change', function(e){
       chrome.runtime.sendMessage(chrome.runtime.id, {
         method:'contextmenu', toggle: this.checked
-      }); 
+      });
 		}, false);
-		
+
 	//display current version
-	document.getElementById('version').innerHTML = chrome.runtime.getManifest().version;
-	
+	$('#version').html(chrome.runtime.getManifest().version);
+
 	//reset to defaults
-	document.getElementById('reset_options').addEventListener('click', function(e){
+	$('#reset_options')[0].addEventListener('click', function(e){
 		clear_options();
 	});
 
 	//link to self on manage extensions page
-	document.getElementById('manage_extension').addEventListener('click', function(e){
+	$('#manage_extension')[0].addEventListener('click', function(e){
     chrome.tabs.create({url: 'chrome://chrome/extensions/?id=' + chrome.runtime.id});
 	});
 })(document);
-	
+

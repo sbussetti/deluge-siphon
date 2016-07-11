@@ -11,35 +11,29 @@
       LISTENERS = {};
 
   function extract_torrent_url(e, site_meta){
-    var element,
+    var $element = $(e.target),
         torrent_match,
         torrent_url,
         attr = site_meta.TORRENT_URL_ATTRIBUTE,
-        regex = new RegExp(site_meta.TORRENT_REGEX);
+        regex = new RegExp(site_meta.TORRENT_REGEX),
+        val;
 
-    if (getAttr(e.target, attr)) element = e.target;
-    if (!getAttr(element, attr)) element = getChildElementByName('a', e.target);
-    if (!getAttr(element, attr)) element = getParentElementByName('a', e.target);
-    var val = getAttr(element, attr);
-    if (val) torrent_match = val.match(regex);
-
-    if (torrent_match) {
-      // for vanilla sites just return the whole matching string...
-      torrent_url = torrent_match.input;
-    }
+    if (!$element.attr(attr)) element = $element.children('a');
+    if (!$element.attr(attr)) element = $element.parent('a');
+    val = attr === 'href' ? $element[0].href : $element.attr(attr);
+    if (!!val) torrent_match = val.match(regex);
+    if (!!torrent_match) torrent_url = torrent_match.input;
     return torrent_url;
   }
 
   function process_event(e){
     //process the event and if possible, sends the extracted link to the controller
     var torrent_url = extract_torrent_url(e, SITE_META);
-    if  (torrent_url) {
-      stopEvent(e);
-      //console.log('addlink', torrent_url, SITE_META.DOMAIN);
-      chrome.runtime.sendMessage(chrome.runtime.id, {
-        method:'addlink-todeluge', url:torrent_url, domain: SITE_META.DOMAIN
-      });
-    }
+    if (!torrent_url) return;
+    stopEvent(e);
+    communicator.sendMessage({
+      method:'addlink-todeluge', url:torrent_url, domain: SITE_META.DOMAIN
+    });
   }
 
   function handle_keydown(e) {
@@ -50,7 +44,7 @@
     if (e.keyCode === CONTROL_KEY) CONTROL_KEY_DEPRESSED = false;
   }
 
-  function handle_rightclick_for_macro(e) {
+  function handle_contextmenu(e) {
     // handles the original control + rightclick macro
     if (CONTROL_KEY_DEPRESSED) process_event(e);
   }
@@ -62,8 +56,6 @@
   function handle_visibilityChange() {
     if (! document.webkitHidden && document.webkitVisibilityState != 'prerender') {
       site_init();
-      // check if settings have changed and adjust handlers accordingly
-      install_configurable_handlers();
     }
   }
 
@@ -80,89 +72,120 @@
     */
 
     /* install control + rightclick keyboard macro */
-    chrome.runtime.sendMessage(chrome.runtime.id, {
+    communicator.sendMessage({
       method: "storage-get-enable_keyboard_macro"
-    }, {}, function(response) {
+    }, function(response) {
       if ( response.value ) {
         // if "control + right click" macro enabled
-        if (! LISTENERS.keydown) {
-          LISTENERS.keydown = handle_keydown;
-          document.addEventListener('keydown', handle_keydown,false);
-        }
-
-        if (! LISTENERS.keyup) {
-          LISTENERS.keyup = handle_keyup;
-          document.addEventListener('keyup', handle_keyup,false);
-        }
-
-        // contextmenu event is just generic rightclick..
-        if (! LISTENERS.contextmenu)  {
-          document.addEventListener('contextmenu', handle_rightclick_for_macro, false);
-          LISTENERS.contextmenu = handle_rightclick_for_macro;
-        }
-
+        registerEventListener('keydown', handle_keydown);
+        registerEventListener('keyup', handle_keyup);
+        registerEventListener('contextmenu', handle_contextmenu);
       } else {
-        // it may have been turned off in settings, so remove if it exists.
-        if (LISTENERS.keydown) {
-          document.removeEventListener('keydown', LISTENERS.keydown);
-          LISTENERS.keydown = null;
-        }
-
-        if (LISTENERS.keyup) {
-          document.removeEventListener('keyup', LISTENERS.keyup);
-          LISTENERS.keyup = null;
-        }
-
-        if (LISTENERS.contextmenu) {
-          document.removeEventListener('contextmenu', LISTENERS.contextmenu);
-          LISTENERS.contextmenu = null;
-        }
-
-        if (LISTENERS.contextmenu_helper) {
-          document.removeEventListener('contextmenu', LISTENERS.contextmenu_helper);
-          LISTENERS.contextmenu_helper = null;
-        }
+        // disable
+        document.removeEventListener('keydown', handle_keydown);
+        document.removeEventListener('keyup', handle_keyup);
+        document.removeEventListener('contextmenu', handle_contextmenu);
       }
     });
 
     /* install leftclick handling */
-    chrome.runtime.sendMessage(chrome.runtime.id, {
+    communicator.sendMessage({
       method: "storage-get-enable_leftclick"
-    }, {}, function(response) {
-      if (!!response.value && !LISTENERS.click) {
-        document.body.addEventListener('click', handle_leftclick, false);
-        LISTENERS.click = handle_leftclick;
-      } else if (!!LISTENERS.click) {
-        // it has been turned off in settings, so remove if it exists.
-        document.body.removeEventListener('click', LISTENERS.click);
-        LISTENERS.click = null;
+    }, function(response) {
+      if (!!response.value) {
+        registerEventListener('click', handle_leftclick, document.body);
+      } else {
+        document.body.removeEventListener('click', handle_leftclick);
       }
     });
   }
 
   function site_init(){
     /*
-      This function identifies the site and sets up things like the regex
-      needed to parse for torrent hrefs, or other more site-specific requirements
-      such as tvtorrent's additional hash and digest info.
+      basically this is where per-site changes/hacks etc go when we need to add support
+      for specific sites.  RIP TVTorrents' weird code.
     */
 
-    /* get regex for link checking from settings */
-    chrome.runtime.sendMessage(chrome.runtime.id, {
+    // get regex for link checking from settings
+    communicator.sendMessage({
       method: 'storage-get-link_regex'
-    }, {}, function(response){
+    }, function(response){
       SITE_META.TORRENT_REGEX = response.value;
+      // check if settings have changed and adjust handlers accordingly
+      install_configurable_handlers();
+
+      // watch for tab changes
+      registerEventListener('webkitvisibilitychange', handle_visibilityChange);
+
+    }, function(exc) {
+      // treat this as a heartbeat.  on failure, close up shop (background page went away)
+      document.removeEventListener('keydown', handle_keydown);
+      document.removeEventListener('keyup', handle_keyup);
+      document.removeEventListener('contextmenu', handle_contextmenu);
+      document.body.removeEventListener('click', handle_leftclick);
+
+      // notify user to reload
     });
-  } /* end site_init */
-
-  // initialize once, then
-  handle_visibilityChange();
-
-  // watch for tab changes
-  if (! LISTENERS.webkitvisibilitychange) {
-    document.addEventListener('webkitvisibilitychange', handle_visibilityChange, false);
-    LISTENERS.webkitvisibilitychange = handle_visibilityChange;
   }
 
-  SITE_META.INSTALLED = true;
+  /* MAIN */
+  communicator.init(!!chrome.runtime.id, function () {
+
+    var modalId = 'delugesiphon-modal-' + chrome.runtime.id,
+        modalTmpl = $.templates(
+          '<form action="javascript:void(0);">' +
+            '<label for="url">url:</label> <input type="text" value="{{>url}}" name="url">' +
+            '<label for="download_location">location:</label> <input type="text" value="{{>config.download_location}}" name="download_location">'+
+            '<label for="move_completed">move completed:</label> <input type="checkbox" {{if config.move_completed}}checked="checked"{{/if}} value="yes" name="move_completed">' +
+            '<label for="move_completed_path">move completed location:</label> <input type="text" value="{{>config.move_completed_path}}" name="move_completed_path">'+
+            '<label for="add_paused">add paused:</label> <input type="checkbox" {{if config.add_paused}}checked="checked"{{/if}} value="yes" name="add_paused">' +
+            '<label for="label">label:</label> <input type="text" value="" name="label">' +
+          '</form>'
+        );
+
+    // listen for messages from the background
+    communicator.observePortMessage(function (req, sendResponse) {
+      console.log('RECV CONTENT MSG', req);
+      if (req.method === "add_dialog") {
+        var $modal = $('#' + modalId);
+        if (!$modal.length) $modal = $('<div/>', {'id': modalId, 'class': 'dsr-000'});
+        $modal.html(modalTmpl.render($.extend({}, req)))
+              .dialog({
+                'title': 'DelugeSiphon on ' + req.domain,
+                'dialogClass': 'dsr-modal',
+                'appendTo': document.body,
+                'minWidth': 450,
+                'closeOnEscape': true,
+                'buttons': [
+                  {
+                    'text': 'Ok',
+                    'click': function () {
+                      var $form = $(this).find('form');
+                      communicator.sendMessage({
+                        method:'addlink-todeluge',
+                        url: $form.find('url').val(),
+                        domain: SITE_META.DOMAIN,
+                        label: $form.find('label').val(),
+                        options: {
+                          'download_location': $form.find('download_location').val(),
+                          'move_completed': $form.find('move_completed').val(),
+                          'move_completed_path': $form.find('move_completed_path').val(),
+                          'add_paused': $form.find('add_paused').val()
+                        }
+                      });
+                    }
+                  },
+                  {
+                    'text': 'Cancel',
+                    'click': function () {
+                      $(this).dialog('close');
+                    }
+                  }
+                ]
+              });
+      }
+    });
+    site_init();
+    console.log('PACKAGE ID: ', chrome.runtime.id);
+  });
 }(window, document));

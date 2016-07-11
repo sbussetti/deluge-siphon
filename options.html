@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="options.css">
 </head>
 <body class="frame">
-	<div class="navigation"> 
+	<div class="navigation">
 		<h3>DelugeSiphon <small><span id="version"></span></small></h3>
 	</div>
 	<div class="mainview view">
@@ -25,7 +25,7 @@
 				<h3>Deluge Server WebUI Password</h3>
 				<div class="textinput opts">
 					<label>
-						<input type="password" id="server_pass" size="40" class="option_field" />		
+						<input type="password" id="server_pass" size="40" class="option_field" />
 					</label>
 				</div>
 				<h2>Notifications</h2>
@@ -39,42 +39,43 @@
 				<div class="checkbox opts">
 					<label>
 						<input type="checkbox" id="enable_context_menu" value="yes" class="option_field"/>
-						<span>Enable context menu entry (right-click)</span>			
+						<span>Enable context menu entry (right-click)</span>
 					</label>
-				</div>				
+				</div>
 				<div class="checkbox opts">
 					<label>
 						<input type="checkbox" id="enable_keyboard_macro" value="yes" class="option_field"/>
-						<span>Enable control + right click macro</span>						
+						<span>Enable control + right click macro</span>
 					</label>
-				</div>					
+				</div>
 				<div class="checkbox opts">
 					<label>
 						<input type="checkbox" id="enable_leftclick" value="yes" class="option_field"/>
 						<span>Enable left click handling</span>
 					</label>
-				</div>			
+				</div>
 				<h3>RegEx pattern for left click on torrent links</h3>
 				<div class="textinput opts">
 					<label>
 						<input type="text" id="link_regex" size="60" class="option_field"/>
 						<br/>
-						<span><small>ex: \.torrent|^magnet:</small></span>						
+						<span><small>ex: \.torrent|^magnet:</small></span>
 					</label>
 				</div>
 				<h2>Debug</h2>
 				<div class="checkbox opts">
 					<label>
 						<input type="checkbox" id="enable_debug_logging" value="yes" class="option_field"/>
-            <span>Enable console debug logging (requires reload from the <a href="#" id="manage_extension">Extensions page</a>)</span>			
+            <span>Enable console debug logging (requires reload from the <a href="#" id="manage_extension">Extensions page</a>)</span>
 					</label>
-				</div>				
+				</div>
 
 			</div>
 		</div>
 	</div>
 </div>
-<script type="text/javascript" src="utils.js"></script>
+<script type="text/javascript" src="lib/jquery-3.0.0.min.js"></script>
+<script type="text/javascript" src="lib/utils.js"></script>
 <script type="text/javascript" src="options.js"></script>
 </body>
 </html>

@@ -1,0 +1,52 @@
+.dsr-000 html, .dsr-000 body, .dsr-000 div, .dsr-000 span, .dsr-000 applet, .dsr-000 object, .dsr-000 iframe,
+.dsr-000 h1, .dsr-000 h2, .dsr-000 h3, .dsr-000 h4, .dsr-000 h5, .dsr-000 h6, .dsr-000 p, .dsr-000 blockquote, .dsr-000 pre,
+.dsr-000 a, .dsr-000 abbr, .dsr-000 acronym, .dsr-000 address, .dsr-000 big, .dsr-000 cite, .dsr-000 code,
+.dsr-000 del, .dsr-000 dfn, .dsr-000 em, .dsr-000 img, .dsr-000 ins, .dsr-000 kbd, .dsr-000 q, .dsr-000 s, .dsr-000 samp,
+.dsr-000 small, .dsr-000 strike, .dsr-000 strong, .dsr-000 sub, .dsr-000 sup, .dsr-000 tt, .dsr-000 var,
+.dsr-000 b, .dsr-000 u, .dsr-000 i, .dsr-000 center,
+.dsr-000 dl, .dsr-000 dt, .dsr-000 dd, .dsr-000 ol, .dsr-000 ul, .dsr-000 li,
+.dsr-000 fieldset, .dsr-000 form, .dsr-000 label, .dsr-000 legend,
+.dsr-000 table, .dsr-000 caption, .dsr-000 tbody, .dsr-000 tfoot, .dsr-000 thead, .dsr-000 tr, .dsr-000 th, .dsr-000 td,
+.dsr-000 article, .dsr-000 aside, .dsr-000 canvas, .dsr-000 details, .dsr-000 embed, .dsr-000
+.dsr-000 figure, .dsr-000 figcaption, .dsr-000 footer, .dsr-000 header, .dsr-000 hgroup, .dsr-000
+.dsr-000 menu, .dsr-000 nav, .dsr-000 output, .dsr-000 ruby, .dsr-000 section, .dsr-000 summary,
+.dsr-000 time, .dsr-000 mark, .dsr-000 audio, .dsr-000 video,
+.dsr-000 input, .dsr-000 input[type="*"], .dsr-000 input[type="text"], .dsr-000 input[type="email"], .dsr-000 input[type="password"], .dsr-000 input[type="search"]  {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+  color: inherit;
+  background: inherit;
+  border: inherit;
+}
+.dsr-000 input:hover, .dsr-000 input[type="*"]:hover, .dsr-000 input[type="text"]:hover, .dsr-000 input[type="email"]:hover, .dsr-000 input[type="password"]:hover, .dsr-000 input[type="search"]:hover,
+.dsr-000 input:focus, .dsr-000 input[type="*"]:focus, .dsr-000 input[type="text"]:focus, .dsr-000 input[type="email"]:focus, .dsr-000 input[type="password"]:focus, .dsr-000 input[type="search"]:focus {
+  color: inherit;
+  background: inherit;
+}
+/* HTML5 display-role reset for older browsers */
+.dsr-000 article, .dsr-000 aside, .dsr-000 details, .dsr-000 figcaption, .dsr-000 figure, .dsr-000
+.dsr-000 footer, .dsr-000 header, .dsr-000 hgroup, .dsr-000 menu, .dsr-000 nav, .dsr-000 section {
+	display: block;
+}
+.dsr-000 body {
+	line-height: 1;
+}
+.dsr-000 ol, .dsr-000 ul {
+	list-style: none;
+}
+.dsr-000 blockquote, .dsr-000 q {
+	quotes: none;
+}
+.dsr-000 blockquote:before, .dsr-000 blockquote:after,
+.dsr-000 q:before, .dsr-000 q:after {
+	content: '';
+	content: none;
+}
+.dsr-000 table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}

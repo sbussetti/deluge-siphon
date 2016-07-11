@@ -37,8 +37,17 @@
     ], 
     "js": [
       "lib/jquery-3.0.0.min.js",
+      "lib/jquery-migrate-3.0.0.min.js",
+      "lib/jquery-ui.min.js",
+      "lib/jsrender.min.js",
       "lib/utils.js", 
+      "lib/controller_communicator.js", 
       "content_handler.js"
+    ],
+    "css": [
+      "lib/jquery-ui.min.css",
+      "content_reset.css",
+      "content_handler.css"
     ]
   }],
   "background": {
@@ -51,13 +60,7 @@
     ]
   },
   "web_accessible_resources": [
-    "images/login-16.png",
-    "images/login.png",
-    "images/notify.png",
-    "images/notify_added.png",
-    "images/notify_error.png",
-    "images/notify_request.png",
-    "images/options-16.png",
-    "images/options.png"
+    "images/*.png",
+    "lib/images/*.png"
   ]
 }
