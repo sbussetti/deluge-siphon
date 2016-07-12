@@ -1,14 +1,18 @@
 .dsr-modal .dsr-000 label {
   display: inline-block;
-  width: 80px;
-  clear: none;
+  width: 100px;
+  text-align: right;
 }
 
 .dsr-modal .dsr-000 input {
-  display: inline-block;
-  width: 300px;
-  border: 1px solid black;
-  clear: right;
+  display: inline;
+  width: 290px;
+  border: 1px solid #CCC;
+  padding: 3px;
+}
+
+.dsr-modal .dsr-000 input[type=checkbox] {
+  width: auto;
 }
 
 .dsr-modal .dsr-000 .ui-dialog-titlebar-close {

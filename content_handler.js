@@ -10,29 +10,35 @@
       },
       LISTENERS = {};
 
-  function extract_torrent_url(e, site_meta){
-    var $element = $(e.target),
+  function extract_torrent_url(target, site_meta){
+    var $target = $(target),
+        $element = $target,
         torrent_match,
         torrent_url,
         attr = site_meta.TORRENT_URL_ATTRIBUTE,
         regex = new RegExp(site_meta.TORRENT_REGEX),
         val;
 
-    if (!$element.attr(attr)) element = $element.children('a');
-    if (!$element.attr(attr)) element = $element.parent('a');
+    if (!$element.attr(attr)) $element = $target.parent('a');
+    if (!$element.attr(attr)) $element = $target.children('a');
+    if (!$element.length) return;
     val = attr === 'href' ? $element[0].href : $element.attr(attr);
     if (!!val) torrent_match = val.match(regex);
+    console.log(regex, val, torrent_match);
     if (!!torrent_match) torrent_url = torrent_match.input;
     return torrent_url;
   }
 
   function process_event(e){
     //process the event and if possible, sends the extracted link to the controller
-    var torrent_url = extract_torrent_url(e, SITE_META);
+    var torrent_url = extract_torrent_url(e.target, SITE_META);
     if (!torrent_url) return;
+    console.log('Extrated torrent_url: `'  + torrent_url + '`');
     stopEvent(e);
     communicator.sendMessage({
-      method:'addlink-todeluge', url:torrent_url, domain: SITE_META.DOMAIN
+      method:'addlink-todeluge',
+      url:torrent_url,
+      domain: SITE_META.DOMAIN
     });
   }
 
@@ -134,18 +140,33 @@
     var modalId = 'delugesiphon-modal-' + chrome.runtime.id,
         modalTmpl = $.templates(
           '<form action="javascript:void(0);">' +
-            '<label for="url">url:</label> <input type="text" value="{{>url}}" name="url">' +
-            '<label for="download_location">location:</label> <input type="text" value="{{>config.download_location}}" name="download_location">'+
-            '<label for="move_completed">move completed:</label> <input type="checkbox" {{if config.move_completed}}checked="checked"{{/if}} value="yes" name="move_completed">' +
-            '<label for="move_completed_path">move completed location:</label> <input type="text" value="{{>config.move_completed_path}}" name="move_completed_path">'+
-            '<label for="add_paused">add paused:</label> <input type="checkbox" {{if config.add_paused}}checked="checked"{{/if}} value="yes" name="add_paused">' +
-            '<label for="label">label:</label> <input type="text" value="" name="label">' +
+            '<div>' +
+              '<label for="url">url:</label>' +
+              '<input type="text" value="{{>url}}" name="url">' +
+            '</div><div>'  +
+              '<label for="download_location">name:</label>' +
+              '<input type="text" value="{{>info.name}}" name="options[download_location]">'+
+            '</div><div>'  +
+              '<label for="download_location">location:</label>' +
+              '<input type="text" value="{{>config.download_location}}" name="options[download_location]">'+
+            '</div><div>'  +
+              '<label for="move_completed">move completed:</label> ' +
+              '<input type="checkbox" {{if config.move_completed}}checked="checked"{{/if}} value="yes" name="options[move_completed]">' +
+              '<input type="text" value="{{>config.move_completed_path}}" name="options[move_completed_path]">'+
+            '</div><div>'  +
+              '<label for="add_paused">add paused:</label>' +
+              '<input type="checkbox" {{if config.add_paused}}checked="checked"{{/if}} value="yes" name="options[add_paused]">' +
+            '</div>' +
+            '{{if plugins.Label}}<div>'  +
+              '<label for="label">label:</label> <input type="text" value="" name="label">' +
+            '</div>{{/if}}'  +
           '</form>'
         );
 
     // listen for messages from the background
     communicator.observePortMessage(function (req, sendResponse) {
       console.log('RECV CONTENT MSG', req);
+
       if (req.method === "add_dialog") {
         var $modal = $('#' + modalId);
         if (!$modal.length) $modal = $('<div/>', {'id': modalId, 'class': 'dsr-000'});
@@ -160,19 +181,11 @@
                   {
                     'text': 'Ok',
                     'click': function () {
-                      var $form = $(this).find('form');
-                      communicator.sendMessage({
+                      var args = $.extend({
                         method:'addlink-todeluge',
-                        url: $form.find('url').val(),
-                        domain: SITE_META.DOMAIN,
-                        label: $form.find('label').val(),
-                        options: {
-                          'download_location': $form.find('download_location').val(),
-                          'move_completed': $form.find('move_completed').val(),
-                          'move_completed_path': $form.find('move_completed_path').val(),
-                          'add_paused': $form.find('add_paused').val()
-                        }
-                      });
+                        domain: SITE_META.DOMAIN
+                      }, $(this).find('form').serializeObject());
+                      communicator.sendMessage(args);
                     }
                   },
                   {

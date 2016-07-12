@@ -40,6 +40,7 @@
       "lib/jquery-migrate-3.0.0.min.js",
       "lib/jquery-ui.min.js",
       "lib/jsrender.min.js",
+      "lib/jquery.serialize-object.js",
       "lib/utils.js", 
       "lib/controller_communicator.js", 
       "content_handler.js"

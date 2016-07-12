@@ -34,7 +34,8 @@
 		{ id:'enable_context_menu', def: true, opts:{} },
 		{ id:'enable_keyboard_macro', def: true, opts:{} },
 		{ id:'enable_leftclick', def: false, opts:{} },
-		{ id:'link_regex', def: '(\\.|\\/|^)torrent(s\\.php)?($|\\?action=download)|^magnet:', opts:{} },
+		{ id:'link_regex', def: '(\\/|^)(torrents|index)\\.php.*?(\\&|\\?)action=download|^magnet:|\\.torrent($|\\?)', opts:{} },
+
 		{ id:'enable_debug_logging', def: false, opts:{} },
 	];
 
