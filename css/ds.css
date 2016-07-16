@@ -1,0 +1,14 @@
+*,body {
+    font-family: 'VT323', cursive;
+}
+
+section {
+    width: 960px;
+    margin:0 auto;
+    text-align: center;
+}
+
+section.hero {
+    height: 128px;
+    background:transparent url(../img/icon-128.png) 416px 0 no-repeat;
+}
