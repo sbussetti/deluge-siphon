@@ -8,6 +8,7 @@
 *,body { font-family: 'VT323', cursive; }
 section { width: 960px; margin:0 auto; text-align: center; }
 section.hero { height: 128px; background:transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABmJLR0QACgAvAGzE5o9wAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAEBUlEQVR42u2dMWgTURjHLzWohFIctOrQwWToZsFFF8VJUHFw6GShQ9dQEV0UgkhAF0UsWTsU6uTgICqIiCiILkLcOgQHB7U6SCkBNY0OYng57r2+e/fu7l3e7zeld8nx+vr1//u+a9oGAQAAAAAAAHhEyZWFTBxt/vFp4zfeNZzY+zG+B/yGAvCcsisxvzg3PXhcq9W0rtfpdJzYRJP1LgXyvchSDyQACgCmgBxi3kaMuoiNz2NpdS2z6YEEQAFAAQBjYNaeVznQdc+bul3VH4jnFufk17c9PpIAKAAYA2NGvek4J8Zj+HlFjn0b46Jqb5KOjyo1kAAoACgA8LcHUI10966f0fKQ7nin+zxTvn3+NHi87+BU5PE4yK4hHk+jJzDdQ1nvcPHGExIAKACIYOhO4KOV+tDJmek9kS+63eokHmFsjIHhaLcR+yZKMVFCGmPg+dNHIo9Xq9Whj8/Nt0gAoAAg2OaHQe21H5HHr9Rnpa95+PR9qgtWdeN5TQFpTwi6ey/7epEAQAEABQBxewAT18hGkX/9gXyckd3hMh31bI+BpuOneE73Lp5qD008TwIABQDRDP0wKHwn0DayO4tZjI+ukWXMh+FOIFAAEKGAMGkrQVcPo0jaMS+LfBIAKACgAOB/D6A6KesPsuwNILnr+b0AQAFgoIC4akAP+Y50/HYwoACgACDtHoD+oFieJwGAAoAUFVCundX6U++VvccC9LB9zHe/v9W6Rq/zuEQCAAUAGSsgHPm9fvK3YE9Mznq18RvrD5Krd2wqsRJIABQAFAB4i5V/GXPi1Pzg8atnK7k50QfEvX7z/AUJABQA5K0AWUSFMdWDzzFPAgAFAI4rYPNnHz1YjHnd/SQBgAIACgASYP0NIYePnzS6xvguv2rR1PMfXr8cPOYNIYACwAEFyHQQxlQPviHGfBgbsU8CAAUAKSkAPbgX8yQAUABAAUDePYBpf+B636DyuQueJwGAAgDHFSCjMlOXquHX5kcn1rhz/JD0XLfdKpEAQAEABQD0AMm9392S12xlRzZvpjRdg4v9AAmAAgAFOBb7qogtMqIeXNEBCYACAAU4PAVcvXZZ+3WN5t1M1tdsXNJ+7q2bd5gCAAWAo5RdX6AYoQsLFyKfM7n/QC5rW//6JfL48vJ9CiAJoitVdwVVbrbdD8TxvuxzQQFAAiRBjFZRB2IUp62DUYj9QhWADR3kuWamAHCaUlEXLqaBqIMsFSDGfpG+6wvbAyRxNKAAGCUF6Ogg7Umk227tDoKgFwTBFgngJ/2i72GZr2EifqMAD3QwCt0+CgAKADxQgC0djHLskwBAAYAHCoirA19inwQACgA8U4BMByK+xD4JABQAAAAAAAAAgIf8Bej+o+5OfvzJAAAAAElFTkSuQmCC") 416px 0 no-repeat; }
+ul { list-style: none; }
 </head>
 </style>
 <body>
@@ -19,5 +20,152 @@ section.hero { height: 128px; background:transparent url("data:image/png;base64,
     <a href="https://github.com/sbussetti/deluge-siphon" target="_blank">delugesiphon on github</a> |
     <a href="https://chrome.google.com/webstore/detail/delugesiphon/gabdloknkpdefdpkkibplcfnkngbidim" target="_blank">get delugesiphon for chrome</a>
 </section>
+
+<section>
+<h1><a id="delugesiphon__Open_Source_Extension_for_Chrome_0"></a>An Open Source Extension for Chrome</h1>
+<p>Author: S Bussetti</p>
+<p>Web: <a href="https://github.com/sbussetti/deluge-siphon">https://github.com/sbussetti/deluge-siphon</a></p>
+<p>Released under the Apache License 2.0</p>
+<p>Just a simple Chrome extension for sending torrent links directly to your Deluge server</p>
+<h2><a id="Changelist_10"></a>Changelist</h2>
+<h3><a id="v_07_12"></a>v 0.7.0</h3>
+<ul>
+<li>Near complete rewrite as foundation for upcoming improvements.</li>
+</ul>
+<h3><a id="v_0665_Bugfix__Cleanup_15"></a>v 0.66.5 Bugfix / Cleanup</h3>
+<ul>
+<li>Removed use of synchronous ajax request when ensuring webui is connected to an online daemon</li>
+<li>General cleanup</li>
+<li>Removed cruft around tvtorrents support.</li>
+</ul>
+<h3><a id="v_0664_Bugfix__Upgrade_20"></a>v 0.66.4 Bugfix / Upgrade</h3>
+<ul>
+<li>Upgraded use of deprecated chrome.extension Messaging API</li>
+<li>Upgraded notifications to use new Rich Notifications API</li>
+<li>Added configurable debug logging in background page for troubleshooting</li>
+<li>Fixed lame version comparison bug preventing users of Deluge &gt;1.3.9 from adding magnet links</li>
+<li>Various minor fixes / performance improvements.</li>
+</ul>
+<h3><a id="v_0663_Bugfix_27"></a>v 0.66.3 Bugfix</h3>
+<ul>
+<li>minor update to improve support of <a href="http://tvtorrents.com">tvtorrents.com</a></li>
+</ul>
+<h3><a id="v_0661_Bugfix_30"></a>v 0.66.1 Bugfix</h3>
+<ul>
+<li>accept pull request  from pstackle to update notification api call</li>
+<li>minor cleanup / review</li>
+<li>another update to TvTorrents handling to prevent local download of torrent file.</li>
+</ul>
+<h3><a id="v_066_Link_scraping_refactor_35"></a>v 0.66 Link scraping refactor</h3>
+<ul>
+<li>major overhaul to logic for extracting links from the page. includes support of <a href="http://tvtorrents.com">tvtorrents.com</a></li>
+<li>fixed a glitch with reconnecting to the server the first time</li>
+<li>standardized icon set</li>
+</ul>
+<h3><a id="v_06511_Notifications_Update_lawrencealanhttpgithubcomlawrencealan_40"></a>v 0.65.11 Notifications Update (<a href="http://github.com/lawrencealan">lawrencealan</a>)</h3>
+<ul>
+<li>Started tracking notifications with IDs (url hashes)</li>
+<li>Only one notification per ID will be shown</li>
+<li>Added optional notification type(s):
+<ul>
+<li>request</li>
+<li>added</li>
+<li>error</li>
+</ul>
+</li>
+<li>Added icons that indicate notification type(s)</li>
+</ul>
+<h3><a id="v_06510_Improved_options_section_49"></a>v 0.65.10 Improved options section.</h3>
+<h3><a id="v_0659_Context_menu_now_configurable_from_settings_51"></a>v 0.65.9 Context menu now configurable from settings</h3>
+<h3><a id="v_0658_Better_torrent_checking_53"></a>v 0.65.8 Better torrent checking</h3>
+<ul>
+<li>Server now pre-checks torrents to try and verify if they are valid before attempting to add them.  This should hopefully improve users’ ability to identify issues when adding.</li>
+</ul>
+<h3><a id="v_0657_Logging_adjustment_56"></a>v 0.65.7 Logging adjustment</h3>
+<h3><a id="v_0656_Bugfix_58"></a>v 0.65.6 Bugfix</h3>
+<ul>
+<li>Improved adding links from some sites.</li>
+<li>Resolved issue: <a href="https://github.com/sbussetti/deluge-siphon/issues/2">https://github.com/sbussetti/deluge-siphon/issues/2</a></li>
+</ul>
+<h3><a id="v_0655_Visual_updates_62"></a>v 0.65.5 Visual updates</h3>
+<h3><a id="v_0654_Improvements_64"></a>v 0.65.4 Improvements</h3>
+<ul>
+<li>Improved handling of server identification.</li>
+<li>Used improved server ident to warn users with Deluge &lt; 1.3.3 that they need to upgrade in order to use magnet links.</li>
+<li>Improved click event targeting making delugesiphon better at getting the torrent url out of the page.  This fixes issues with adding certain types of torrents from thepiratebay and other sites like it.</li>
+</ul>
+<h3><a id="v_0653_Bugfix_69"></a>v 0.65.3 Bugfix</h3>
+<h3><a id="v_0652_Bugfix_71"></a>v 0.65.2 Bugfix</h3>
+<ul>
+<li>Fixed bug introduced with default settings logic in 0.65 that prevented turning off some options.</li>
+</ul>
+<h3><a id="v_0651_Visual_updates_74"></a>v 0.65.1 Visual updates.</h3>
+<ul>
+<li>Added nice new toolbar icons that follow Google size recommendations</li>
+<li>Minor restyle of options and popup pages for clarity.</li>
+<li>better validation/save functionality on options page.</li>
+</ul>
+<h3><a id="v_065_Added_support_for_leftclick_handling_lawrencealanhttpgithubcomlawrencealan_79"></a>v 0.65 Added support for left-click handling (<a href="http://github.com/lawrencealan">lawrencealan</a>)</h3>
+<ul>
+<li>Fixed magnet link handling</li>
+<li>Added support for regular click handling, with regular expression matching of HREF attributes</li>
+</ul>
+<h3><a id="v_064_Upgrade_to_Manifiest_20_AJAX_link_support_lawrencealanhttpgithubcomlawrencealan_83"></a>v 0.64 Upgrade to Manifiest 2.0, AJAX link support (<a href="http://github.com/lawrencealan">lawrencealan</a>)</h3>
+<ul>
+<li>Upgraded manifest.json and relative files to 2.0</li>
+<li>Modified event listeners to use a single global “contextmenu” event listener on the window, so that sites that use AJAX updating to insert new links will work without having to re-scan the DOM for new anchor elements. This is also less work for the browser (versus scanning anchor elements) – any contextmenu events will bubble up to this listener without having multiples.</li>
+</ul>
+<h3><a id="v_0636_Magnet_Support_87"></a>v 0.63.6 Magnet Support</h3>
+<ul>
+<li>Issue 7: Now supporting sending remote magnet links to your deluge server.</li>
+</ul>
+<h3><a id="v_0635_Bugfix_90"></a>v 0.63.5 Bugfix</h3>
+<ul>
+<li>Issue 4: Cleaned up background getsession process, removed some related hacks/debug code.</li>
+<li>Issue 5: manifest.json was missing permissions to make XHR requests over https and ftp, despite allowing content scripts to access links of the same protocol.</li>
+</ul>
+<h3><a id="v_0634_Bugfix_94"></a>v 0.63.4 Bugfix</h3>
+<ul>
+<li>Fixed a small bug related to connection polling.</li>
+</ul>
+<h3><a id="v_0633_Bugfix_97"></a>v 0.63.3 Bugfix</h3>
+<ul>
+<li>Added support for all private trackers that do not include authentication tokens in their torrent urls, or require cookies to download torrent files. Should make this compatible with many many more trackers.</li>
+<li>Added a link to log into your web-ui from extension tooltip.</li>
+</ul>
+<h3><a id="v_0632_Bugfix_101"></a>v 0.63.2 Bugfix</h3>
+<ul>
+<li>Spelling error in options page.</li>
+<li>Major refactor including:
+<ul>
+<li>Ditched old in-page notifications in favor of standard Chrome notifications which are compatible with context menu actions.</li>
+<li>Context menu update to resolve issue where right-click menu fails.</li>
+</ul>
+</li>
+</ul>
+<h3><a id="v_063__0631_Bugfix_107"></a>v 0.63 &amp; 0.63.1 Bugfix</h3>
+<ul>
+<li>Sorry about all the context menu bugs.  Fixed the “no context menu” and “too many context menu” entries bugs, now you get the right amount all the time.</li>
+</ul>
+<h3><a id="v_062_Encontextening_110"></a>v 0.62 Encontextening</h3>
+<ul>
+<li>Added context menu item.</li>
+<li>Added Options item “Enable Control + Rightclick Macro”.  Old macro disabled by default.</li>
+<li>Unbroke saving options (sorry about that).</li>
+</ul>
+<h3><a id="v_061_Bugfix_115"></a>v 0.61 Bugfix</h3>
+<ul>
+<li>More consistent styles for inpage notifications</li>
+<li>Better direction of user to options page.</li>
+</ul>
+<h3><a id="v_06_Bugfix_119"></a>v. 0.6 Bugfix</h3>
+<ul>
+<li>Improved options page: automatic save, some url cleanup.</li>
+<li>Now automatically reconnects your webui to your deluge daemon.  Will not attempt to start an offline daemon.</li>
+<li>Password no longer a required field.</li>
+</ul>
+<h3><a id="v_05_Initial_Release_124"></a>v. 0.5 Initial Release</h3>
+</section>
 </body>
 </html>
+
