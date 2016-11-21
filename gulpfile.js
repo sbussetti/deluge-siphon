@@ -98,7 +98,6 @@ gulp.task( 'build-options-js', function () {
 
 } );
 
-
 gulp.task( 'copy-project-files', function ( callback ) {
 	manifest.content_scripts[ 0 ].css = [ 'content.min.css' ];
 	manifest.content_scripts[ 0 ].js = [ 'content.min.js' ];

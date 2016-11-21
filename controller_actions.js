@@ -85,25 +85,30 @@ delugeConnection.prototype.getTorrentInfo = function ( url ) {
 		.then( this._getTorrentInfo.bind( this ) )
 
 		.then( function () {
-            console.log(this.plugin_info);
+			console.log( this.plugin_info );
 			$d.resolveWith( this, arguments );
 		}.bind( this ) );
 
 	return $d;
 };
 
-delugeConnection.prototype.supportsMagnetLinks = function ( callback ) {
+delugeConnection.prototype._supportsMagnetLinks = function ( server_config, daemon_info ) {
 
-	// TODO: kill callback pattern
-	return this
+	console.log( 'MAGSUP' );
 
-		._connect()
+	var $d = jQuery.Deferred();
 
-		.then( function ( server_config ) {
-			callback( !!versionCompare( DAEMON_INFO.version, '1.3.3', { zeroExtend: true } ) );
-		} )
+	console.log( 'PREMAGE', server_config );
+	var supported = !!versionCompare( DAEMON_INFO.version, '1.3.3', { zeroExtend: true } );
+	console.log( 'MAGNETS', supported );
 
-		.promise();
+	if ( supported ) {
+		$d.resolveWith( this );
+	} else {
+		$d.rejectWith( this );
+	}
+
+	return $d.promise();
 };
 
 /* helpers */
@@ -161,7 +166,8 @@ delugeConnection.prototype._connect = function () {
 
 		.then( this._getServerConfig.bind( this ) )
 
-		.promise();
+        .promise();
+
 };
 
 delugeConnection.prototype._request = function ( state, params ) {
@@ -388,7 +394,7 @@ delugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
 					case 'Connected':
 
-						console.log( '_getHostStatus__callback', 'Connected' );
+						console.log( '_getConnectedDaemon__callback', 'Connected', daemon_info );
 
 						$d.resolveWith( this, [ daemon_info ] );
 
@@ -396,7 +402,7 @@ delugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
 					case 'Online':
 
-						console.log( '_getHostStatus__callback', 'Connecting' );
+						console.log( '_getConnectedDaemon__callback', 'Connecting' );
 
 						$d = this._connectDaemon( daemon_info );
 
@@ -404,7 +410,7 @@ delugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
 					case 'Offline':
 
-						console.log( '_getHostStatus__callback', 'Connecting' );
+						console.log( '_getConnectedDaemon__callback', 'Connecting' );
 
 						$d = this._startDaemon( daemon_info )
 
@@ -414,7 +420,7 @@ delugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
 					default:
 
-						console.log( '_getHostStatus__callback', 'UNKNOWN STATUS: ' + daemon_info.status );
+						console.log( '_getConnectedDaemon__callback', 'UNKNOWN STATUS: ' + daemon_info.status );
 
 						notify(
 							{
@@ -439,6 +445,8 @@ delugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
 				DAEMON_INFO = daemon_info;
 				this.CONNECT_ATTEMPTS = 0;
+
+                return daemon_info;
 
 			}.bind( this ) );
 
@@ -554,11 +562,12 @@ delugeConnection.prototype._connectDaemon = function ( daemon_info ) {
 	return $d.promise();
 };
 
-delugeConnection.prototype._getServerConfig = function () {
+delugeConnection.prototype._getServerConfig = function ( daemon_info ) {
 
-	console.log( '_getServerConfig' );
+	console.log( '_getServerConfig', daemon_info );
 
 	var $d = jQuery.Deferred();
+
 	this._request( 'getconfig', {
 		'method': 'core.get_config_values',
 		'params': [ [
@@ -574,7 +583,7 @@ delugeConnection.prototype._getServerConfig = function () {
 
 		console.log( '_getServerConfig__callback', payload.result );
 		this.server_config = $.extend( true, {}, payload.result );
-		$d.resolveWith( this, [ this.server_config ] );
+		$d.resolveWith( this, [ this.server_config, daemon_info ] );
 
 	}.bind( this ) );
 
@@ -634,45 +643,43 @@ delugeConnection.prototype._getBlocklistInfo = function () {
 
 /* add torrent logic */
 
-delugeConnection.prototype._addTorrent = function ( server_config ) {
+delugeConnection.prototype._addTorrent = function ( server_config, daemon_info ) {
 
-	console.log( '_addTorrent' );
+	console.log( '_addTorrent', server_config, daemon_info );
 
 	// TODO: cleaner factoring
 	var $d = jQuery.Deferred();
 
 	if ( this.torrent_url.substr( 0, 7 ) == 'magnet:' ) {
 
+        this._supportsMagnetLinks(daemon_info)
 
-		this.supportsMagnetLinks( function ( supported ) {
-			if ( supported ) {
+			.fail(
+				function () {
 
-				this
+					notify(
+						{ 'message': 'Your version of Deluge [' + DAEMON_INFO.version + '] does not support magnet links. Consider upgrading.' },
+						-1,
+						'server',
+						'error',
+						this.silent
+					);
 
-					._downloadTorrent( server_config )
+					$d.rejectWith( this );
 
-					.then( this._getTorrentInfo.bind( this ) )
+				} )
 
-					.then( this._addTorrentToServer.bind( this ) )
+			.then( this._downloadTorrent.bind( this ) )
 
-					.then( function () {
-						$d.resolveWith( this );
-					}.bind( this ) );
+			.then( this._getTorrentInfo.bind( this ) )
 
-			} else {
+			.then( this._addTorrentToServer.bind( this ) )
 
-				notify(
-					{ 'message': 'Your version of Deluge [' + DAEMON_INFO.version + '] does not support magnet links. Consider upgrading.' },
-					-1,
-					'server',
-					'error',
-					this.silent
-				);
+			.then( function () {
 
-				$d.rejectWith( this );
+				$d.resolveWith( this );
 
-			}
-		}.bind( this ) );
+			}.bind( this ) );
 
 	} else {
 
@@ -709,23 +716,23 @@ delugeConnection.prototype._downloadTorrent = function ( server_config ) {
 			"method": "web.download_torrent_from_url",
 			"params": [ this.torrent_url, this.cookie ],
 			"id": "-17002"
-		} ).then( 
-            function ( payload ) {
-                if ( !payload || !payload.result ) {
-                    notify( { 'message': 'Failed to download torrent: ' + this.torrent_url }, -1, this._getNotificationId(), 'error', this.silent );
-                    $d.rejectWith( this );
-                } else {
+		} ).then(
+			function ( payload ) {
+				if ( !payload || !payload.result ) {
+					notify( { 'message': 'Failed to download torrent: ' + this.torrent_url }, -1, this._getNotificationId(), 'error', this.silent );
+					$d.rejectWith( this );
+				} else {
 
-                    console.log( '_downloadTorrent__callback', payload.result );
-                    $d.resolveWith( this, [ payload.result, server_config ] );
+					console.log( '_downloadTorrent__callback', payload.result );
+					$d.resolveWith( this, [ payload.result, server_config ] );
 
-                }
-            },
-            function ( ) {
-                console.log( arguments );
-                $d.rejectWith( this );
-            }
-        );
+				}
+			},
+			function () {
+				console.log( arguments );
+				$d.rejectWith( this );
+			}
+		);
 
 	}
 
@@ -874,7 +881,7 @@ if ( localStorage.enable_context_menu ) {
 }
 
 function handleMessage ( request, sendResponse ) {
-    console.log('HANDLE MESSAGE', request);
+	console.log( 'HANDLE MESSAGE', request );
 	var bits = request.method.split( '-' );
 	//field connections from the content-handler via Chrome's secure pipeline hooey
 	if ( request.method == "contextmenu" ) {
@@ -930,22 +937,22 @@ function handleMessage ( request, sendResponse ) {
 		if ( addtype === 'todeluge' ) {
 
 			new delugeConnection( domain, silent )
-                .addTorrent( url, label, options );
+				.addTorrent( url, label, options );
 
-        } else if ( addtype === 'todeluge:withoptions'  ) {
+		} else if ( addtype === 'todeluge:withoptions' ) {
 
-            new delugeConnection( domain, silent )
-                .getTorrentInfo( url )
-                .done( function ( file_name, info ) {
-                    sendResponse( {
-                        'method': 'add_dialog',
-                        'url': url,
-                        'domain': domain,
-                        'config': this.server_config,
-                        'info': info,
-                        'plugins': this.plugin_info
-                    } );
-                } );
+			new delugeConnection( domain, silent )
+				.getTorrentInfo( url )
+				.done( function ( file_name, info ) {
+					sendResponse( {
+						'method': 'add_dialog',
+						'url': url,
+						'domain': domain,
+						'config': this.server_config,
+						'info': info,
+						'plugins': this.plugin_info
+					} );
+				} );
 
 		} else {
 			notify( { 'message': 'Unknown server type: `' + addtype + '`' }, 3000, 'server', 'error' );
@@ -956,9 +963,9 @@ function handleMessage ( request, sendResponse ) {
 }
 
 communicator
-    .observeMessage( handleMessage )
-    .init();
+	.observeMessage( handleMessage )
+	.init();
 
-chrome.runtime.onInstalled.addListener(function () {
-    chrome.tabs.create({ url: 'https://sbussetti.github.io/deluge-siphon/' });
-});
+chrome.runtime.onInstalled.addListener( function () {
+	chrome.tabs.create( { url: 'https://sbussetti.github.io/deluge-siphon/' } );
+} );

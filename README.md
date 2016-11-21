@@ -9,6 +9,8 @@
   Just a simple Chrome extension for sending torrent links directly to your Deluge server
 
 ## Changelist
+### v 0.70.1
+  * Fix bug with magnet links
 
 ### v 0.70.0
   * Near complete rewrite as foundation for upcoming improvements.
