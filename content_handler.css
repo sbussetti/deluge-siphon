@@ -1,20 +1,90 @@
-.dsr-modal .dsr-000 label {
+#delugesiphon-modal-__MSG_@@extension_id__ {
+  background: #304663;
+  font-family: 'Chrome Droid Sans', 'Droid Sans Fallback', 'Lucida Grande', sans-serif;
+  color: #D1DAE5;
+  position: relative;
+  font-size: 1.5em;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ form {
+  margin: 54px 0 0 0;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ form > div {
+  margin: 4px 0;
+  white-space: nowrap;
+  height: 23px;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ h3 {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  color: #D1DAE5;
+  background: url('chrome-extension://__MSG_@@extension_id__/images/navbar.gif') 0 0 repeat-x;
+  text-overflow: ellipsis;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 1.25em;
+  vertical-align: middle;
+  height: 48px;
+  line-height: 40px;
+  padding: 4px 26px;
+  margin: 0 0 10px 0;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ .note {
+  text-align: center;
+  font-size: 0.75em;
+  height: 1.25em;
+  line-height: 0.75em;
+  font-style: italic;
+  color: #999;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ label {
+  color: #D1DAE5;
   display: inline-block;
-  width: 100px;
+  width: 115px;
+  padding-right: 10px;
   text-align: right;
+  font-size: 0.8em;
+  line-height: 23px;
+  vertical-align: middle;
 }
 
-.dsr-modal .dsr-000 input {
-  display: inline;
-  width: 290px;
+#delugesiphon-modal-__MSG_@@extension_id__ input,
+#delugesiphon-modal-__MSG_@@extension_id__ button,
+#delugesiphon-modal-__MSG_@@extension_id__ input[type="text"],
+#delugesiphon-modal-__MSG_@@extension_id__ input[type="checkbox"],
+#delugesiphon-modal-__MSG_@@extension_id__ input[type="submit"] {
+  display: inline-block;
   border: 1px solid #CCC;
-  padding: 3px;
+  font-size: 0.8em;
 }
 
-.dsr-modal .dsr-000 input[type=checkbox] {
+#delugesiphon-modal-__MSG_@@extension_id__ input[type="text"] {
+  width: 310px;
+  padding: 3px;
+  margin: 0;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ input[type="checkbox"] {
   width: auto;
 }
 
-.dsr-modal .dsr-000 .ui-dialog-titlebar-close {
-  display: none;
+#delugesiphon-modal-__MSG_@@extension_id__ .buttons {
+  text-align: center;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ input[type="submit"],
+#delugesiphon-modal-__MSG_@@extension_id__ button {
+  min-width: 60px;
+  display: inline-block;
+  margin: 0 auto;
 }

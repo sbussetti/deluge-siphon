@@ -1,4 +1,4 @@
-.dsr-000 html, .dsr-000 body, .dsr-000 div, .dsr-000 span, .dsr-000 applet, .dsr-000 object, .dsr-000 iframe,
+.dsr-000, .dsr-000 html, .dsr-000 body, .dsr-000 div, .dsr-000 span, .dsr-000 applet, .dsr-000 object, .dsr-000 iframe,
 .dsr-000 h1, .dsr-000 h2, .dsr-000 h3, .dsr-000 h4, .dsr-000 h5, .dsr-000 h6, .dsr-000 p, .dsr-000 blockquote, .dsr-000 pre,
 .dsr-000 a, .dsr-000 abbr, .dsr-000 acronym, .dsr-000 address, .dsr-000 big, .dsr-000 cite, .dsr-000 code,
 .dsr-000 del, .dsr-000 dfn, .dsr-000 em, .dsr-000 img, .dsr-000 ins, .dsr-000 kbd, .dsr-000 q, .dsr-000 s, .dsr-000 samp,
@@ -15,10 +15,10 @@
 	margin: 0;
 	padding: 0;
 	border: 0;
-	font-size: 100%;
-	font: inherit;
+	font: initial;
+	font-size: initial;
 	vertical-align: baseline;
-  color: inherit;
+  color: initial;
   background: inherit;
   border: inherit;
 }

@@ -1,4 +1,5 @@
-# DelugeSiphon - Open Source Extension for Chrome
+# delugesiphon - Open Source Extension for Chrome
+
   Author: S Bussetti
   
   Web: https://github.com/sbussetti/deluge-siphon
@@ -8,6 +9,9 @@
   Just a simple Chrome extension for sending torrent links directly to your Deluge server
 
 ## Changelist
+
+### v 0.7
+  * Near complete rewrite as foundation for upcoming improvements.
 
 ### v 0.66.5 Bugfix / Cleanup
   * Removed use of synchronous ajax request when ensuring webui is connected to an online daemon
@@ -61,7 +65,7 @@
 ### v 0.65.4 Improvements
   * Improved handling of server identification.
   * Used improved server ident to warn users with Deluge < 1.3.3 that they need to upgrade in order to use magnet links.
-  * Improved click event targeting making DelugeSiphon better at getting the torrent url out of the page.  This fixes issues with adding certain types of torrents from thepiratebay and other sites like it.
+  * Improved click event targeting making delugesiphon better at getting the torrent url out of the page.  This fixes issues with adding certain types of torrents from thepiratebay and other sites like it.
 
 ### v 0.65.3 Bugfix
 

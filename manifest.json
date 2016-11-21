@@ -1,21 +1,22 @@
 {
   "manifest_version": 2,
-  "name": "DelugeSiphon",
-  "short_name": "DelugeSiphon",
-  "version": "0.66.6",
+  "name": "delugesiphon",
+  "short_name": "delugesiphon",
+  "version": "0.7.0",
   "description": "Send your links to a Deluge server.",
+  "homepage_url": "http://sbussetti.github.io/deluge-siphon/",
   "browser_action": {
-    "defaultTitle": "DelugeSiphon",
+    "defaultTitle": "delugesiphon",
     "default_icon": {
-      "19": "icon-19.png",
-      "38": "icon-38.png"
+      "19": "images/icon-19.png",
+      "38": "images/icon-38.png"
     },
 	"default_popup": "popup.html"
   },
   "icons": {	
-    "16": "icon-16.png",
-    "48": "icon-48.png",
-    "128": "icon-128.png" 
+    "16": "images/icon-16.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png" 
   },
   "options_page": "options.html",
   "permissions": [
@@ -37,8 +38,7 @@
     ], 
     "js": [
       "lib/jquery-3.0.0.min.js",
-      "lib/jquery-migrate-3.0.0.min.js",
-      "lib/jquery-ui.min.js",
+      "lib/jquery.modal.min.js",
       "lib/jsrender.min.js",
       "lib/jquery.serialize-object.js",
       "lib/utils.js", 
@@ -46,8 +46,8 @@
       "content_handler.js"
     ],
     "css": [
-      "lib/jquery-ui.min.css",
       "content_reset.css",
+      "lib/jquery.modal.css",
       "content_handler.css"
     ]
   }],
@@ -62,6 +62,7 @@
   },
   "web_accessible_resources": [
     "images/*.png",
+    "images/*.gif",
     "lib/images/*.png"
   ]
 }
