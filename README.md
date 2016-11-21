@@ -10,7 +10,7 @@
 
 ## Changelist
 
-### v 0.7
+### v 0.70.0
   * Near complete rewrite as foundation for upcoming improvements.
 
 ### v 0.66.5 Bugfix / Cleanup

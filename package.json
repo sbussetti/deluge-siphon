@@ -1,0 +1,22 @@
+{
+  "name": "deluge-siphon",
+  "version": "0.70.0",
+  "description": "Author: S Bussetti",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbussetti/deluge-siphon.git"
+  },
+  "author": "sbussetti",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/sbussetti/deluge-siphon/issues"
+  },
+  "homepage": "https://sbussetti.github.io/deluge-siphon/",
+  "devDependencies": {
+    "gulp-concat": "^2.6.1",
+    "gulp-copy": "0.0.2",
+    "gulp-notify": "^2.2.0",
+    "gulp-uglify": "^2.0.0",
+    "gulp-uglifycss": "^1.0.6"
+  }
+}

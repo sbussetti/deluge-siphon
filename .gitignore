@@ -2,3 +2,5 @@ Thumbs.db
 .DS_Store
 *.sw[a-z]
 .ropeproject
+node_modules/
+dist/
