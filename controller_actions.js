@@ -92,25 +92,6 @@ delugeConnection.prototype.getTorrentInfo = function ( url ) {
 	return $d;
 };
 
-delugeConnection.prototype._supportsMagnetLinks = function ( server_config, daemon_info ) {
-
-	console.log( 'MAGSUP' );
-
-	var $d = jQuery.Deferred();
-
-	console.log( 'PREMAGE', server_config );
-	var supported = !!versionCompare( DAEMON_INFO.version, '1.3.3', { zeroExtend: true } );
-	console.log( 'MAGNETS', supported );
-
-	if ( supported ) {
-		$d.resolveWith( this );
-	} else {
-		$d.rejectWith( this );
-	}
-
-	return $d.promise();
-};
-
 /* helpers */
 
 delugeConnection.prototype._serverError = function ( payload ) { // this dispatches all the communication...
@@ -647,55 +628,22 @@ delugeConnection.prototype._addTorrent = function ( server_config, daemon_info )
 
 	console.log( '_addTorrent', server_config, daemon_info );
 
-	// TODO: cleaner factoring
 	var $d = jQuery.Deferred();
 
-	if ( this.torrent_url.substr( 0, 7 ) == 'magnet:' ) {
+    this
 
-        this._supportsMagnetLinks(daemon_info)
+        ._downloadTorrent( server_config )
 
-			.fail(
-				function () {
+        .then( this._getTorrentInfo.bind( this ) )
 
-					notify(
-						{ 'message': 'Your version of Deluge [' + DAEMON_INFO.version + '] does not support magnet links. Consider upgrading.' },
-						-1,
-						'server',
-						'error',
-						this.silent
-					);
+        .then( this._addTorrentToServer.bind( this ) )
 
-					$d.rejectWith( this );
+        .then( function () {
 
-				} )
+            $d.resolveWith( this );
 
-			.then( this._downloadTorrent.bind( this ) )
+        }.bind( this ) );
 
-			.then( this._getTorrentInfo.bind( this ) )
-
-			.then( this._addTorrentToServer.bind( this ) )
-
-			.then( function () {
-
-				$d.resolveWith( this );
-
-			}.bind( this ) );
-
-	} else {
-
-		this
-
-			._downloadTorrent( server_config )
-
-			.then( this._getTorrentInfo.bind( this ) )
-
-			.then( this._addTorrentToServer.bind( this ) )
-
-			.then( function () {
-				$d.resolveWith( this );
-			}.bind( this ) );
-
-	}
 
 	return $d.promise();
 
