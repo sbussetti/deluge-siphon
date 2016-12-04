@@ -1,7 +1,5 @@
 ( function ( window, document ) {
-	var CONTROL_KEY = 17,
-		RIGHT_CLICK = 2,
-		CONTROL_KEY_DEPRESSED = false,
+	var CONTROL_KEY_DEPRESSED = false,
 		SITE_META = {
 			DOMAIN: window.location.host,
 			TORRENT_REGEX: '\\.torrent',
@@ -62,7 +60,7 @@
 	}
 
 	function handle_keydown ( e ) {
-		if ( e.keyCode === CONTROL_KEY ) {
+		if ( e.ctrlKey ) {
 			CONTROL_KEY_DEPRESSED = true;
 		} else {
 			CONTROL_KEY_DEPRESSED = false;
@@ -207,7 +205,7 @@
 			document.removeEventListener( 'contextmenu', handle_contextmenu );
 			document.body.removeEventListener( 'click', handle_leftclick );
 
-		// notify user to reload
+            // notify user to reload (we can't, background page is gone..)
 		} );
 	}
 

@@ -5,7 +5,8 @@ var gulp = require( 'gulp' ),
 	notify = require( 'gulp-notify' ),
 	uglifycss = require( 'gulp-uglifycss' ),
 	uglify = require( 'gulp-uglify' ),
-    fs = require('fs'),
+	fs = require( 'fs' ),
+	plumber = require( 'gulp-plumber' ),
 	concat = require( 'gulp-concat' );
 
 
@@ -42,61 +43,35 @@ gulp.task( 'build-options-css', function () {
 
 } );
 
-gulp.task( 'build-content-js', function () {
+function buildJS ( src, destFile ) {
+	return function () {
 
-	gulp.src( manifest.content_scripts[ 0 ].js )
-		.pipe( uglify() )
-		.pipe( concat( 'content.min.js' ) )
-		.pipe( gulp.dest( './dist/' ) )
-		.pipe( notify( {
-			title: 'Gulp',
-			message: 'Built js',
-			onLast: true
-		} ) );
+		gulp.src( src )
+			.pipe( plumber( {
+				errorHandler: notify.onError( function ( error ) {
+					return error.name + ': ' + error.message + '\n' + error.cause.filename + '[' + error.cause.line + ':' + error.cause.col + '] ' + error.cause.message;
+				} )
+			} ) )
+			.pipe( uglify() )
+			.pipe( plumber.stop() )
+			.pipe( concat( destFile ) )
+			.pipe( gulp.dest( './dist/' ) )
+			.pipe( notify( {
+				title: 'Gulp',
+				message: 'Built: ' + destFile,
+				onLast: true
+			} ) );
 
-} );
+	};
+}
 
-gulp.task( 'build-background-js', function () {
+gulp.task( 'build-content-js', buildJS( manifest.content_scripts[ 0 ].js, 'content.min.js' ) );
 
-	gulp.src( manifest.background.scripts )
-		.pipe( uglify() )
-		.pipe( concat( 'background.min.js' ) )
-		.pipe( gulp.dest( './dist/' ) )
-		.pipe( notify( {
-			title: 'Gulp',
-			message: 'Built background js',
-			onLast: true
-		} ) );
+gulp.task( 'build-background-js', buildJS( manifest.background.scripts, 'background.min.js' ) );
 
-} );
+gulp.task( 'build-popup-js', buildJS( popupJS, 'popup.min.js' ) );
 
-gulp.task( 'build-popup-js', function () {
-
-	gulp.src( popupJS )
-		.pipe( uglify() )
-		.pipe( concat( 'popup.min.js' ) )
-		.pipe( gulp.dest( './dist/' ) )
-		.pipe( notify( {
-			title: 'Gulp',
-			message: 'Built popup js',
-			onLast: true
-		} ) );
-
-} );
-
-gulp.task( 'build-options-js', function () {
-
-	gulp.src( optionsJS )
-		.pipe( uglify() )
-		.pipe( concat( 'options.min.js' ) )
-		.pipe( gulp.dest( './dist/' ) )
-		.pipe( notify( {
-			title: 'Gulp',
-			message: 'Built options js',
-			onLast: true
-		} ) );
-
-} );
+gulp.task( 'build-options-js', buildJS( optionsJS, 'options.min.js' ) );
 
 gulp.task( 'copy-project-files', function ( callback ) {
 	manifest.content_scripts[ 0 ].css = [ 'content.min.css' ];
@@ -104,7 +79,7 @@ gulp.task( 'copy-project-files', function ( callback ) {
 	manifest.background.scripts = [ 'background.min.js' ];
 
 	gulp.src( [
-        'README.md',
+		'README.md',
 		'./images/*',
 		'options.html',
 		'popup.html'
@@ -124,6 +99,7 @@ function watch () {
 	gulp.watch( popupJS, [ 'build-popup-js' ] );
 	gulp.watch( optionsJS, [ 'build-options-js' ] );
 	gulp.watch( optionsCSS, [ 'build-options-css' ] );
+	gulp.watch( [ '*.json', '*.html' ], [ 'copy-project-files' ] );
 
 }
 

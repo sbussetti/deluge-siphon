@@ -32,10 +32,10 @@
 		{ id: 'inpage_notification', def: true, opts: {} },
 		{ id: 'server_pass', def: "", opts: {} },
 		{ id: 'enable_context_menu', def: true, opts: {} },
+		{ id: 'enable_context_menu_with_options', def: true, opts: {} },
 		{ id: 'enable_keyboard_macro', def: true, opts: {} },
-		{ id: 'enable_leftclick', def: false, opts: {} },
-		{ id: 'link_regex', def: '(\\/|^)(torrents|index)\\.php.*?(\\&|\\?)action=download|^magnet:|\\.torrent($|\\?)', opts: {} },
-
+		{ id: 'enable_leftclick', def: true, opts: {} },
+		{ id: 'link_regex', def: '(\\/|^)(torrents|index)\\.php.*?(\\&|\\?)action=download|^magnet:|\\.torrent($|\\?)|(\\/|^)torrent(\\/|$)', opts: {} },
 		{ id: 'enable_debug_logging', def: false, opts: {} },
 	];
 
@@ -87,7 +87,7 @@
 			}
 		}
 
-		console.log( mutator );
+		// console.log( mutator );
 
 		if ( !validation_error ) {
 			// if validation passed, then apply the mutator (save)
@@ -96,6 +96,9 @@
 				localStorage.setItem( m.opt_id, m.opt_val, m.opt_ele );
 			}
 		}
+
+        // BROADCAST SETTINGS CHANGE
+        chrome.runtime.sendMessage( chrome.runtime.id, { method: 'settings-changed' } );
 	}
 
 	// Restores state to saved value from localStorage.
@@ -122,6 +125,8 @@
 	function clear_options () {
 		localStorage.clear();
 		restore_options();
+        // BROADCAST SETTINGS CHANGE
+        chrome.runtime.sendMessage( chrome.runtime.id, { method: 'settings-changed' } );
 	}
 
 	/* EVENT LISTENERS */
@@ -133,17 +138,11 @@
 		this.addEventListener( 'blur', save_options, false );
 	} );
 	restore_options();
+    save_options();
 
 	//special handler for combo regex field
 	$( '#enable_leftclick' )[ 0 ].addEventListener( 'change', function ( e ) {
 		$( '#link_regex' ).prop( 'disabled', !this.checked );
-	}, false );
-
-	//special handler to refire context menu registration
-	$( '#enable_context_menu' )[ 0 ].addEventListener( 'change', function ( e ) {
-		chrome.runtime.sendMessage( chrome.runtime.id, {
-			method: 'contextmenu', toggle: this.checked
-		} );
 	}, false );
 
 	//display current version
