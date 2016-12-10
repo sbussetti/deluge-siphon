@@ -242,7 +242,7 @@
 		'<input type="checkbox" {{if config.add_paused}}checked="checked"{{/if}} value="yes" name="options[add_paused]">' +
 		'</div>' +
 
-		'{{if plugins.Label}}' +
+		'{{if plugins.Label && plugins.Label.length}}' +
         '<div class="plugin">' +
             '<label for="label">label:</label>' +
             '<select name="plugins[Label]">' +

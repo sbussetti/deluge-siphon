@@ -683,38 +683,46 @@ DelugeConnection.prototype._processLabelOptions = function ( torrent_url, torren
 
 	var $d = jQuery.Deferred();
 
-	console.log( '_processLabelOptions', torrentId, labelId );
+    if (!! labelId) {
+        console.log( '_processLabelOptions', torrentId, labelId );
 
+        // empty labelid will remove it via deluge api
+        if ( labelId === '__remove__' ) {
+           labelId = ''; 
+        }
+        this._request( 'settorrentlabel', {
+            'method': 'label.set_torrent',
+            'params': [ torrentId, labelId ],
+            'id': '-17005'
+        } ).then(
+            function ( payload ) {
+                if ( !!payload && !!payload.error ) {
+                    console.log( payload );
+                    notify( { 'message': 'Failed to add label: ' + payload.error }, -1, 'server', 'error' );
+                    $d.rejectWith( this );
+                } else {
 
-	this._request( 'settorrentlabel', {
-		'method': 'label.set_torrent',
-		'params': [ torrentId, labelId ],
-		'id': '-17005'
-	} ).then(
-		function ( payload ) {
-			if ( !!payload && !!payload.error ) {
-				console.log( payload );
-				notify( { 'message': 'Failed to add label: ' + payload.error }, -1, 'server', 'error' );
-				$d.rejectWith( this );
-			} else {
+                    console.log( '_processLabelOptions__callback', payload.result );
+                    var msg;
 
-				console.log( '_processLabelOptions__callback', payload.result );
-				var msg;
-				if ( !!labelId ) {
-					msg = 'Label `' + labelId + '` added to torrent';
-				} else {
-					msg = 'Label removed from torrent';
-				}
-				notify( { 'message': msg, 'contextMessage': torrent_url }, 1500, this._getNotificationId( torrent_url + labelId ), 'added' );
-				$d.resolveWith( this, [ payload.result ] );
+                    if ( !!labelId ) {
+                        msg = 'Label `' + labelId + '` added to torrent';
+                    } else {
+                        msg = 'Label removed from torrent';
+                    }
+                    notify( { 'message': msg, 'contextMessage': torrent_url }, 1500, this._getNotificationId( torrent_url + labelId ), 'added' );
+                    $d.resolveWith( this, [ payload.result ] );
 
-			}
-		},
-		function () {
-			console.log( arguments );
-			notify( { 'message': 'Server error.' }, 3000, 'server', 'error' );
-			$d.rejectWith( this, arguments );
-		} );
+                }
+            },
+            function () {
+                console.log( arguments );
+                notify( { 'message': 'Server error.' }, 3000, 'server', 'error' );
+                $d.rejectWith( this, arguments );
+            } );
+    } else {
+        $d.resolveWith(this);
+    }
 
 	return $d;
 };
