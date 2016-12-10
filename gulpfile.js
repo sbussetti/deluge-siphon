@@ -8,6 +8,7 @@ var gulp = require( 'gulp' ),
 	fs = require( 'fs' ),
 	plumber = require( 'gulp-plumber' ),
     sourcemaps = require( 'gulp-sourcemaps' ),
+    zip = require( 'gulp-zip' ),
 	concat = require( 'gulp-concat' );
 
 
@@ -21,7 +22,7 @@ gulp.task( 'build-content-css', function () {
 	gulp.src( manifest.content_scripts[ 0 ].css )
 		.pipe( uglifycss( { uglyComments: true } ) )
 		.pipe( concat( 'content.min.css' ) )
-		.pipe( gulp.dest( './dist/' ) )
+		.pipe( gulp.dest( './build/' ) )
 		.pipe( notify( {
 			title: 'Gulp',
 			message: 'Built style',
@@ -35,7 +36,7 @@ gulp.task( 'build-options-css', function () {
 	gulp.src( optionsCSS )
 		.pipe( uglifycss( { uglyComments: true } ) )
 		.pipe( concat( 'options.min.css' ) )
-		.pipe( gulp.dest( './dist/' ) )
+		.pipe( gulp.dest( './build/' ) )
 		.pipe( notify( {
 			title: 'Gulp',
 			message: 'Built options style',
@@ -58,7 +59,7 @@ function buildJS ( src, destFile ) {
 			.pipe( plumber.stop() )
 			.pipe( concat( destFile ) )
             .pipe(sourcemaps.write('maps'))
-			.pipe( gulp.dest( './dist/' ) )
+			.pipe( gulp.dest( './build/' ) )
 			.pipe( notify( {
 				title: 'Gulp',
 				message: 'Built: ' + destFile,
@@ -87,12 +88,21 @@ gulp.task( 'copy-project-files', function ( callback ) {
 		'options.html',
 		'popup.html'
 	] )
-		.pipe( copy( './dist/' ) )
+		.pipe( copy( './build/' ) )
 		.pipe( gulp.dest( './' ) );
 
-	fs.writeFile( './dist/manifest.json', JSON.stringify( manifest ), callback );
+	fs.writeFile( './build/manifest.json', JSON.stringify( manifest ), callback );
 
 } );
+
+gulp.task( 'package', function ( ) {
+
+    var buildManifest = require('./build/manifest.json');
+
+    return gulp.src('build/*')
+            .pipe(zip('deluge-siphon-' + buildManifest.version + '.zip'))
+            .pipe(gulp.dest('dist'));
+});
 
 function watch () {
 
