@@ -235,14 +235,22 @@
 		'<input type="checkbox" {{if config.add_paused}}checked="checked"{{/if}} value="yes" name="options[add_paused]">' +
 		'</div>' +
 
+		'{{if plugins.Label}}' +
+        '<div class="plugin">' +
+            '<label for="label">label:</label>' +
+            '<select name="plugins[Label]">' +
+                '<option value="">-----</option>' +
+                '{{for plugins.Label}}' + 
+                '<option value="{{>#data}}">{{>#data}}</option>' +
+                '{{/for}}' +
+            '</select>' +
+		'</div>' +
+        '{{/if}}' +
+
 		'<div class="buttons">' +
 		'<input type="submit" value="Add" name="submit"/> ' +
 		'<button name="cancel">Cancel</button>' +
 		'</div>' +
-
-		// '{{if plugins.Label}}<div>' +
-		// '<label for="label">label:</label> <input type="text" value="" name="label">' +
-		// '</div>{{/if}}' +
 
 		'</form>'
 	);

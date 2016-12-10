@@ -10,6 +10,9 @@
 
 ## Changelist
 
+### v 0.70.3
+  * Label support, seriously!
+
 ### v 0.70.2
   * Stop checking version for magnet support -- everyone has it by now and Deluge server version naming isn't consistent enough
 

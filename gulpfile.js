@@ -7,6 +7,7 @@ var gulp = require( 'gulp' ),
 	uglify = require( 'gulp-uglify' ),
 	fs = require( 'fs' ),
 	plumber = require( 'gulp-plumber' ),
+    sourcemaps = require( 'gulp-sourcemaps' ),
 	concat = require( 'gulp-concat' );
 
 
@@ -52,9 +53,11 @@ function buildJS ( src, destFile ) {
 					return error.name + ': ' + error.message + '\n' + error.cause.filename + '[' + error.cause.line + ':' + error.cause.col + '] ' + error.cause.message;
 				} )
 			} ) )
+            .pipe(sourcemaps.init())
 			.pipe( uglify() )
 			.pipe( plumber.stop() )
 			.pipe( concat( destFile ) )
+            .pipe(sourcemaps.write('maps'))
 			.pipe( gulp.dest( './dist/' ) )
 			.pipe( notify( {
 				title: 'Gulp',

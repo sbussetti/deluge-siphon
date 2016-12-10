@@ -3,7 +3,7 @@
   font-family: 'Chrome Droid Sans', 'Droid Sans Fallback', 'Lucida Grande', sans-serif;
   color: #D1DAE5;
   position: relative;
-  font-size: 1.5em;
+  font-size: 16px;
 }
 
 #delugesiphon-modal-__MSG_@@extension_id__ form {
@@ -12,6 +12,9 @@
 
 #delugesiphon-modal-__MSG_@@extension_id__ form > div {
   margin: 4px 0;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ form > div:not(.plugin) {
   white-space: nowrap;
   height: 23px;
 }
@@ -58,8 +61,20 @@
   vertical-align: middle;
 }
 
+#delugesiphon-modal-__MSG_@@extension_id__ label[for=label] {
+  vertical-align: top;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__ select[multiple] {
+  min-width: 160px;
+  max-width: 310px;
+  padding: 3px;
+  margin: 0;
+}
+
 #delugesiphon-modal-__MSG_@@extension_id__ input,
 #delugesiphon-modal-__MSG_@@extension_id__ button,
+#delugesiphon-modal-__MSG_@@extension_id__ select,
 #delugesiphon-modal-__MSG_@@extension_id__ input[type="text"],
 #delugesiphon-modal-__MSG_@@extension_id__ input[type="checkbox"],
 #delugesiphon-modal-__MSG_@@extension_id__ input[type="submit"] {
