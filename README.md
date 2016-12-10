@@ -10,6 +10,9 @@
 
 ## Changelist
 
+### v 0.70.4
+  * Forgot to update option default =(
+
 ### v 0.70.3
   * Label support, seriously!
   * Calculate max-z to ensure options modal always displays (thanks @Scorcher7986 for reporting this)

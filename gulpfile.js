@@ -99,7 +99,7 @@ gulp.task( 'package', function ( ) {
 
     var buildManifest = require('./build/manifest.json');
 
-    return gulp.src('build/*')
+    return gulp.src('build/**/*')
             .pipe(zip('deluge-siphon-' + buildManifest.version + '.zip'))
             .pipe(gulp.dest('dist'));
 });

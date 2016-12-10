@@ -35,7 +35,7 @@
 		{ id: 'enable_context_menu_with_options', def: true, opts: {} },
 		{ id: 'enable_keyboard_macro', def: true, opts: {} },
 		{ id: 'enable_leftclick', def: true, opts: {} },
-		{ id: 'link_regex', def: '(\\/|^)(torrents|index)\\.php.*?(\\&|\\?)action=download|^magnet:|\\.torrent($|\\?)|(\\/|^)torrent(\\/|$)', opts: {} },
+		{ id: 'link_regex', def: '(\\/|^)(torrents?|index)\\.php.*?(\\&|\\?)(action=download|id=)|^magnet:|\\.torrent($|\\?)|(\\/|^)torrent(\\/|$)', opts: {} },
 		{ id: 'enable_debug_logging', def: false, opts: {} },
 	];
 
