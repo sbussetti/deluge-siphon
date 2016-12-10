@@ -5,3 +5,4 @@ Thumbs.db
 node_project/
 node_modules/
 dist/
+build/
