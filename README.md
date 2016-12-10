@@ -10,6 +10,9 @@
 
 ## Changelist
 
+### v 0.70.5
+  * Only pop new "installed" window on major version change to reduce spammy behavior
+
 ### v 0.70.4
   * Forgot to update option default =(
 

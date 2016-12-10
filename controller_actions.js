@@ -14,8 +14,8 @@ var DAEMON_INFO = {
 		version: null
 	},
 	SERVER_URL = null,
-    UA = navigator.userAgent;
-	COOKIES = {}; // we need to hang onto your cookies so deluge can ask your sites for files directly..
+	UA = navigator.userAgent;
+COOKIES = {}; // we need to hang onto your cookies so deluge can ask your sites for files directly..
 
 /* BEGIN DelugeConnection */
 
@@ -812,19 +812,19 @@ DelugeConnection.prototype._addTorrentUrlToServer = function ( torrent_url, torr
 			torrent_url,
 			$.extend( true, {}, this.server_config, torrent_options )
 		];
-    cookie = COOKIES[ cookie ] || cookie;
+	cookie = COOKIES[ cookie ] || cookie;
 
 	if ( torrent_url.substr( 0, 7 ) == 'magnet:' ) {
 		method = 'core.add_torrent_magnet';
 	} else {
 		method = 'core.add_torrent_url';
-		params.push( { 
-            'cookie': cookie,
-            'user-agent': UA
-        } );
+		params.push( {
+			'cookie': cookie,
+			'user-agent': UA
+		} );
 	}
 
-    console.log( '_addTorrentUrlToServer', method, params );
+	console.log( '_addTorrentUrlToServer', method, params );
 
 	this._request( 'addtorrent', {
 		"method": method,
@@ -1057,6 +1057,14 @@ communicator
 	} )
 	.init();
 
-chrome.runtime.onInstalled.addListener( function () {
+chrome.runtime.onInstalled.addListener( function ( install ) {
+	var manifest = chrome.runtime.getManifest();
+	console.log( '[INSTALLED: ' + manifest.version + ']', install );
+
+	if ( install.reason === 'update' && !versionCompare( install.previousVersion, manifest.version, { ignoreMinor: true } ) ) {
+		// skip if update and not new version
+		return;
+	}
+
 	chrome.tabs.create( { url: 'https://sbussetti.github.io/deluge-siphon/' } );
 } );

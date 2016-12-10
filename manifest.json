@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "delugesiphon",
   "short_name": "delugesiphon",
-  "version": "0.70.4",
+  "version": "0.70.5",
   "description": "Send your links to a Deluge server.",
   "homepage_url": "http://sbussetti.github.io/deluge-siphon/",
   "browser_action": {

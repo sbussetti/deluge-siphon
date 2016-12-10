@@ -1,6 +1,7 @@
 /* jshint node:true */
 
 var gulp = require( 'gulp' ),
+    path = require( 'path' ),
 	copy = require( 'gulp-copy' ),
 	notify = require( 'gulp-notify' ),
 	uglifycss = require( 'gulp-uglifycss' ),
@@ -78,6 +79,8 @@ gulp.task( 'build-popup-js', buildJS( popupJS, 'popup.min.js' ) );
 gulp.task( 'build-options-js', buildJS( optionsJS, 'options.min.js' ) );
 
 gulp.task( 'copy-project-files', function ( callback ) {
+    delete require.cache[path.resolve('./manifest.json')];
+    var manifest = require( './manifest.json' );
 	manifest.content_scripts[ 0 ].css = [ 'content.min.css' ];
 	manifest.content_scripts[ 0 ].js = [ 'content.min.js' ];
 	manifest.background.scripts = [ 'background.min.js' ];
