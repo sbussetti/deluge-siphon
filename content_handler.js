@@ -142,7 +142,7 @@
                 if ($(e).css('position') != 'static')
                     return parseInt($(e).css('z-index')) || 1;
         }));
-        console.log(maxZ);
+
 		// populate modal
 		$( '#' + modalId )
 			.html( modalTmpl.render( $.extend( {}, req ) ) )
@@ -219,7 +219,7 @@
 	var modalTmpl = $.templates(
 		'<form action="javascript:void(0);">' +
 
-		'<h3> {{>info.name}} </h3>' +
+		'<h3> {{:info.name}} </h3>' +
 
 		'<div class="note"> {{>url}} </div>' +
 		'<input type="hidden" value="{{>url}}" name="url"/>' +

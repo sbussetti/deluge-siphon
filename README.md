@@ -13,6 +13,7 @@
 ### v 0.70.3
   * Label support, seriously!
   * Calculate max-z to ensure options modal always displays (thanks @Scorcher7986 for reporting this)
+  * Improved link matching regex.  If you don't wanna reset your options to get it, just paste this in: `(\/|^)(torrents?|index)\.php.*?(\&|\?)(action=download|id=)|^magnet:|\.torrent($|\?)|(\/|^)torrent(\/|$)`
 
 ### v 0.70.2
   * Stop checking version for magnet support -- everyone has it by now and Deluge server version naming isn't consistent enough

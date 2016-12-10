@@ -14,6 +14,7 @@ var DAEMON_INFO = {
 		version: null
 	},
 	SERVER_URL = null,
+    UA = navigator.userAgent;
 	COOKIES = {}; // we need to hang onto your cookies so deluge can ask your sites for files directly..
 
 /* BEGIN DelugeConnection */
@@ -71,7 +72,7 @@ DelugeConnection.prototype.addTorrent = function ( url, cookie_domain, plugins, 
 
 		.then( this._getDomainCookies.curry( cookie_domain ).bind( this ) )
 
-		.then( this._addTorrentUrlToServer.curry( url, options, COOKIES[ cookie_domain ] ).bind( this ) )
+		.then( this._addTorrentUrlToServer.curry( url, options, cookie_domain ).bind( this ) )
 
 		.then( this._processPluginOptions.curry( url, plugins ).bind( this ) )
 
@@ -751,7 +752,7 @@ DelugeConnection.prototype._downloadTorrent = function ( torrent_url, cookie ) {
 				}
 			},
 			function () {
-				console.log( arguments );
+				console.log( '_donwloadTorrent error', arguments );
 				notify( { 'message': 'Server error.' }, 3000, 'server', 'error' );
 				$d.rejectWith( this );
 			}
@@ -811,13 +812,19 @@ DelugeConnection.prototype._addTorrentUrlToServer = function ( torrent_url, torr
 			torrent_url,
 			$.extend( true, {}, this.server_config, torrent_options )
 		];
+    cookie = COOKIES[ cookie ] || cookie;
 
 	if ( torrent_url.substr( 0, 7 ) == 'magnet:' ) {
 		method = 'core.add_torrent_magnet';
 	} else {
 		method = 'core.add_torrent_url';
-		params.push( { 'Cookie': cookie } );
+		params.push( { 
+            'cookie': cookie,
+            'user-agent': UA
+        } );
 	}
+
+    console.log( '_addTorrentUrlToServer', method, params );
 
 	this._request( 'addtorrent', {
 		"method": method,
@@ -963,7 +970,7 @@ if ( localStorage.enable_context_menu || localStorage.enable_context_menu_with_o
 communicator
 	.observeMessage( function handleMessage ( request, sendResponse ) {
 
-		console.log( 'HANDLE MESSAGE', request );
+		// console.log( 'HANDLE MESSAGE', request );
 		var bits = request.method.split( '-' );
 		//field connections from the content-handler via Chrome's secure pipeline hooey
 		if ( request.method == "settings-changed" ) {
