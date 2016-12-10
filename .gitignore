@@ -3,4 +3,5 @@ Thumbs.db
 *.sw[a-z]
 .ropeproject
 node_project/
+node_modules/
 dist/
