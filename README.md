@@ -10,6 +10,9 @@
 
 ## Changelist
 
+### v 0.70.6
+  * Bugfix
+
 ### v 0.70.5
   * Only pop new "installed" window on major version change to reduce spammy behavior
   * Minor bug around having label plugin installed but no labels defined
