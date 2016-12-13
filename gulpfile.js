@@ -1,15 +1,15 @@
 /* jshint node:true */
 
 var gulp = require( 'gulp' ),
-    path = require( 'path' ),
+	path = require( 'path' ),
 	copy = require( 'gulp-copy' ),
 	notify = require( 'gulp-notify' ),
 	uglifycss = require( 'gulp-uglifycss' ),
 	uglify = require( 'gulp-uglify' ),
 	fs = require( 'fs' ),
 	plumber = require( 'gulp-plumber' ),
-    sourcemaps = require( 'gulp-sourcemaps' ),
-    zip = require( 'gulp-zip' ),
+	sourcemaps = require( 'gulp-sourcemaps' ),
+	zip = require( 'gulp-zip' ),
 	concat = require( 'gulp-concat' );
 
 
@@ -55,11 +55,11 @@ function buildJS ( src, destFile ) {
 					return error.name + ': ' + error.message + '\n' + error.cause.filename + '[' + error.cause.line + ':' + error.cause.col + '] ' + error.cause.message;
 				} )
 			} ) )
-            .pipe(sourcemaps.init())
+			.pipe( sourcemaps.init() )
 			.pipe( uglify() )
 			.pipe( plumber.stop() )
 			.pipe( concat( destFile ) )
-            .pipe(sourcemaps.write('maps'))
+			.pipe( sourcemaps.write( 'maps' ) )
 			.pipe( gulp.dest( './build/' ) )
 			.pipe( notify( {
 				title: 'Gulp',
@@ -79,11 +79,15 @@ gulp.task( 'build-popup-js', buildJS( popupJS, 'popup.min.js' ) );
 gulp.task( 'build-options-js', buildJS( optionsJS, 'options.min.js' ) );
 
 gulp.task( 'copy-project-files', function ( callback ) {
-    delete require.cache[path.resolve('./manifest.json')];
-    var manifest = require( './manifest.json' );
+	delete require.cache[ path.resolve( './manifest.json' ) ];
+	var manifest = require( './manifest.json' );
 	manifest.content_scripts[ 0 ].css = [ 'content.min.css' ];
 	manifest.content_scripts[ 0 ].js = [ 'content.min.js' ];
 	manifest.background.scripts = [ 'background.min.js' ];
+
+	if ( !fs.existsSync( './build' ) ) {
+		fs.mkdirSync( './build' );
+	}
 
 	gulp.src( [
 		'README.md',
@@ -98,14 +102,14 @@ gulp.task( 'copy-project-files', function ( callback ) {
 
 } );
 
-gulp.task( 'package', function ( ) {
+gulp.task( 'package', function () {
 
-    var buildManifest = require('./build/manifest.json');
+	var buildManifest = require( './build/manifest.json' );
 
-    return gulp.src('build/**/*')
-            .pipe(zip('deluge-siphon-' + buildManifest.version + '.zip'))
-            .pipe(gulp.dest('dist'));
-});
+	return gulp.src( 'build/**/*' )
+		.pipe( zip( 'deluge-siphon-' + buildManifest.version + '.zip' ) )
+		.pipe( gulp.dest( 'dist' ) );
+} );
 
 function watch () {
 

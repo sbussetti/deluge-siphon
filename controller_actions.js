@@ -980,11 +980,13 @@ if ( localStorage.enable_context_menu || localStorage.enable_context_menu_with_o
 communicator
 	.observeMessage( function handleMessage ( request, sendResponse ) {
 
-		// console.log( 'HANDLE MESSAGE', request );
+		console.log( '[[[ RECEIVED MESSAGE ]]]', request );
+
 		var bits = request.method.split( '-' );
 		//field connections from the content-handler via Chrome's secure pipeline hooey
 		if ( request.method == "settings-changed" ) {
 
+			console.log( '[[[ SETTINGS CHANGED ]]]', localStorage );
 			delugeConnection._initState();
 
 			if ( localStorage.enable_context_menu || localStorage.enable_context_menu_with_options ) {
