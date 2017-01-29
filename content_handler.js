@@ -2,7 +2,12 @@
 	var CONTROL_KEY_DEPRESSED = false,
 		SITE_META = {
 			DOMAIN: window.location.host,
-			TORRENT_REGEX: '\\.torrent',
+			TORRENT_REGEX: 
+				'^magnet:' +
+
+                '|(\\/|^)(torrent|torrents(?=.*action=download)|index|download)\\.php.*?(\\&|\\?)id=' +
+
+				'|(\\/|^|\\.)(torrent|download)(\\/?$|\\?)',
 			TORRENT_URL_ATTRIBUTE: 'href',
 			INSTALLED: false
 		},
@@ -137,18 +142,20 @@
 		log( 'Show Modal', req );
 
 		var modalId = 'delugesiphon-modal-' + chrome.runtime.id;
-        var maxZ = Math.max.apply(null, 
-            $.map($('body *'), function(e,n) {
-                if ($(e).css('position') != 'static')
-                    return parseInt($(e).css('z-index')) || 1;
-        }));
+		var maxZ = Math.max.apply( null,
+			$.map( $( 'body *' ), function ( e, n ) {
+				if ( $( e ).css( 'position' ) != 'static' )
+					return parseInt( $( e ).css( 'z-index' ) ) || 1;
+			} ) );
 
 		// populate modal
 		$( '#' + modalId )
 			.html( modalTmpl.render( $.extend( {}, req ) ) )
-			.modal( {} )
-            .parents('.jquery-modal.blocker')
-            .css('z-index', (maxZ || 1) + 10);
+			.modal( {
+                blockerClass: modalId
+            } )
+			.parents( '.jquery-modal.blocker' )
+			.css( 'z-index', ( maxZ || 1 ) + 10 );
 	}
 
 	function install_configurable_handlers () {
@@ -199,7 +206,11 @@
 		communicator.sendMessage( {
 			method: 'storage-get-link_regex'
 		}, function ( response ) {
-			SITE_META.TORRENT_REGEX = response.value;
+			// if there's an override..
+			if ( !!response.value ) {
+				SITE_META.TORRENT_REGEX = response.value;
+			}
+
 			// check if settings have changed and adjust handlers accordingly
 			install_configurable_handlers();
 
@@ -212,7 +223,6 @@
 			document.removeEventListener( 'contextmenu', handle_contextmenu );
 			document.body.removeEventListener( 'click', handle_leftclick );
 
-            // notify user to reload (we can't, background page is gone..)
 		} );
 	}
 
@@ -243,16 +253,16 @@
 		'</div>' +
 
 		'{{if plugins.Label && plugins.Label.length}}' +
-        '<div class="plugin">' +
-            '<label for="label">label:</label>' +
-            '<select name="plugins[Label]">' +
-                '<option value="">-----</option>' +
-                '{{for plugins.Label}}' + 
-                '<option value="{{>#data}}">{{>#data}}</option>' +
-                '{{/for}}' +
-            '</select>' +
+		'<div class="plugin">' +
+		'<label for="label">label:</label>' +
+		'<select name="plugins[Label]">' +
+		'<option value="">-----</option>' +
+		'{{for plugins.Label}}' +
+		'<option value="{{>#data}}">{{>#data}}</option>' +
+		'{{/for}}' +
+		'</select>' +
 		'</div>' +
-        '{{/if}}' +
+		'{{/if}}' +
 
 		'<div class="buttons">' +
 		'<input type="submit" value="Add" name="submit"/> ' +

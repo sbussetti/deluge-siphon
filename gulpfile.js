@@ -16,7 +16,7 @@ var gulp = require( 'gulp' ),
 var manifest = require( './manifest.json' ),
 	popupJS = [ 'lib/jquery-3.0.0.min.js', 'lib/controller_communicator.js', 'lib/utils.js', 'popup.js' ],
 	optionsCSS = [ 'chrome-bootstrap.css', 'options.css' ],
-	optionsJS = [ 'lib/jquery-3.0.0.min.js', 'lib/utils.js', 'options.js' ];
+	optionsJS = [ 'lib/jquery-3.0.0.min.js', 'lib/jsrender.min.js', 'lib/utils.js', 'options.js' ];
 
 gulp.task( 'build-content-css', function () {
 
@@ -88,6 +88,7 @@ gulp.task( 'copy-project-files', function ( callback ) {
 	if ( !fs.existsSync( './build' ) ) {
 		fs.mkdirSync( './build' );
 	}
+	fs.writeFile( './build/manifest.json', JSON.stringify( manifest ), callback );
 
 	gulp.src( [
 		'README.md',
@@ -96,10 +97,12 @@ gulp.task( 'copy-project-files', function ( callback ) {
 		'popup.html'
 	] )
 		.pipe( copy( './build/' ) )
-		.pipe( gulp.dest( './' ) );
-
-	fs.writeFile( './build/manifest.json', JSON.stringify( manifest ), callback );
-
+		.pipe( gulp.dest( './' ) )
+		.pipe( notify( {
+			title: 'Gulp',
+			message: 'Copied project files',
+			onLast: true
+		} ) );
 } );
 
 gulp.task( 'package', function () {
@@ -108,7 +111,12 @@ gulp.task( 'package', function () {
 
 	return gulp.src( 'build/**/*' )
 		.pipe( zip( 'deluge-siphon-' + buildManifest.version + '.zip' ) )
-		.pipe( gulp.dest( 'dist' ) );
+		.pipe( gulp.dest( 'dist' ) )
+		.pipe( notify( {
+			title: 'Gulp',
+			message: 'Packaged...',
+			onLast: true
+		} ) );
 } );
 
 function watch () {

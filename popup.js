@@ -1,9 +1,13 @@
 ( function () {
 	communicator.observeConnect(function () {
 		communicator.sendMessage( {
-			method: "storage-get-deluge_server_url"
+			method: "storage-get-connections"
 		}, function ( response ) {
-			var servurl = response.value;
+			var servurl;
+            try {
+                servurl = JSON.parse(response.value)[0].url;
+            } catch (e) {}
+
 			if ( servurl ) {
 				$( '#server-url' ).removeClass( 'hidden' );
 				$( '#server-url-link' ).attr( 'href', servurl );
