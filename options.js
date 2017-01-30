@@ -96,11 +96,14 @@
                 throw 'unknown element';
             }
 
-            var errorNotice = $('</span>', { 'class': 'validation-message' }).css('color', 'red'),
+            var errorNotice = $('<span/>', { 'class': 'validation-message' }),
                 validate = opts.opts.validate,
                 validate_message = opts.opts.validate_message,
                 required = opts.opts.required,
                 scrubber = opts.opts.scrubber;
+
+            console.log(errorNotice);
+            errorNotice.css('color', 'red');
 
             //apply helpers
             if (scrubber) {
@@ -110,11 +113,11 @@
             //validate
             if (required && (typeof val === 'undefined' || val === null || val === '')) {
                 errorNotice.html('Required field.');
-                element.parentNode.insertBefore(errorNotice, element.nextSibling);
+                element.after(errorNotice);
                 res.err = true;
             } else if (validate && !validate(val)) {
                 errorNotice.html(validate_message || 'Invalid entry.');
-                element.parentNode.insertBefore(errorNotice, element.nextSibling);
+                element.after(errorNotice);
                 res.err = true;
             } else {
                 res.mu = {
@@ -184,11 +187,6 @@
                     localStorage.setItem(m.opt_id, m.opt_val);
                 }
             }
-            // var connections = [];
-            // try {
-            //     connections = JSON.parse(localStorage.connections);
-            // } catch (e) {};
-            // connections = $.isArray(connections) ? connections : [{}];
 
             // BROADCAST SETTINGS CHANGE
             chrome.runtime.sendMessage(chrome.runtime.id, {
@@ -200,7 +198,7 @@
         restore: function restore_options() {
 
             //connections
-            var connections = [];
+            var connections = [{}];
             try {
                 connections = JSON.parse(localStorage.connections);
             } catch (e) {};
@@ -253,7 +251,7 @@
     /* INIT */
     // fix old format: deluge_server_url, server_pass
     if ('deluge_server_url' in localStorage) {
-        if ((localStorage.deluge_server_url || localStorage.server_pass) && !( localStorage.connections || localStorage.connections.length) ) {
+        if ((localStorage.deluge_server_url || localStorage.server_pass) && ( !localStorage.connections || !localStorage.connections.length) ) {
             localStorage.connections = JSON.stringify([{
                 'url': localStorage.deluge_server_url,
                 'pass': localStorage.server_pass
