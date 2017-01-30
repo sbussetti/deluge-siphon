@@ -435,7 +435,7 @@ DelugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
                             console.log( '_getConnectedDaemon__callback', 'UNKNOWN STATUS: ' + daemon_info.status );
 
                             notify( {
-                                'message': 'Error: failed to connect to deluge server: `' + daemon_info.ip + ':' + daemon_info.ip + '`'
+                              'message': 'Error: failed to connect to deluge server: `' + daemon_info.ip + ':' + daemon_info.port + '`'
                             }, 3000, 'server', 'error' );
 
                             $d.rejectWith( this );
