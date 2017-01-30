@@ -2,9 +2,10 @@
   "manifest_version": 2,
   "name": "delugesiphon",
   "short_name": "delugesiphon",
-  "version": "0.70.6",
+  "version": "0.71.0",
   "description": "Send your links to a Deluge server.",
   "homepage_url": "http://sbussetti.github.io/deluge-siphon/",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_action": {
     "defaultTitle": "delugesiphon",
     "default_icon": {
@@ -38,7 +39,7 @@
     ], 
     "js": [
       "lib/jquery-3.0.0.min.js",
-      "lib/jquery.modal.min.js",
+      "lib/jquery.modal.js",
       "lib/jsrender.min.js",
       "lib/jquery.serialize-object.js",
       "lib/utils.js", 
