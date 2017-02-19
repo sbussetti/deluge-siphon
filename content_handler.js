@@ -105,30 +105,36 @@
 		// Set up modal for options add
 		// submit handler
 		$modal.on( 'submit', 'form', function ( e ) {
-			e.preventDefault();
+      e.preventDefault();
+
+      var options = $( this ).serializeObject();
 
 			// request download
 			communicator.sendMessage( $.extend( {
 				method: 'addlink-todeluge',
 				domain: SITE_META.DOMAIN
-			}, $( this ).serializeObject() ) );
+			}, options ) );
 
-			// close modal
+			// // close modal
 			$.modal.close();
 
 		} );
 
-		// show/hide move-to location
+    // enable/disable move-to location
 		$modal.on( 'change', 'input[name="options[move_completed]"]', function ( e ) {
+      $modal.find( 'input[name="options[move_completed_path]"]' ).prop('disabled', !$( this ).is( ':checked' ));
+    } );
 
-			var $pathInput = $( '#' + modalId + ' input[name="options[move_completed_path]"]' );
-			if ( $( this ).is( ':checked' ) ) {
-				$pathInput.show();
-			} else {
-				$pathInput.hide();
+    // add/remove falsey hidden field for checkboxes
+    $modal.on( 'change', 'input[type=checkbox]', function ( e ) {
+      var $this = $(this),
+          name = $this.attr('name');
+      if ( $this.is( ':checked' ) ) {
+        $modal.find('form input[name="' + name + '"][type="hidden"]').remove();
+      } else {
+        $modal.find('form').append($('<input/>', {type: 'hidden', name: name, value: ''}));
 			}
-
-		} );
+    } );
 
 		$modal.on( 'click', 'button[name=cancel]', function ( e ) {
 			e.preventDefault();
@@ -242,14 +248,14 @@
 
 		'<div>' +
 		'<label for="move_completed">move completed:</label>' +
-		'<input type="checkbox" {{if config.move_completed}}checked="checked"{{/if}} value="yes" name="options[move_completed]">' +
+		'<input type="checkbox" {{if config.move_completed}}checked="checked"{{/if}} value="true" name="options[move_completed]">' +
 		' ' +
-		'<input style="{{if !config.move_completed }}display: none;{{/if}}" type="text" value="{{>config.move_completed_path}}" name="options[move_completed_path]">' +
+		'<input {{if !config.move_completed }}disabled="disabled"{{/if}} type="text" value="{{>config.move_completed_path}}" name="options[move_completed_path]">' +
 		'</div>' +
 
 		'<div>' +
 		'<label for="add_paused">add paused:</label>' +
-		'<input type="checkbox" {{if config.add_paused}}checked="checked"{{/if}} value="yes" name="options[add_paused]">' +
+		'<input type="checkbox" {{if config.add_paused}}checked="checked"{{/if}} value="true" name="options[add_paused]">' +
 		'</div>' +
 
 		'{{if plugins.Label && plugins.Label.length}}' +
