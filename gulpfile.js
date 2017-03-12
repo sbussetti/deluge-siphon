@@ -16,7 +16,7 @@ var gulp = require( 'gulp' ),
 var manifest = require( './manifest.json' ),
 	popupJS = [ 'lib/jquery-3.0.0.min.js', 'lib/controller_communicator.js', 'lib/utils.js', 'popup.js' ],
 	optionsCSS = [ 'chrome-bootstrap.css', 'options.css' ],
-	optionsJS = [ 'lib/jquery-3.0.0.min.js', 'lib/jsrender.min.js', 'lib/utils.js', 'options.js' ];
+	optionsJS = [ 'lib/jquery-3.0.0.min.js', 'lib/jsrender.min.js', 'lib/utils.js', 'lib/controller_communicator.js', 'options.js' ];
 
 gulp.task( 'build-content-css', function () {
 
@@ -133,3 +133,4 @@ function watch () {
 
 gulp.task( 'watch', watch );
 gulp.task( 'build', [ 'build-content-css', 'build-content-js', 'build-background-js', 'build-popup-js', 'build-options-css', 'build-options-js', 'copy-project-files' ] );
+

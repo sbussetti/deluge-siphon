@@ -1,4 +1,12 @@
 # Changelist
+
+## v 0.71.1
+ * Improved login/auth related code
+ * Added "default label" option
+
+## v 0.71.0
+ * Bugfix
+
 ## v 0.70.7
  * Bugfix, issues #41, #40, #38, #37, #35
 

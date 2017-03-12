@@ -53,13 +53,26 @@
 
     } else {
 
+      // default label?
       communicator.sendMessage( {
+        method: "storage-get-default_label"
+      }, function ( response ) {
 
-        method: 'addlink-todeluge',
-        url: torrent_url,
-        domain: SITE_META.DOMAIN
+        var options = {
+          method: 'addlink-todeluge',
+          url: torrent_url,
+          domain: SITE_META.DOMAIN
+        };
 
-      } );
+        if (!!response && !!response.value) {
+          options['plugins'] = {
+            Label: response.value
+          };
+        }
+
+        communicator.sendMessage( options );
+
+      });
 
     }
   }

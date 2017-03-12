@@ -14,8 +14,8 @@
 				<h2 class="alt"><small>(<a href="" id="reset_options">reset to defaults</a>)</small></h2>
 			</header>
 			<div class="content">
-				<h2>Connection Info</h2>
 
+				<h2>Connection Info</h2>
         <div class="connection-info" id="connection-info">
         </div>
 
@@ -27,6 +27,7 @@
 						<span>Display notifications</span>
 					</label>
 				</div>
+
 				<h2>Input</h2>
 				<div class="checkbox opts">
 					<label>
@@ -52,6 +53,9 @@
 						<span>Enable left click to add</span>
 					</label>
 				</div>
+
+        <div class="labels-options" id="labels-options"></div>
+
         <h2>Advanced</h2>
 				<h3>Override default regular expression for torrent link matching</h3>
 				<div class="textinput opts">
@@ -75,7 +79,6 @@
 </div>
 
 <script type="text/template" id="connection-string-tmpl">
-
 <div class="connection-container" data-index="{{>index}}">
   <div class="connection-index">Deluge Server {{>index}}</div>
   <h3>URL</h3>
@@ -92,7 +95,28 @@
     </label>
   </div>
 </div>
+</script>
 
+<script type="text/template" id="labels-options-tmpl">
+<h2>Labels</h3>
+<div class="labels-container">
+  {{if labelsCreated}}
+  <h3>Default Label</h3>
+  <div class="select opts">
+    <select id="default_label" class="option_field">
+    {{for labels}}
+    <option value=""></option>
+    <option value="{{>#data}}">{{>#data}}</option>
+    {{/for}}
+    </select>
+    <span><small>Apply this label to all new torrents by default</small></span>
+  </div>
+  {{else labelsEnabled}}
+  <p>You have not created any labels.  Visit your server's Web UI to make some</p>
+  {{else}}
+  <p>Labels plugin not enabled.  Visit your server's Web UI to enable them</p>
+  {{/if}}
+</div>
 </script>
 
 <script type="text/javascript" src="options.min.js"></script>

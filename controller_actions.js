@@ -79,7 +79,12 @@ DelugeConnection.prototype.addTorrent = function ( url, cookie_domain, plugins, 
 
   console.log( '****> addTorrent', url, cookie_domain, plugins, options );
 
-  notify( { 'message': 'Requesting torrent...', 'contextMessage': '' + url }, 3000, this._getNotificationId( url ), 'request' );
+  notify(
+    { 
+      'message': 'Adding torrent' + (!!plugins && !!plugins.Label ? ' with label: ' + plugins.Label : '') + '...', 
+      'contextMessage': '' + url 
+    }, 
+    3000, this._getNotificationId( url ), 'request' );
 
   this
 
@@ -138,12 +143,16 @@ DelugeConnection.prototype.getTorrentInfo = function ( url, cookie_domain ) {
   return $d;
 };
 
+DelugeConnection.prototype.getPluginInfo = function ( ) {
+  return this._connect().then( this._getPlugins.bind( this ) )
+};
+
 /* helpers */
 
 DelugeConnection.prototype._serverError = function ( payload ) { // this dispatches all the communication...
 
     if ( payload.error ) {
-      console.log( '_serverError', payload );
+      console.error( '_serverError', payload );
       notify( {
         message: 'Your Deluge server responded with an error',
         contextMessage: '' + ( payload.error.message || this.state )
@@ -269,7 +278,7 @@ DelugeConnection.prototype._getSession = function () {
       console.log( '_getSession', 'valid', payload );
       $d.resolveWith( this, [ payload.result ] );
     } else { // "fail"
-      console.log( '_getSession', 'invalid', payload );
+      console.error( '_getSession', 'invalid', payload );
       $d.rejectWith( this );
     }
   } );
@@ -345,7 +354,7 @@ DelugeConnection.prototype._getDaemons = function () {
       $d.resolveWith( this, [ payload.result ] );
     } else {
       this.daemon_hosts = [];
-      console.log( '_getDaemons failed', payload );
+      console.error( '_getDaemons failed', payload );
       notify( { 'message': 'Error: cannot connect to deluge server' }, 3000, 'server', 'error' );
       $d.rejectWith( this );
     }
@@ -369,7 +378,7 @@ DelugeConnection.prototype._getHostStatus = function ( hostId ) {
 
     if ( !payload.result ) {
 
-      console.log( '_getHostStatus__callback', hostId, 'failed', payload );
+      console.error( '_getHostStatus__callback', hostId, 'failed', payload );
 
       notify( { 'message': 'Error: cannot connect to deluge server' }, 3000, 'server', 'error' );
 
@@ -448,7 +457,7 @@ DelugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
             default:
 
-            console.log( '_getConnectedDaemon__callback', 'UNKNOWN STATUS: ' + daemon_info.status );
+            console.warn( '_getConnectedDaemon__callback', 'UNKNOWN STATUS: ' + daemon_info.status );
 
             notify( {
               'message': 'Error: failed to connect to deluge server: `' + daemon_info.ip + ':' + daemon_info.port + '`'
@@ -511,7 +520,7 @@ DelugeConnection.prototype._startDaemon = function ( daemon_info ) {
     } else {
 
       // try to go to next
-      console.log( this.state, 'ERROR', payload );
+      console.error( this.state, 'ERROR', payload );
 
       $d.rejectWith( this, [ daemon_info ] );
     }
@@ -546,7 +555,7 @@ DelugeConnection.prototype._connectDaemon = function ( daemon_info ) {
       } else {
 
         // try next
-        console.log( '_connectDaemon__callback', this.state, 'ERROR', payload );
+        console.error( '_connectDaemon__callback', this.state, 'ERROR', payload );
         $d.rejectWith( this, [ daemon_info ] );
 
       }
@@ -610,7 +619,7 @@ DelugeConnection.prototype._getServerConfig = function ( daemon_info ) {
     }.bind( this ),
     function (error) {
 
-      console.log( '_getServerConfig__error', error );
+      console.error( '_getServerConfig__error', error );
       throw error;
 
     }.bind( this )
@@ -727,7 +736,7 @@ DelugeConnection.prototype._processLabelOptions = function ( torrent_url, torren
     } ).then(
       function ( payload ) {
         if ( !!payload && !!payload.error ) {
-          console.log( payload );
+          console.error( payload );
           notify( { 'message': 'Failed to add label: ' + payload.error }, -1, 'server', 'error' );
           $d.rejectWith( this );
         } else {
@@ -746,7 +755,7 @@ DelugeConnection.prototype._processLabelOptions = function ( torrent_url, torren
         }
       },
       function () {
-        console.log( arguments );
+        console.error( arguments );
         notify( { 'message': 'Server error.' }, 3000, 'server', 'error' );
         $d.rejectWith( this, arguments );
       } );
@@ -790,7 +799,7 @@ DelugeConnection.prototype._downloadTorrent = function ( torrent_url, cookie ) {
         }
       },
       function () {
-        console.log( '_donwloadTorrent error', arguments );
+        console.error( '_donwloadTorrent error', arguments );
         notify( { 'message': 'Server error.' }, 3000, 'server', 'error' );
         $d.rejectWith( this );
       }
@@ -875,13 +884,15 @@ DelugeConnection.prototype._addTorrentUrlToServer = function ( torrent_url, torr
       if ( !payload.result ) {
         notify( { 'message': 'Torrent already added', 'contextMessage': torrent_url }, 1500, this._getNotificationId( torrent_url ), 'added' );
       } else {
-        notify( { 'message': 'Torrent added successfully', 'contextMessage': torrent_url }, 1500, this._getNotificationId( torrent_url ), 'added' );
+        notify(
+          { 'message': 'Torrent added successfully', 'contextMessage': torrent_url }, 
+          1500, this._getNotificationId( torrent_url ), 'added' );
       }
 
       $d.resolveWith( this, [ payload.result ] ); // torrent id
     },
     function () {
-      console.log( '_addTorrentUrlToServer__callback error', arguments );
+      console.error( '_addTorrentUrlToServer__error', arguments );
 
       notify( {
         'message': 'There was an error.  Torrent was not added.',
@@ -1071,7 +1082,7 @@ communicator
 
         var plugins = request.plugins,
           options = request.options;
-        console.log( 'addlink', url, domain, plugins, options );
+        console.log( '<<<< ADDLINK >>>>', url, domain, plugins, options );
         delugeConnection
           .addTorrent( url, domain, plugins, options );
 
@@ -1080,7 +1091,7 @@ communicator
         delugeConnection
           .getTorrentInfo( url, domain )
           .done( function ( file_name, info ) {
-            console.log( file_name, info );
+            console.log( '<<<< ADDLINK WITHOPTIONS >>>>', file_name, info );
             sendResponse( {
               'method': 'add_dialog',
               'url': url,
@@ -1096,6 +1107,21 @@ communicator
       }
     } else if ( request.method == 'connect' ) {
       delugeConnection.connectToServer();
+    } else if ( request.method.substring( 0, 8 ) == "plugins-" ) { // get plugin info
+      var actiontype = bits[1];
+
+      switch(actiontype) {
+        case 'getinfo':
+          delugeConnection.getPluginInfo()
+            .then( function (plugin_info) {
+              sendResponse( { 'value': plugin_info } );
+            });
+          break;
+        default:
+          sendResponse( { 'error': 'unknown plugin action: `' + actiontype + '`' } ); // snub them.
+          break;
+      };
+
     } else {
       sendResponse( { 'error': 'unknown method: `' + request.method + '`' } ); // snub them.
     }
