@@ -65,11 +65,6 @@
         opts: {}
       },
       {
-        id: 'default_label',
-        def: '',
-        opts: {}
-      },
-      {
         id: 'link_regex',
         def: '',
         opts: {}
@@ -79,6 +74,14 @@
         def: false,
         opts: {}
       },
+    ],
+
+    LABEL_DEFAULTS: [
+      {
+        id: 'default_label',
+        def: '',
+        opts: {}
+      }
     ],
 
     validate_element: function validate_element(opts, element) {
@@ -199,15 +202,37 @@
       });
     },
 
+    setOptionValues: function setOptionValues(DEFAULTS) {
+      for (var i = 0, l = DEFAULTS.length; i < l; i++) {
+        var o = DEFAULTS[i].id,
+          val = localStorage.getItem(o) === null ? DEFAULTS[i].def : localStorage.getItem(o),
+          element = $('#' + o);
+
+        if (typeof val == 'undefined' || !element.length) {
+          continue;
+        }
+        if (element.is('input[type=checkbox]')) {
+          element.prop('checked', !!val);
+        } else if (element.is('input[type=text]') || element.is('input[type=password]')) {
+          element.val(val);
+        } else if (element.is('select')) {
+          element.val(val);
+        } else {
+          console.error(element, o);
+          throw 'unknown element';
+        }
+      }
+
+    },
+
     // Restores state to saved value from localStorage.
     restore: function restore_options() {
       // labels
-      //check for label plugin status
       communicator.sendMessage({
         method: "plugins-getinfo"
       }, function (response) {
+        //check for label plugin status
         var labels = response.value.Label;
-
         var labelsTempl = $.templates($('#labels-options-tmpl').html()),
           $labelsContainer = $('#labels-options').empty(),
           d = {
@@ -216,51 +241,33 @@
             labels: labels
           };
         $labelsContainer.append(labelsTempl(d));
-
-        //connections
-        var connections = [{}];
-        try {
-          connections = JSON.parse(localStorage.connections);
-        } catch (e) {};
-        connections = $.isArray(connections) ? connections : [{}];
-        // template for multiple connections
-        var connectionTempl = $.templates($('#connection-string-tmpl').html()),
-          $connContainer = $('#connection-info').empty();
-        connections.forEach(function(c, i) {
-          var d = {
-            index: i
-          };
-          for (var i = 0, l = options.CONNECTION_DEFAULTS.length; i < l; i++) {
-            var o = options.CONNECTION_DEFAULTS[i].id,
-              val = typeof c[o] === 'undefined' || c[0] === null ? options.CONNECTION_DEFAULTS[i].def : c[o];
-            d[o] = val;
-          }
-          $connContainer.append(connectionTempl(d));
-        });
-
-        // "normal" settings
-        for (var i = 0, l = options.DEFAULTS.length; i < l; i++) {
-          var o = options.DEFAULTS[i].id,
-            val = localStorage.getItem(o) === null ? options.DEFAULTS[i].def : localStorage.getItem(o),
-            element = $('#' + o);
-
-          if (typeof val == 'undefined' || !element.length) {
-            continue;
-          }
-          if (element.is('input[type=checkbox]')) {
-            element.prop('checked', !!val);
-          } else if (element.is('input[type=text]') || element.is('input[type=password]')) {
-            element.val(val);
-          } else if (element.is('select')) {
-            element.val(val);
-          } else {
-            console.error(element, o);
-            throw 'unknown element';
-          }
-        }
-
-        options.save();
+        options.setOptionValues(options.LABEL_DEFAULTS);
       });
+
+      //connections
+      var connections = [{}];
+      try {
+        connections = JSON.parse(localStorage.connections);
+      } catch (e) {};
+      connections = $.isArray(connections) ? connections : [{}];
+      // template for multiple connections
+      var connectionTempl = $.templates($('#connection-string-tmpl').html()),
+        $connContainer = $('#connection-info').empty();
+      connections.forEach(function(c, i) {
+        var d = {
+          index: i
+        };
+        for (var i = 0, l = options.CONNECTION_DEFAULTS.length; i < l; i++) {
+          var o = options.CONNECTION_DEFAULTS[i].id,
+            val = typeof c[o] === 'undefined' || c[0] === null ? options.CONNECTION_DEFAULTS[i].def : c[o];
+          d[o] = val;
+        }
+        $connContainer.append(connectionTempl(d));
+      });
+
+      // "normal" settings
+      options.setOptionValues(options.DEFAULTS);
+
     },
 
     clear: function clear_options() {
