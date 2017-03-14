@@ -137,6 +137,7 @@
 
     save: function save_options() {
       $('.validation-message').empty();
+      $('#save_options').text('Saving...');
 
       var validation_error = false,
         mutator = [];
@@ -191,6 +192,7 @@
         }
       }
 
+      $('#save_options').text('Save');
       // BROADCAST SETTINGS CHANGE
       chrome.runtime.sendMessage(chrome.runtime.id, {
         method: 'settings-changed'
@@ -204,15 +206,13 @@
       communicator.sendMessage({
         method: "plugins-getinfo"
       }, function (response) {
-        console.log(response)
-
         var labels = response.value.Label;
 
         var labelsTempl = $.templates($('#labels-options-tmpl').html()),
           $labelsContainer = $('#labels-options').empty(),
           d = {
             labelsEnabled: !!labels,
-            labelsCreated: !!labels.length,
+            labelsCreated: !!labels && !!labels.length,
             labels: labels
           };
         $labelsContainer.append(labelsTempl(d));
@@ -254,7 +254,7 @@
           } else if (element.is('select')) {
             element.val(val);
           } else {
-            console.log(element, o);
+            console.error(element, o);
             throw 'unknown element';
           }
         }
@@ -306,7 +306,10 @@
       $('#link_regex').prop('disabled', !$('#enable_leftclick').prop('checked'));
 
       //reset to defaults button
-      $('#reset_options')[0].addEventListener('click', options.clear, false);
+      $('#reset_options').on('click', options.clear);
+
+      //save button
+      $('#save_options').on('click', options.save);
 
       //link to self on manage extensions page
       $('#manage_extension')[0].addEventListener('click', function(e) {
@@ -314,6 +317,7 @@
           url: 'chrome://chrome/extensions/?id=' + chrome.runtime.id
         });
       });
+
 
     })
     .init( !!chrome.runtime.id );

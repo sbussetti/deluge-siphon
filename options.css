@@ -9,8 +9,17 @@ html,body { background: #FFF; }
 	-webkit-margin-start: 13px;
 	padding-left: 26px;
 }
+
+header {
+  border-bottom: 1px solid #DDD;
+}
 .mainview header h2.alt {
 	position: absolute;
 	top: 0;
 	right: 0;
+}
+.actions {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #DDD;
 }

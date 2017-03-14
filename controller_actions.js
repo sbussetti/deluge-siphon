@@ -153,10 +153,13 @@ DelugeConnection.prototype._serverError = function ( payload ) { // this dispatc
 
     if ( payload.error ) {
       console.error( '_serverError', payload );
-      notify( {
-        message: 'Your Deluge server responded with an error',
-        contextMessage: '' + ( payload.error.message || this.state )
-      }, -1, this._getNotificationId(), 'error' );
+      var contextError = '' + ( payload.error.message || this.state );
+      if (contextError) {
+        notify( {
+          message: 'Your Deluge server responded with an error',
+          contextMessage: contextMessage 
+        }, -1, this._getNotificationId(), 'error' );
+      }
       return true;
     }
   return false;
