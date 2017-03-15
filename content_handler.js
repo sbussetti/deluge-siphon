@@ -295,47 +295,62 @@
   communicator
     .observeConnect( function () {
 
-      // logging ...
+      // don't turn on if we're on our deluge page..
       communicator.sendMessage( {
-        method: 'storage-get-enable_debug_logging'
+        method: 'storage-get-connections'
       }, function ( response ) {
-        if ( !!response && !!response.value ) {
-          log = function () {
-            console.log.apply( console, [ '[delugesiphon]', '[' + document.URL + ']' ].concat( Array.prototype.slice.call( arguments ) ) );
-          };
-          log( 'Debug logging enabled' );
+        var conns = response.value,
+          currentUrl = new URL(window.location.href),
+          currentPathname = currentUrl.pathname.replace(/\/$/, "");
+        for (var i = 0, l = conns.length; i < l; i++) {
+          var connUrl = {pathname: ''};
+          try { connUrl = new URL(conns[i].url); } catch (e) {};
+          var connPathname = connUrl.pathname.replace(/\/$/, "");
+          if (currentUrl.hostname == connUrl.hostname && currentPathname == connPathname) {
+            console.log('[delugesiphon] not initializing on web ui page');
+            return; // donesky
+          }
         }
 
-        // watch for tab changes
-        registerEventListener( 'webkitvisibilitychange', handle_visibilityChange );
+        // else continue
 
-        // site specific init..
-        site_init();
-
-        // modal init
-        modal_init();
-
-        // listen for messages from the background
-        communicator.observeMessage( function ( req, sendResponse ) {
-
-          log( 'RECV CONTENT MSG', req );
-
-          if ( req.method === "add_dialog" ) {
-
-            showModal( req );
-
-          }
-        } );
-
-        // login...
+        // logging ...
         communicator.sendMessage( {
-          method: 'connect',
+          method: 'storage-get-enable_debug_logging'
+        }, function ( response ) {
+          if ( !!response.value ) {
+            log = function () {
+              console.log.apply( console, [ '[delugesiphon]', '[' + document.URL + ']' ].concat( Array.prototype.slice.call( arguments ) ) );
+            };
+            log( 'Debug logging enabled' );
+          }
+
+          // watch for tab changes
+          registerEventListener( 'webkitvisibilitychange', handle_visibilityChange );
+
+          // site specific init..
+          site_init();
+
+          // modal init
+          modal_init();
+
+          // listen for messages from the background
+          communicator.observeMessage( function ( req, sendResponse ) {
+
+            log( 'RECV CONTENT MSG', req );
+
+            if ( req.method === "add_dialog" ) {
+
+              showModal( req );
+
+            }
+          } );
+
+          // done
+          log( 'INITIALIZED delugesiphon [' + chrome.runtime.id + ']' );
+
         } );
-
-        // done
-        log( 'INITIALIZED delugesiphon [' + chrome.runtime.id + ']' );
-
-      } );
+      });
     } )
     .observeDisconnect( function () {
       console.log( '[delugesiphon] Lost connection to background page (probably because it was reloaded). Please refresh this page.' );

@@ -1,5 +1,9 @@
 # Changelist
 
+## v 0.71.5
+ * Reduce verbosity of connection error notifications
+ * Reduce agressiveness of "auto-login" code, which was causing timeouts
+
 ## v 0.71.4
  * Bugfix
 

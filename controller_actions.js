@@ -225,10 +225,12 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
     // fail
     function ( http, status, thrown ) {
       console.error(http, status, thrown);
-      notify( {
-        message: 'Error communicating with your Deluge server',
-        contextMessage: http.status + ': ' + status
-      }, -1, this._getNotificationId(), 'error' );
+      if (!silent && http.status != 0) {
+        notify( {
+          message: 'Error communicating with your Deluge server',
+          contextMessage: http.status + ': ' + status
+        }, -1, this._getNotificationId(), 'error' );
+      }
 
       $d.rejectWith( this );
 
@@ -1063,11 +1065,14 @@ communicator
       var key = bits.join( '-' ); //rejoin the remainder in the case where it may have a hyphen in the key..
 
         // if method is set, set it
-        if ( method == 'set' )
-      localStorage[ key ] = request.value;
-      // else respond with the value
-      else
-        sendResponse( { 'value': localStorage[ key ] } );
+      if ( method == 'set' ) {
+        localStorage[ key ] = request.value;
+        // else respond with the value
+      } else {
+        var value = localStorage[ key ];
+        try { value = JSON.parse(value); } catch (e) { }
+        sendResponse( { 'value': value } );
+      }
 
     } else if ( request.method.substring( 0, 8 ) == "addlink-" ) { //add to server request
 
@@ -1167,3 +1172,6 @@ chrome.runtime.onInstalled.addListener( function ( install ) {
 
   chrome.tabs.create( { url: 'https://sbussetti.github.io/deluge-siphon/' } );
 } );
+
+// try to login once
+delugeConnection.connectToServer();
