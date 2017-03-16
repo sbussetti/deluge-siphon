@@ -1159,18 +1159,18 @@ chrome.runtime.onInstalled.addListener( function ( install ) {
 
   console.log( '[INSTALLED: ' + manifest.version + ']', install );
 
-  // 70.7 storage fix...
-  if ( install.reason === 'update' && manifest.version === '0.70.7' ) {
-    localStorage.link_regex = '';
+  // // 70.7 storage fix...
+  // if ( install.reason === 'update' && manifest.version === '0.70.7' ) {
+  //   localStorage.link_regex = '';
 
-  }
+  // }
 
-  if ( install.reason === 'update' && !versionCompare( install.previousVersion, manifest.version, { ignoreMinor: true } ) ) {
-    // skip if update and not new major version
-    return;
-  }
+  // if ( install.reason === 'update' && !versionCompare( install.previousVersion, manifest.version, { ignoreMinor: true } ) ) {
+  //   // skip if update and not new major version
+  //   return;
+  // }
 
-  chrome.tabs.create( { url: 'https://sbussetti.github.io/deluge-siphon/' } );
+  // chrome.tabs.create( { url: 'https://sbussetti.github.io/deluge-siphon/' } );
 } );
 
 // try to login once

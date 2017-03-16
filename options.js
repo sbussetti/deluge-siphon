@@ -281,17 +281,6 @@
   };
 
   /* INIT */
-  // fix old format: deluge_server_url, server_pass
-  if ('deluge_server_url' in localStorage) {
-    if ((localStorage.deluge_server_url || localStorage.server_pass) && ( !localStorage.connections || !localStorage.connections.length) ) {
-      localStorage.connections = JSON.stringify([{
-        'url': localStorage.deluge_server_url,
-        'pass': localStorage.server_pass
-      }]);
-      delete localStorage.deluge_server_url;
-      delete localStorage.server_pass;
-    }
-  }
 
   communicator
     .observeConnect( function () {
@@ -324,7 +313,6 @@
           url: 'chrome://chrome/extensions/?id=' + chrome.runtime.id
         });
       });
-
 
     })
     .init( !!chrome.runtime.id );

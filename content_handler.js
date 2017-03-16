@@ -7,7 +7,7 @@
 
       '|(\\/|^)(torrent|torrents(?=.*action=download)|index|download)\\.php.*?(\\&|\\?)id=' +
 
-      '|(\\/|^|\\.)(torrent|download)(\\/?$|\\?)',
+      '|(\\/|^|\\.)(torrent|download)(\\/?$|\\?)((?=\.torrent)|(?!\.[a-zA-Z0-9]+)$)',
       TORRENT_URL_ATTRIBUTE: 'href',
       INSTALLED: false
     },
