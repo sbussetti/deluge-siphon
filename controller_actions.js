@@ -1,6 +1,6 @@
 // debug
 if ( localStorage.enable_debug_logging ) {
-  console.log( 'Debug logging enabled' );
+  console.warn( '*** Debug logging enabled ***' );
 } else {
   console.log = function () {};
 }
@@ -13,7 +13,7 @@ var UA = navigator.userAgent,
 
   function DelugeConnection () {
 
-    console.log( 'new DelugeConnection' );
+    console.log( '*** new DelugeConnection ***' );
 
     this._initState();
   }
@@ -80,8 +80,6 @@ DelugeConnection.prototype.addTorrent = function ( url, cookie_domain, plugins, 
     return $d;
   }
 
-  console.log( '****> addTorrent', url, cookie_domain, plugins, options );
-
   notify(
     {
       'message': 'Adding torrent' + (!!plugins && !!plugins.Label ? ' with label: ' + plugins.Label : '') + '...',
@@ -93,7 +91,7 @@ DelugeConnection.prototype.addTorrent = function ( url, cookie_domain, plugins, 
 
     ._connect()
 
-    .then( this._getDomainCookies.curry( cookie_domain ).bind( this ) )
+    .then( this._getDomainCookies.curry( url, cookie_domain ).bind( this ) )
 
     .then( this._addTorrentUrlToServer.curry( url, options, cookie_domain ).bind( this ) )
 
@@ -122,14 +120,13 @@ DelugeConnection.prototype.getTorrentInfo = function ( url, cookie_domain ) {
     return $d;
   }
 
-  console.log( '****> getTorrentInfo', url, cookie_domain );
   notify( { 'message': 'Getting torrent info...' }, 3000, this._getNotificationId( url ), null );
 
   this
 
     ._connect()
 
-    .then( this._getDomainCookies.curry( cookie_domain ).bind( this ) )
+    .then( this._getDomainCookies.curry( url, cookie_domain ).bind( this ) )
 
     .then( this._getPlugins.bind( this ) )
 
@@ -210,7 +207,9 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
     processData: false,
     data: JSON.stringify( params ),
     method: 'POST',
-    timeout: 10000
+    timeout: 20000,
+    tryCount: 0,
+    retryLimit: 3
   } ).then(
     // success
     function ( payload, status, jqhxr ) {
@@ -224,6 +223,16 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
     }.bind( this ),
     // fail
     function ( http, status, thrown ) {
+
+      if (status == 'timeout') {
+        console.warn('Retrying...', http, status, thrown);
+        this.tryCount++;
+        if (this.tryCount <= this.retryLimit) {
+          //try again
+          return $.ajax(this);
+        }
+      }
+
       console.error(http, status, thrown);
       if (!silent && http.status != 0) {
         notify( {
@@ -242,37 +251,48 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
 
 /* get auth / config / setup logic */
 
-DelugeConnection.prototype._getDomainCookies = function ( cookie_domain ) {
+DelugeConnection.prototype._getDomainCookies = function ( url, cookie_domain ) {
 
   var $d = jQuery.Deferred();
 
-  var cookie = COOKIES[ cookie_domain ];
+  try {
+    var hostname = new URL(url).hostname;
+    if (!cookie_domain || ! cookie_domain.endsWith(hostname)) {
+      console.log( '_getDomainCookies', cookie_domain, '!=', hostname );
+      return $d.resolveWith( this, [  ] );
+    }
+  } catch (e) {
+    return $d.resolveWith( this, [  ] );
+  };
+
+  // var cookie = COOKIES[ cookie_domain ];
 
   console.log( '_getDomainCookies', 'for', cookie_domain );
 
-  if ( !!cookie ) {
+  // if ( !!cookie ) {
+  //   $d.resolveWith( this, [ cookie ] );
+  // } else {
+  // get cookies for the current domain
+  chrome.cookies.getAll( { 'domain': cookie_domain }, function ( cookies ) {
+
+    var cookdict = {};
+    for ( var i = 0, l = cookies.length; i < l; i++ ) {
+      var cook = cookies[ i ];
+      cookdict[ cook.name ] = cook.value;
+    }
+    var cooklist = [];
+    for ( var name in cookdict ) {
+      cooklist.push( name + '=' + cookdict[ name ] );
+    }
+
+    //save out of scope..
+    cookie = cooklist.join( ';' );
+    COOKIES[ cookie_domain ] = cookie;
+    console.log( '_getDomainCookies__callback', cookie_domain, cookie );
     $d.resolveWith( this, [ cookie ] );
-  } else {
-    // get cookies for the current domain
-    chrome.cookies.getAll( { 'domain': cookie_domain }, function ( cookies ) {
 
-      var cookdict = {};
-      for ( var i = 0, l = cookies.length; i < l; i++ ) {
-        var cook = cookies[ i ];
-        cookdict[ cook.name ] = cook.value;
-      }
-      var cooklist = [];
-      for ( var name in cookdict ) {
-        cooklist.push( name + '=' + cookdict[ name ] );
-      }
-
-      //save out of scope..
-      cookie = cooklist.join( ';' );
-      COOKIES[ cookie_domain ] = cookie;
-      $d.resolveWith( this, [ cookie ] );
-
-    }.bind( this ) );
-  }
+  }.bind( this ) );
+  // }
 
   return $d.promise();
 };
@@ -428,7 +448,7 @@ DelugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
   var $d = jQuery.Deferred();
 
-  if ( !!this.DAEMON_INFO.host_id ) {
+  if ( !!this.DAEMON_INFO && !!this.DAEMON_INFO.host_id ) {
 
     $d.resolveWith( this, [ this.DAEMON_INFO ] );
 
@@ -1038,13 +1058,11 @@ if ( localStorage.enable_context_menu || localStorage.enable_context_menu_with_o
 communicator
   .observeMessage( function handleMessage ( request, sendResponse ) {
 
-    console.log( '[[[ RECEIVED MESSAGE ]]]', request );
-
     var bits = request.method.split( '-' );
     //field connections from the content-handler via Chrome's secure pipeline hooey
     if ( request.method == "settings-changed" ) {
 
-      console.log( '[[[ SETTINGS CHANGED ]]]', localStorage );
+      console.log( '~~~ MESSAGE ~~~ Settings Changed' );
       delugeConnection._initState();
 
       if ( localStorage.enable_context_menu || localStorage.enable_context_menu_with_options ) {
@@ -1055,6 +1073,7 @@ communicator
 
     } else if ( request.method == "notify" ) {
 
+      console.log( '~~~ MESSAGE ~~~ Send Notification' );
       notify( request.opts, request.decay, 'content', request.type );
 
     } else if ( request.method.substring( 0, 8 ) == "storage-" ) { //storage type request
@@ -1065,14 +1084,14 @@ communicator
       var key = bits.join( '-' ); //rejoin the remainder in the case where it may have a hyphen in the key..
 
         // if method is set, set it
-      if ( method == 'set' ) {
-        localStorage[ key ] = request.value;
-        // else respond with the value
-      } else {
-        var value = localStorage[ key ];
-        try { value = JSON.parse(value); } catch (e) { }
-        sendResponse( { 'value': value } );
-      }
+        if ( method == 'set' ) {
+          localStorage[ key ] = request.value;
+          // else respond with the value
+        } else {
+          var value = localStorage[ key ];
+          try { value = JSON.parse(value); } catch (e) { }
+          sendResponse( { 'value': value } );
+        }
 
     } else if ( request.method.substring( 0, 8 ) == "addlink-" ) { //add to server request
 
