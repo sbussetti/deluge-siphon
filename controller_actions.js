@@ -401,7 +401,7 @@ DelugeConnection.prototype._getDaemons = function () {
 
 };
 
-DelugeConnection.prototype._getHostStatus = function ( hostId ) {
+DelugeConnection.prototype._getHostStatus = function ( hostId, ip, port ) {
 
   console.log( '_getHostStatus', hostId );
 
@@ -410,7 +410,7 @@ DelugeConnection.prototype._getHostStatus = function ( hostId ) {
   this._request( 'gethoststatus', {
     'method': 'web.get_host_status',
     'params': [ hostId ],
-    'id': '-16992.' + this.host_idx
+    'id': '-16992.' + hostId
   } ).then( function ( payload ) {
 
 
@@ -426,13 +426,19 @@ DelugeConnection.prototype._getHostStatus = function ( hostId ) {
     } else {
 
       // ["c6099253ba83ea059adb7f6db27cd80228572721", "127.0.0.1", 52039, "Connected", "1.3.5"]
-      var daemon_info = {
-        status: payload.result[ 3 ],
-        port: payload.result[ 2 ],
-        ip: payload.result[ 1 ],
-        host_id: payload.result[ 0 ],
-        version: payload.result[ 4 ]
-      };
+      // ["c6099253ba83ea059adb7f6db27cd80228572721", "Connected", "2.0.0"]
+      var daemon_info = {};
+      daemon_info.host_id = payload.result.shift();
+      if (daemon_info.length > 2) {
+        daemon_info.ip = payload.result.shift();
+        daemon_info.port = payload.result.shift();
+      }
+      else {
+        daemon_info.ip = ip;
+        daemon_info.port = port;
+      }
+      daemon_info.status = payload.result.shift();
+      daemon_info.version = payload.result.shift();
 
       console.log( '_getHostStatus__callback', daemon_info );
 
@@ -458,7 +464,7 @@ DelugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
     $.each( daemon_hosts, function ( i, daemon_host ) {
 
       // nested deferred...
-      var $nd = this._getHostStatus( daemon_host[ 0 ] )
+      var $nd = this._getHostStatus( daemon_host[ 0 ], daemon_host[1], daemon_host[2] )
 
         .then( function ( daemon_info ) {
 
