@@ -429,7 +429,7 @@ DelugeConnection.prototype._getHostStatus = function ( hostId, ip, port ) {
       // ["c6099253ba83ea059adb7f6db27cd80228572721", "Connected", "2.0.0"]
       var daemon_info = {};
       daemon_info.host_id = payload.result.shift();
-      if (daemon_info.length > 2) {
+      if (payload.result.length > 2) {
         daemon_info.ip = payload.result.shift();
         daemon_info.port = payload.result.shift();
       }
