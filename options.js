@@ -1,3 +1,4 @@
+/* global $, chrome, communicator */
 (function() {
   // manages options
   var options = {
@@ -10,7 +11,7 @@
             if (!string)
               return string;
 
-            var regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+            var regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
             return regexp.test(string) && !string.match(/\/$/);
           },
           validate_message: 'Invalid server url.',
@@ -18,13 +19,12 @@
           scrubber: function(string) {
             //no trailing / on url makes construction simpler..
             if (!string)
-            return '';
+              return '';
 
             if (string.substring(0, 4) != 'http')
               string = 'http://' + string;
 
-            li = string.length - 1;
-            if (string.charAt(li) == '/')
+            if (string.charAt(string.length - 1) == '/')
               string = string.substring(0, string.length - 1);
 
             return string;
@@ -65,6 +65,11 @@
         opts: {}
       },
       {
+        id: 'send_cookies',
+        def: true,
+        opts: {}
+      },
+      {
         id: 'link_regex',
         def: '',
         opts: {}
@@ -86,11 +91,11 @@
 
     validate_element: function validate_element(opts, element) {
       var o = opts.id,
-        val = '';
-      res = {
-        err: false,
-        mu: null
-      };
+        val = '',
+        res = {
+          err: false,
+          mu: null
+        };
 
       if (!element.length) {
         return res
@@ -149,7 +154,7 @@
       var connection_mutator = [];
       $('#connection-info .connection-container').each(function() {
         var $this = $(this),
-          index = $this.data('index'),
+          // index = $this.data('index'),
           cm = {},
           ce = false;
         for (var i = 0, l = options.CONNECTION_DEFAULTS.length; i < l; i++) {
@@ -160,7 +165,7 @@
           if (validation_error || ce || res.err) {
             validation_error = true;
           } else if (res.mu) { // only push if no errors at all for conns..
-              cm[res.mu.opt_id] = res.mu.opt_val;
+            cm[res.mu.opt_id] = res.mu.opt_val;
           }
         }
         if (!ce) {
@@ -248,7 +253,7 @@
       var connections = [{}];
       try {
         connections = JSON.parse(localStorage.connections);
-      } catch (e) {};
+      } catch (e) {true}
       connections = $.isArray(connections) ? connections : [{}];
       // template for multiple connections
       var connectionTempl = $.templates($('#connection-string-tmpl').html()),
@@ -257,9 +262,9 @@
         var d = {
           index: i
         };
-        for (var i = 0, l = options.CONNECTION_DEFAULTS.length; i < l; i++) {
-          var o = options.CONNECTION_DEFAULTS[i].id,
-            val = typeof c[o] === 'undefined' || c[0] === null ? options.CONNECTION_DEFAULTS[i].def : c[o];
+        for (var j = 0, l = options.CONNECTION_DEFAULTS.length; j < l; j++) {
+          var o = options.CONNECTION_DEFAULTS[j].id,
+            val = typeof c[o] === 'undefined' || c[0] === null ? options.CONNECTION_DEFAULTS[j].def : c[o];
           d[o] = val;
         }
         $connContainer.append(connectionTempl(d));
@@ -296,7 +301,7 @@
         .on('change', 'select.option_field', options.save);
 
       //special handler for combo regex field
-      $('#enable_leftclick')[0].addEventListener('change', function(e) {
+      $('#enable_leftclick')[0].addEventListener('change', function() {
         $('#link_regex').prop('disabled', !this.checked);
       }, false);
       $('#link_regex').prop('disabled', !$('#enable_leftclick').prop('checked'));
@@ -308,7 +313,7 @@
       $('#save_options').on('click', options.save);
 
       //link to self on manage extensions page
-      $('#manage_extension')[0].addEventListener('click', function(e) {
+      $('#manage_extension')[0].addEventListener('click', function() {
         chrome.tabs.create({
           url: 'chrome://chrome/extensions/?id=' + chrome.runtime.id
         });

@@ -1,3 +1,4 @@
+/* global $, jQuery, chrome, communicator */
 // debug
 if ( localStorage.enable_debug_logging ) {
   console.warn( '*** Debug logging enabled ***' );
@@ -9,14 +10,13 @@ if ( localStorage.enable_debug_logging ) {
 var UA = navigator.userAgent,
   COOKIES = {}; // we need to hang onto your cookies so deluge can ask your sites for files directly..
 
-  /* BEGIN DelugeConnection */
+/* BEGIN DelugeConnection */
+function DelugeConnection () {
 
-  function DelugeConnection () {
+  console.log( '*** new DelugeConnection ***' );
 
-    console.log( '*** new DelugeConnection ***' );
-
-    this._initState();
-  }
+  this._initState();
+}
 
 DelugeConnection.prototype._initState = function () {
 
@@ -33,12 +33,13 @@ DelugeConnection.prototype._initState = function () {
   if ($.type(localStorage.connections) === 'string') {
     try {
       this.CONNECTION_INFO = JSON.parse(localStorage.connections);
-    } catch (e) {}
+    } catch (e) {true} 
   }
   if (! $.isArray(this.CONNECTION_INFO)) {
     this.CONNECTION_INFO = [];
   }
 
+  // not quite there for multi-server support
   this.SERVER_URL = this.CONNECTION_INFO.length ? this.CONNECTION_INFO[0].url : null;
   this.SERVER_PASS = this.CONNECTION_INFO.length ? this.CONNECTION_INFO[0].pass : null;
   this.server_config = {};
@@ -151,17 +152,17 @@ DelugeConnection.prototype.getPluginInfo = function (silent) {
 
 DelugeConnection.prototype._serverError = function ( payload, silent ) { // this dispatches all the communication...
 
-    if ( payload.error ) {
-      console.error( '_serverError', payload );
-      var contextMessage = '' + ( payload.error.message || this.state );
-      if (!silent && !!contextMessage && contextMessage !== 'Not authenticated') {
-        notify( {
-          message: 'Your Deluge server responded with an error',
-          contextMessage: contextMessage
-        }, -1, this._getNotificationId(), 'error' );
-      }
-      return true;
+  if ( payload.error ) {
+    console.error( '_serverError', payload );
+    var contextMessage = '' + ( payload.error.message || this.state );
+    if (!silent && !!contextMessage && contextMessage !== 'Not authenticated') {
+      notify( {
+        message: 'Your Deluge server responded with an error',
+        contextMessage: contextMessage
+      }, -1, this._getNotificationId(), 'error' );
     }
+    return true;
+  }
   return false;
 
 };
@@ -212,7 +213,7 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
     retryLimit: 3
   } ).then(
     // success
-    function ( payload, status, jqhxr ) {
+    function ( payload/* , status, jqhxr */) {
 
       // console.log( '_request__success', payload, status, jqhxr );
       if ( this._serverError( payload, silent ) ) {
@@ -255,6 +256,13 @@ DelugeConnection.prototype._getDomainCookies = function ( url, cookie_domain ) {
 
   var $d = jQuery.Deferred();
 
+  // if send cookies disabled.
+  if (! localStorage.send_cookies) {
+    console.log('_getDomainCookies', 'Sending cookies is disabled');
+    return $d.resolveWith( this, [  ] );
+  }
+
+
   try {
     var hostname = new URL(url).hostname;
     if (!cookie_domain || ! cookie_domain.endsWith(hostname)) {
@@ -263,15 +271,10 @@ DelugeConnection.prototype._getDomainCookies = function ( url, cookie_domain ) {
     }
   } catch (e) {
     return $d.resolveWith( this, [  ] );
-  };
-
-  // var cookie = COOKIES[ cookie_domain ];
+  }
 
   console.log( '_getDomainCookies', 'for', cookie_domain );
 
-  // if ( !!cookie ) {
-  //   $d.resolveWith( this, [ cookie ] );
-  // } else {
   // get cookies for the current domain
   chrome.cookies.getAll( { 'domain': cookie_domain }, function ( cookies ) {
 
@@ -285,14 +288,12 @@ DelugeConnection.prototype._getDomainCookies = function ( url, cookie_domain ) {
       cooklist.push( name + '=' + cookdict[ name ] );
     }
 
-    //save out of scope..
-    cookie = cooklist.join( ';' );
+    var cookie = cooklist.join( ';' );
     COOKIES[ cookie_domain ] = cookie;
     console.log( '_getDomainCookies__callback', cookie_domain, cookie );
     $d.resolveWith( this, [ cookie ] );
 
   }.bind( this ) );
-  // }
 
   return $d.promise();
 };
@@ -475,41 +476,41 @@ DelugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
             case 'Connected':
 
-            console.log( '_getConnectedDaemon__callback', 'Connected', daemon_info );
+              console.log( '_getConnectedDaemon__callback', 'Connected', daemon_info );
 
-            $d.resolveWith( this, [ daemon_info ] );
+              $d.resolveWith( this, [ daemon_info ] );
 
-            break;
+              break;
 
             case 'Online':
 
-            console.log( '_getConnectedDaemon__callback', 'Connecting' );
+              console.log( '_getConnectedDaemon__callback', 'Connecting' );
 
-            $d = this._connectDaemon( daemon_info );
+              $d = this._connectDaemon( daemon_info );
 
-            break;
+              break;
 
             case 'Offline':
 
-            console.log( '_getConnectedDaemon__callback', 'Connecting' );
+              console.log( '_getConnectedDaemon__callback', 'Connecting' );
 
-            $d = this._startDaemon( daemon_info )
+              $d = this._startDaemon( daemon_info )
 
-              .then( this._connectDaemon.bind( this ) );
+                .then( this._connectDaemon.bind( this ) );
 
-            break;
+              break;
 
             default:
 
-            console.warn( '_getConnectedDaemon__callback', 'UNKNOWN STATUS: ' + daemon_info.status );
+              console.warn( '_getConnectedDaemon__callback', 'UNKNOWN STATUS: ' + daemon_info.status );
 
-            notify( {
-              'message': 'Error: failed to connect to deluge server: `' + daemon_info.ip + ':' + daemon_info.port + '`'
-            }, 3000, 'server', 'error' );
+              notify( {
+                'message': 'Error: failed to connect to deluge server: `' + daemon_info.ip + ':' + daemon_info.port + '`'
+              }, 3000, 'server', 'error' );
 
-            $d.rejectWith( this );
+              $d.rejectWith( this );
 
-            break;
+              break;
 
           }
 
@@ -815,7 +816,13 @@ DelugeConnection.prototype._processLabelOptions = function ( torrent_url, torren
 DelugeConnection.prototype._downloadTorrent = function ( torrent_url, cookie ) {
   // download a remote torrent url, with authentication if needed to your server
 
-  cookie = COOKIES[ cookie ] || cookie;
+  // if send cookies disabled.
+  if (! localStorage.send_cookies) {
+    console.log('_downloadTorrent', 'Sending cookies is disabled');
+    cookie = null
+  } else {
+    cookie = COOKIES[ cookie ] || cookie;
+  }
 
   var $d = jQuery.Deferred();
 
@@ -903,7 +910,13 @@ DelugeConnection.prototype._addTorrentUrlToServer = function ( torrent_url, torr
       torrent_url,
       $.extend( true, {}, this.server_config, torrent_options )
     ];
-  cookie = COOKIES[ cookie ] || cookie;
+  // if send cookies disabled.
+  if (! localStorage.send_cookies) {
+    console.log('_addTorrentUrlToServer', 'Sending cookies is disabled');
+    cookie = null
+  } else {
+    cookie = COOKIES[ cookie ] || cookie;
+  }
 
   if ( torrent_url.substr( 0, 7 ) == 'magnet:' ) {
     method = 'core.add_torrent_magnet';
@@ -926,13 +939,23 @@ DelugeConnection.prototype._addTorrentUrlToServer = function ( torrent_url, torr
       console.log( '_addTorrentUrlToServer__callback', payload );
 
       if ( !payload.result ) {
-        notify( { 'message': 'Torrent already added', 'contextMessage': torrent_url }, 1500, this._getNotificationId( torrent_url ), 'added' );
-      } else {
+        notify( {
+          'message': 'Torrent already added', 
+          'contextMessage': '' + torrent_url 
+        }, 1500, this._getNotificationId( torrent_url ) + '-dupe', 'added' );
+      } else if (!payload.error) {
         notify(
           { 'message': 'Torrent added successfully', 'contextMessage': torrent_url },
-          1500, this._getNotificationId( torrent_url ), 'added' );
-      }
+          1500, this._getNotificationId( torrent_url ) + '-added', 'added' );
+      } else {
+        console.error( '_addTorrentUrlToServer__error', arguments );
+        notify( {
+          'message': 'There was an error: ' + payload.error,
+          'contextMessage': '' + torrent_url
+        }, 1500, this._getNotificationId( torrent_url ) + '-error', 'error' );
 
+        $d.rejectWith( this, arguments );
+      }
       $d.resolveWith( this, [ payload.result ] ); // torrent id
     },
     function () {
@@ -941,7 +964,7 @@ DelugeConnection.prototype._addTorrentUrlToServer = function ( torrent_url, torr
       notify( {
         'message': 'There was an error.  Torrent was not added.',
         'contextMessage': '' + torrent_url
-      }, 1500, this._getNotificationId( torrent_url ), 'error' );
+      }, 1500, this._getNotificationId( torrent_url ) + '-error', 'error' );
 
       $d.rejectWith( this, arguments );
     } );
@@ -984,7 +1007,7 @@ function notify ( opts, decay, id, icon_type ) {
     if ( _decay !== -1 ) {
       notificationTimeouts[ id ] = setTimeout( function () {
         // console.log( 'NOTIFY: clear notification timeout [' + id + ']' );
-        chrome.notifications.clear( id, function ( cleared ) {} );
+        chrome.notifications.clear( id, function ( /*cleared*/ ) {} );
       }, _decay );
     }
   } );
@@ -1039,7 +1062,7 @@ function createContextMenu ( add, with_options ) {
         'id': 'add',
         'title': ( !!with_options ? 'Add' : 'Add to Deluge' ),
         'contexts': [ 'link' ],
-        'onclick': function ( info, tab ) {
+        'onclick': function ( info/*, tab*/ ) {
           // extract domain from url..
           var torrentUrl = info.linkUrl,
             s1 = torrentUrl.indexOf( '//' ) + 2,
@@ -1089,15 +1112,15 @@ communicator
       var method = bits.shift(); //get or set?
       var key = bits.join( '-' ); //rejoin the remainder in the case where it may have a hyphen in the key..
 
-        // if method is set, set it
-        if ( method == 'set' ) {
-          localStorage[ key ] = request.value;
-          // else respond with the value
-        } else {
-          var value = localStorage[ key ];
-          try { value = JSON.parse(value); } catch (e) { }
-          sendResponse( { 'value': value } );
-        }
+      // if method is set, set it
+      if ( method == 'set' ) {
+        localStorage[ key ] = request.value;
+        // else respond with the value
+      } else {
+        var value = localStorage[ key ];
+        try { value = JSON.parse(value); } catch (e) {true}
+        sendResponse( { 'value': value } );
+      }
 
     } else if ( request.method.substring( 0, 8 ) == "addlink-" ) { //add to server request
 
@@ -1114,7 +1137,7 @@ communicator
         notify( { 'message': 'Error: Empty URL' }, 3000, 'server', 'error' );
         return;
       }
-      url_match = url.match( /^(magnet\:)|((file|(ht|f)tp(s?))\:\/\/).+/ );
+      url_match = url.match( /^(magnet:)|((file|(ht|f)tp(s?)):\/\/).+/ );
       if ( !url_match ) {
         notify( { 'message': 'Error: Invalid URL `' + url + '`' }, 3000, 'server', 'error' );
         return;
@@ -1162,7 +1185,7 @@ communicator
           break;
         default:
           sendResponse( { 'error': 'unknown plugin action: `' + actiontype + '`' } ); // snub them.
-      };
+      }
 
     } else {
       sendResponse( { 'error': 'unknown method: `' + request.method + '`' } ); // snub them.
@@ -1173,7 +1196,6 @@ communicator
 
 chrome.notifications.onClicked.addListener(function(notId) {
   if (notId === 'needs-settings') {
-    var newURL = '';
     chrome.tabs.create({'url': chrome.extension.getURL('options.html')});
     chrome.notifications.clear(notId);
   }
