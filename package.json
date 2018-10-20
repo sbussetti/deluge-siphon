@@ -13,12 +13,12 @@
   },
   "homepage": "https://sbussetti.github.io/deluge-siphon/",
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-copy": "0.0.2",
     "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.1.0",
-    "gulp-sourcemaps": "^1.9.1",
+    "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify": "^2.0.0",
     "gulp-uglifycss": "^1.0.6",
     "gulp-zip": "^3.2.0"

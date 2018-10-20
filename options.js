@@ -315,7 +315,7 @@
       //link to self on manage extensions page
       $('#manage_extension')[0].addEventListener('click', function() {
         chrome.tabs.create({
-          url: 'chrome://chrome/extensions/?id=' + chrome.runtime.id
+          url: 'chrome://extensions/?id=' + chrome.runtime.id
         });
       });
 

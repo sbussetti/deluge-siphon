@@ -1,24 +1,26 @@
+/* global $, stopEvent, communicator, chrome, registerEventListener */
 ( function ( window, document ) {
   var CONTROL_KEY_DEPRESSED = false,
     SITE_META = {
       DOMAIN: window.location.host,
       TORRENT_REGEX:
-      '^magnet:' +
-
-      '|(\\/|^)(torrent|torrents(?=.*action=download)|index|download)\\.php.*?(\\&|\\?)id=' +
-
-      '|(\\/|^|\\.)(torrent|download)(\\/?$|\\?)((?=\.torrent)|(?!\.[a-zA-Z0-9]+)$)',
+      '^magnet:' 
+      + '|(\\/|^)(torrent|torrents)(?=.*action=download)'
+      + '|(\\/|^)(index|download)(\\.php)?(\\&|\\?|\\/)(?=.*torrent)'
+      + '|\\.torrent'
+      + '|\\/(torrent|download)(\\.php)?(\\/|\\?).+', // eslint-disable-line no-useless-escape
       TORRENT_URL_ATTRIBUTE: 'href',
       INSTALLED: false
     },
-    LISTENERS = {},
     log = function () {};
 
-  function extract_torrent_url ( target, site_meta ) {
+  function extract_torrent_url ( target ) {
     var $target = $( target ),
       $element = $target, torrent_match, torrent_url,
-      attr = site_meta.TORRENT_URL_ATTRIBUTE,
-      regex = new RegExp( site_meta.TORRENT_REGEX ), val;
+      attr = SITE_META.TORRENT_URL_ATTRIBUTE,
+      regex = new RegExp( SITE_META.TORRENT_REGEX ), val;
+
+    log( regex );
 
     if ( !$element.attr( attr ) )
       $element = $target.parent( 'a' );
@@ -36,7 +38,7 @@
 
   function process_event ( e, with_options ) {
     // process the event and if possible, sends the extracted link to the controller
-    var torrent_url = extract_torrent_url( e.target, SITE_META );
+    var torrent_url = extract_torrent_url( e.target );
     if ( !torrent_url ) return;
     log( 'Extrated torrent_url: `' + torrent_url + '`' );
     stopEvent( e );
@@ -85,7 +87,7 @@
     }
   }
 
-  function handle_keyup ( e ) {
+  function handle_keyup ( /*e*/ ) {
     CONTROL_KEY_DEPRESSED = false;
   }
 
@@ -134,12 +136,12 @@
     } );
 
     // enable/disable move-to location
-    $modal.on( 'change', 'input[name="options[move_completed]"]', function ( e ) {
+    $modal.on( 'change', 'input[name="options[move_completed]"]', function ( /*e*/ ) {
       $modal.find( 'input[name="options[move_completed_path]"]' ).prop('disabled', !$( this ).is( ':checked' ));
     } );
 
     // add/remove falsey hidden field for checkboxes
-    $modal.on( 'change', 'input[type=checkbox]', function ( e ) {
+    $modal.on( 'change', 'input[type=checkbox]', function ( /*e*/ ) {
       var $this = $(this),
         name = $this.attr('name');
       if ( $this.is( ':checked' ) ) {
@@ -162,7 +164,7 @@
 
     var modalId = 'delugesiphon-modal-' + chrome.runtime.id;
     var maxZ = Math.max.apply( null,
-      $.map( $( 'body *' ), function ( e, n ) {
+      $.map( $( 'body *' ), function ( e/*, n*/ ) {
         if ( $( e ).css( 'position' ) != 'static' )
           return parseInt( $( e ).css( 'z-index' ) ) || 1;
       } ) );
@@ -220,12 +222,14 @@
       basically this is where per-site changes/hacks etc go when we need to add support
       for specific sites.  RIP TVTorrents' weird code.
       */
-
+    log('<<<<< SITE INIT >>>>>');
     // get regex for link checking from settings
     communicator.sendMessage( {
       method: 'storage-get-link_regex'
     }, function ( response ) {
       // if there's an override..
+
+      log('GET LINK REGEX', response.value);
       if ( !!response.value ) {
         SITE_META.TORRENT_REGEX = response.value;
       }
@@ -233,7 +237,7 @@
       // check if settings have changed and adjust handlers accordingly
       install_configurable_handlers();
 
-    }, function ( exc ) {
+    }, function ( /*exc*/ ) {
 
       // treat this as a heartbeat.  on failure, close up shop (background page went away)
 
@@ -241,7 +245,7 @@
       document.removeEventListener( 'keyup', handle_keyup );
       document.removeEventListener( 'contextmenu', handle_contextmenu );
       document.body.removeEventListener( 'click', handle_leftclick );
-
+      console.error('Background page went away');
     } );
   }
 
@@ -299,15 +303,15 @@
       communicator.sendMessage( {
         method: 'storage-get-connections'
       }, function ( response ) {
-        var conns = response.value,
+        var conns = response.value || [],
           currentUrl = new URL(window.location.href),
           currentPathname = currentUrl.pathname.replace(/\/$/, "");
         for (var i = 0, l = conns.length; i < l; i++) {
           var connUrl = {pathname: ''};
-          try { connUrl = new URL(conns[i].url); } catch (e) {};
+          try { connUrl = new URL(conns[i].url); } catch (e) {}  // eslint-disable-line no-empty
           var connPathname = connUrl.pathname.replace(/\/$/, "");
           if (currentUrl.hostname == connUrl.hostname && currentPathname == connPathname) {
-            console.log('[delugesiphon] not initializing on web ui page');
+            log('[delugesiphon] not initializing on web ui page');
             return; // donesky
           }
         }
@@ -335,7 +339,7 @@
           modal_init();
 
           // listen for messages from the background
-          communicator.observeMessage( function ( req, sendResponse ) {
+          communicator.observeMessage( function ( req/*, sendResponse*/ ) {
 
             log( 'RECV CONTENT MSG', req );
 
@@ -353,7 +357,7 @@
       });
     } )
     .observeDisconnect( function () {
-      console.log( '[delugesiphon] Lost connection to background page (probably because it was reloaded). Please refresh this page.' );
+      log( '[delugesiphon] Lost connection to background page (probably because it was reloaded). Please refresh this page.' );
     } )
     .init( !!chrome.runtime.id );
 

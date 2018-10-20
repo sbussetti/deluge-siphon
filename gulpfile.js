@@ -18,67 +18,39 @@ var manifest = require( './manifest.json' ),
   optionsCSS = [ 'chrome-bootstrap.css', 'options.css' ],
   optionsJS = [ 'lib/jquery-3.0.0.min.js', 'lib/jsrender.min.js', 'lib/utils.js', 'lib/controller_communicator.js', 'options.js' ];
 
-gulp.task( 'build-content-css', function () {
-
-  gulp.src( manifest.content_scripts[ 0 ].css )
+function buildCSS( src, destFile ) {
+  return gulp.src( src )
     .pipe( uglifycss( { uglyComments: true } ) )
-    .pipe( concat( 'content.min.css' ) )
+    .pipe( concat( destFile ) )
     .pipe( gulp.dest( './build/' ) )
     .pipe( notify( {
       title: 'Gulp',
-      message: 'Built style',
+      message: 'Built ' + destFile,
       onLast: true
     } ) );
-
-} );
-
-gulp.task( 'build-options-css', function () {
-
-  gulp.src( optionsCSS )
-    .pipe( uglifycss( { uglyComments: true } ) )
-    .pipe( concat( 'options.min.css' ) )
-    .pipe( gulp.dest( './build/' ) )
-    .pipe( notify( {
-      title: 'Gulp',
-      message: 'Built options style',
-      onLast: true
-    } ) );
-
-} );
-
-function buildJS ( src, destFile ) {
-  return function () {
-
-    gulp.src( src )
-      .pipe( plumber( {
-        errorHandler: notify.onError( function ( error ) {
-          return error.name + ': ' + error.message + '\n' + error.cause.filename + '[' + error.cause.line + ':' + error.cause.col + '] ' + error.cause.message;
-        } )
-      } ) )
-      .pipe( sourcemaps.init() )
-      .pipe( uglify() )
-      .pipe( plumber.stop() )
-      .pipe( concat( destFile ) )
-      .pipe( sourcemaps.write( 'maps' ) )
-      .pipe( gulp.dest( './build/' ) )
-      .pipe( notify( {
-        title: 'Gulp',
-        message: 'Built: ' + destFile,
-        onLast: true
-      } ) );
-
-  };
 }
 
-gulp.task( 'build-content-js', buildJS( manifest.content_scripts[ 0 ].js, 'content.min.js' ) );
+function buildJS ( src, destFile ) {
+  return gulp.src( src )
+    .pipe( plumber( {
+      errorHandler: notify.onError( function ( error ) {
+        return error.name + ': ' + error.message + '\n' + error.cause.filename + '[' + error.cause.line + ':' + error.cause.col + '] ' + error.cause.message;
+      } )
+    } ) )
+    .pipe( sourcemaps.init() )
+    .pipe( uglify() )
+    .pipe( plumber.stop() )
+    .pipe( concat( destFile ) )
+    .pipe( sourcemaps.write( 'maps' ) )
+    .pipe( gulp.dest( './build/' ) )
+    .pipe( notify( {
+      title: 'Gulp',
+      message: 'Built: ' + destFile,
+      onLast: true
+    } ) );
+}
 
-gulp.task( 'build-background-js', buildJS( manifest.background.scripts, 'background.min.js' ) );
-
-gulp.task( 'build-popup-js', buildJS( popupJS, 'popup.min.js' ) );
-
-gulp.task( 'build-options-js', buildJS( optionsJS, 'options.min.js' ) );
-
-gulp.task( 'copy-project-files', function ( callback ) {
+function copyProjectFiles ( ) {
   delete require.cache[ path.resolve( './manifest.json' ) ];
   var manifest = require( './manifest.json' );
   manifest.content_scripts[ 0 ].css = [ 'content.min.css' ];
@@ -88,9 +60,9 @@ gulp.task( 'copy-project-files', function ( callback ) {
   if ( !fs.existsSync( './build' ) ) {
     fs.mkdirSync( './build' );
   }
-  fs.writeFile( './build/manifest.json', JSON.stringify( manifest ), callback );
+  fs.writeFileSync( './build/manifest.json', JSON.stringify( manifest ) );
 
-  gulp.src( [
+  return gulp.src( [
     'README.md',
     './images/*',
     'options.html',
@@ -103,34 +75,64 @@ gulp.task( 'copy-project-files', function ( callback ) {
       message: 'Copied project files',
       onLast: true
     } ) );
-} );
+}
 
-gulp.task( 'package', function () {
-
-  var buildManifest = require( './build/manifest.json' );
+function package () {
 
   return gulp.src( 'build/**/*' )
-    .pipe( zip( 'deluge-siphon-' + buildManifest.version + '.zip' ) )
+    .pipe( zip( 'deluge-siphon-' + require( './build/manifest.json' ).version + '.zip' ) )
     .pipe( gulp.dest( 'dist' ) )
     .pipe( notify( {
       title: 'Gulp',
       message: 'Packaged...',
       onLast: true
     } ) );
-} );
-
-function watch () {
-
-  gulp.watch( manifest.content_scripts[ 0 ].css, [ 'build-content-css' ] );
-  gulp.watch( manifest.content_scripts[ 0 ].js, [ 'build-content-js' ] );
-  gulp.watch( manifest.background.scripts, [ 'build-background-js' ] );
-  gulp.watch( popupJS, [ 'build-popup-js' ] );
-  gulp.watch( optionsJS, [ 'build-options-js' ] );
-  gulp.watch( optionsCSS, [ 'build-options-css' ] );
-  gulp.watch( [ '*.json', '*.html' ], [ 'copy-project-files' ] );
 
 }
 
-gulp.task( 'watch', watch );
-gulp.task( 'build', [ 'build-content-css', 'build-content-js', 'build-background-js', 'build-popup-js', 'build-options-css', 'build-options-js', 'copy-project-files' ] );
+function buildContentCSS () {
+  return buildCSS( manifest.content_scripts[ 0 ].css, 'content.min.css' )
+}
 
+function buildContentJS () {
+  return buildJS( manifest.content_scripts[ 0 ].js, 'content.min.js' )
+}
+
+function buildOptionsJS () {
+  return buildJS( optionsJS, 'options.min.js' )
+}
+
+function buildOptionsCSS () {
+  return buildCSS( optionsCSS, 'options.min.css' )
+}
+
+function buildBackgroundJS () {
+  return buildJS( manifest.background.scripts, 'background.min.js' )
+}
+
+function buildPopupJS () {
+  return buildJS( popupJS, 'popup.min.js' )
+}
+
+function watch () {
+
+  gulp.watch( manifest.content_scripts[ 0 ].css, buildContentCSS );
+
+  gulp.watch( manifest.content_scripts[ 0 ].js, buildContentJS );
+
+  gulp.watch( optionsJS, buildOptionsJS );
+
+  gulp.watch( optionsCSS, buildOptionsCSS );
+
+  gulp.watch( manifest.background.scripts, buildBackgroundJS );
+
+  gulp.watch( popupJS, buildPopupJS );
+
+  gulp.watch( [ '*.json', '*.html' ], copyProjectFiles );
+
+}
+
+/* task exports */
+exports.watch = watch
+exports.build = gulp.series( gulp.parallel( buildContentCSS, buildContentJS, buildBackgroundJS, buildPopupJS, buildOptionsCSS, buildOptionsJS ), copyProjectFiles )
+exports.package = package
