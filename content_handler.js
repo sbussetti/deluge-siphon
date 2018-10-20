@@ -137,6 +137,7 @@
 
       // // close modal
       $.modal.close();
+      $modal.removeClass('displayed').html('');
 
     } );
 
@@ -158,8 +159,8 @@
 
     $modal.on( 'click', 'button[name=cancel]', function ( e ) {
       e.preventDefault();
-
       $.modal.close();
+      $modal.removeClass('displayed').html('');
     } );
   }
 
