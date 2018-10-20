@@ -1,5 +1,10 @@
 /* global $, stopEvent, communicator, chrome, registerEventListener */
 ( function ( window, document ) {
+  /* env check */
+  if (!document || ! document.addEventListener || !document.body || !document.body.addEventListener) {
+    return;
+  }
+
   var CONTROL_KEY_DEPRESSED = false,
     SITE_META = {
       DOMAIN: window.location.host,
