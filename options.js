@@ -189,7 +189,18 @@
         } else if (res.mu) {
           mutator.push(res.mu);
         }
+      }
 
+      for (var ii = 0, ll = options.LABEL_DEFAULTS.length; ii < ll; ii++) {
+        var o = options.LABEL_DEFAULTS[ii].id,
+          element = $('#' + o),
+          res = options.validate_element(options.LABEL_DEFAULTS[ii], element);
+
+        if (res.err) {
+          validation_error = true;
+        } else if (res.mu) {
+          mutator.push(res.mu);
+        }
       }
 
       if (!validation_error) {
