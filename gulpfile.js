@@ -65,6 +65,7 @@ function copyProjectFiles ( ) {
   return gulp.src( [
     'README.md',
     './images/*',
+    './_locales/**/*',
     'options.html',
     'popup.html'
   ] )
@@ -128,7 +129,7 @@ function watch () {
 
   gulp.watch( popupJS, buildPopupJS );
 
-  gulp.watch( [ '*.json', '*.html' ], copyProjectFiles );
+  gulp.watch( [ '*.json', '*.html', '_locales/**/*' ], copyProjectFiles );
 
 }
 
