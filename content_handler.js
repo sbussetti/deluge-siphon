@@ -176,6 +176,7 @@
 
     // populate modal
     $( '#' + modalId )
+      .addClass('displayed')
       .html( modalTmpl.render( $.extend( {}, req ) ) )
       .modal( {
         blockerClass: modalId

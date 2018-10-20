@@ -5,6 +5,11 @@
   position: relative;
   font-size: 16px;
   padding: 0;
+  display: none;
+}
+
+#delugesiphon-modal-__MSG_@@extension_id__.displayed {
+  display: inline-block;
   min-height: 250px;
 }
 
