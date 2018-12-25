@@ -12,8 +12,8 @@
       '^magnet:' 
       + '|(\\/|^)(torrent|torrents)(?=.*action=download)'
       + '|(\\/|^)(index|download)(\\.php)?(\\&|\\?|\\/)(?=.*torrent)'
-      + '|\\.torrent'
-      + '|\\/(torrent|download)(\\.php)?(\\/|\\?).+', // eslint-disable-line no-useless-escape
+      // + '|\\/(torrent|download)(\\.php)?(\\/|\\?).+'
+      + '|\\.torrent', // eslint-disable-line no-useless-escape
       TORRENT_URL_ATTRIBUTE: 'href',
       INSTALLED: false
     },
