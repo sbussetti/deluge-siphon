@@ -200,7 +200,7 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
   var $d = jQuery.Deferred();
   this.state = state;
 
-  $.ajax( (new URL('json', this.SERVER_URL)).href, {
+  $.ajax( ( new URL( 'json', this.SERVER_URL + ( this.SERVER_URL.endsWith('/') ? '' : '/' ) ) ).href, {
     contentType: "application/json",
     processData: false,
     data: JSON.stringify( params ),
@@ -234,7 +234,7 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
       console.error(http, status, thrown);
       if (!silent && http.status != 0) {
         notify( {
-          message: 'Error communicating with your Deluge server',
+          message: 'Error communicating with Deluge server',
           contextMessage: http.status + ': ' + status
         }, -1, this._getNotificationId(), 'error' );
       }
@@ -391,7 +391,7 @@ DelugeConnection.prototype._getDaemons = function () {
     } else {
       this.daemon_hosts = [];
       console.error( '_getDaemons failed', payload );
-      notify( { 'message': 'Error: cannot connect to deluge server' }, 3000, 'server', 'error' );
+      notify( { 'message': 'Error: cannot connect to deluge server' }, 3000, this._getNotificationId(), 'error' );
       $d.rejectWith( this );
     }
   } );
@@ -416,7 +416,7 @@ DelugeConnection.prototype._getHostStatus = function ( hostId, ip, port ) {
 
       console.error( '_getHostStatus__callback', hostId, 'failed', payload );
 
-      notify( { 'message': 'Error: cannot connect to deluge server' }, 3000, 'server', 'error' );
+      notify( { 'message': 'Error: cannot connect to deluge server' }, 3000, this._getNotificationId(), 'error' );
 
 
       return $d.rejectWith( this );
@@ -503,7 +503,7 @@ DelugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
 
               notify( {
                 'message': 'Error: failed to connect to deluge server: `' + daemon_info.ip + ':' + daemon_info.port + '`'
-              }, 3000, 'server', 'error' );
+              }, 3000, this._getNotificationId(), 'error' );
 
               $d.rejectWith( this );
 
@@ -518,7 +518,7 @@ DelugeConnection.prototype._getConnectedDaemon = function ( daemon_hosts ) {
         .then( function ( daemon_info ) {
 
           this.DAEMON_INFO = daemon_info;
-          this.CONNECT_ATTEMPTS = 0;
+          this.CONNECT_ATTEMPTS = 1;
 
           return daemon_info;
 
@@ -556,7 +556,7 @@ DelugeConnection.prototype._startDaemon = function ( daemon_info ) {
     if ( !payload.error ) {
 
       //get config and carry on with execution...
-      notify( { 'message': 'Starting server ' + daemon_info.ip + ':' + daemon_info.port }, 1500, 'server' );
+      notify( { 'message': 'Starting server ' + daemon_info.ip + ':' + daemon_info.port }, 1500, this._getNotificationId() );
       $d.resolveWith( this, [ daemon_info ] );
 
     } else {
@@ -590,7 +590,7 @@ DelugeConnection.prototype._connectDaemon = function ( daemon_info ) {
       if ( !payload.error ) {
 
         //get config and carry on with execution...
-        notify( { 'message': 'Reconnected to server' }, 1500, 'server' );
+        notify( { 'message': 'Reconnected to server' }, 1500, this._getNotificationId() );
 
         $d.resolveWith( this );
 
@@ -604,9 +604,19 @@ DelugeConnection.prototype._connectDaemon = function ( daemon_info ) {
 
     }.bind( this ) );
 
-  } else if ( this.CONNECT_ATTEMPTS > 5 ) {
+  } else if ( this.CONNECT_ATTEMPTS >= 5 ) {
 
-    notify( { 'message': 'Gave up waiting on ' + daemon_info.ip + ':' + daemon_info.port }, 1500, 'server', 'error' );
+    notify( 
+      {
+        contextMessage: 'Gave up on ' + daemon_info.ip + ':' + daemon_info.port + ' after ' + this.CONNECT_ATTEMPTS + ' attempts',
+        message: "Only supported in Classic Mode",
+        priority: 2,
+        requireInteraction: true 
+      }, 
+      -1, 
+      this._getNotificationId(), 
+      'error' 
+    );
     $d.rejectWith( this, [ daemon_info ] );
 
   } else {
@@ -614,7 +624,13 @@ DelugeConnection.prototype._connectDaemon = function ( daemon_info ) {
     this.CONNECT_ATTEMPTS += 1;
 
     // not ready... wait a little, then try again
-    notify( { 'message': daemon_info.ip + ':' + daemon_info.port + ' not ready to connect.  Waiting...' }, 1500, 'server' );
+    notify( {
+        contextMessage: 'Server ' + daemon_info.ip + ':' + daemon_info.port + ' not ready', 
+        message: 'Trying again in 5 seconds' 
+      }, 
+      3500, 
+      this._getNotificationId() 
+    );
 
     setTimeout( function () {
 
@@ -644,6 +660,7 @@ DelugeConnection.prototype._getServerConfig = function ( daemon_info ) {
   this._request( 'getconfig', {
     'method': 'core.get_config_values',
     'params': [ [
+      'allow_remote',
       'download_location',
       'move_completed',
       'move_completed_path',
@@ -656,7 +673,19 @@ DelugeConnection.prototype._getServerConfig = function ( daemon_info ) {
       // TODO: no failure (empty payload) state
       console.log( '_getServerConfig__callback', payload.result );
       this.server_config = $.extend( true, {}, payload.result );
-      $d.resolveWith( this, [ this.server_config, daemon_info ] );
+
+      if ( ! this.server_config.allow_remote ) {
+        console.error( '_getServerConfig__error', 'Remote connections disabled' );
+        notify( { 
+          message: 'Enable this in Preferences -> Daemon', 
+          contextMessage: 'Remote connections must be allowed',
+          priority: 2,
+          requireInteraction: true
+        }, -1, this._getNotificationId(), 'error' );
+        $d.rejectWith( this );
+      } else {
+        $d.resolveWith( this, [ this.server_config, daemon_info ] );
+      }
 
     }.bind( this ),
     function (error) {
@@ -779,7 +808,7 @@ DelugeConnection.prototype._processLabelOptions = function ( torrent_url, torren
       function ( payload ) {
         if ( !!payload && !!payload.error ) {
           console.error( payload );
-          notify( { 'message': 'Failed to add label: ' + payload.error }, -1, 'server', 'error' );
+          notify( { 'message': 'Failed to add label: ' + payload.error }, -1, this._getNotificationId(), 'error' );
           $d.rejectWith( this );
         } else {
 
@@ -798,7 +827,7 @@ DelugeConnection.prototype._processLabelOptions = function ( torrent_url, torren
       },
       function () {
         console.error( arguments );
-        notify( { 'message': 'Server error.' }, 3000, 'server', 'error' );
+        notify( { 'message': 'Server error.' }, 3000, this._getNotificationId(), 'error' );
         $d.rejectWith( this, arguments );
       } );
   } else {
@@ -848,7 +877,7 @@ DelugeConnection.prototype._downloadTorrent = function ( torrent_url, cookie ) {
       },
       function () {
         console.error( '_donwloadTorrent error', arguments );
-        notify( { 'message': 'Server error.' }, 3000, 'server', 'error' );
+        notify( { 'message': 'Server error.' }, 3000, this._getNotificationId(), 'error' );
         $d.rejectWith( this );
       }
     );
@@ -893,7 +922,7 @@ DelugeConnection.prototype._addTorrentFileToServer = function ( torrent_url, tor
     "id": "-17004.0"
   } ).then( function ( payload ) {
     console.log( '_addTorrentFileToServer__callback', payload );
-    notify( { 'message': 'Torrent added successfully', 'contextMessage': torrent_url }, 1500, this._getNotificationId( torrent_url ), 'added' );
+    notify( { 'message': 'Torrent added successfully', 'contextMessage': torrent_url }, 5000, this._getNotificationId( torrent_url ), 'added' );
   } );
 
 };
@@ -939,7 +968,7 @@ DelugeConnection.prototype._addTorrentUrlToServer = function ( torrent_url, torr
         notify( {
           'message': 'Torrent already added', 
           'contextMessage': '' + torrent_url 
-        }, 1500, this._getNotificationId( torrent_url ) + '-dupe', 'added' );
+        }, 5000, this._getNotificationId( torrent_url ) + '-dupe', 'added' );
       } else if (!payload.error) {
         notify(
           { 'message': 'Torrent added successfully', 'contextMessage': torrent_url },
@@ -983,13 +1012,22 @@ function notify ( opts, decay, id, icon_type ) {
     throw "Notification ID is required";
   }
 
+  if ( ! icon_type ) {
+    icon_type = 'info'
+  }
+
   var _decay = decay || 3000,
     // notify, error, added or request
-    _icon = '/images/' + ( icon_type ? 'notify_' + icon_type : 'notify' ) + '.png',
     options = {
-      title: 'delugesiphon',
+      title: 'delugesiphon〘' + {
+        error: 'x',
+        request: '+',
+        added: '✓',
+        info: 'ℹ'
+      }[icon_type] + '〙',
       type: 'basic',
-      iconUrl: chrome.extension.getURL( _icon )
+      iconUrl: chrome.extension.getURL( '/images/icon-128.png' ),
+      eventTime: Date.now()
     };
   for ( var attr in opts ) {
     options[ attr ] = opts[ attr ];
@@ -1003,8 +1041,9 @@ function notify ( opts, decay, id, icon_type ) {
 
     if ( _decay !== -1 ) {
       notificationTimeouts[ id ] = setTimeout( function () {
-        // console.log( 'NOTIFY: clear notification timeout [' + id + ']' );
-        chrome.notifications.clear( id, function ( /*cleared*/ ) {} );
+        chrome.notifications.clear( id, function ( wasCleared ) {
+          console.log( '[[[ NOTIFICATION ]]]', 'Cleared notification id: ' + id );
+        } );
       }, _decay );
     }
   } );
@@ -1131,12 +1170,12 @@ communicator
         return;
       }
       if ( !url ) {
-        notify( { 'message': 'Error: Empty URL' }, 3000, 'server', 'error' );
+        notify( { 'message': 'Error: Empty URL' }, 3000, this._getNotificationId(), 'error' );
         return;
       }
       url_match = url.match( /^(magnet:)|((file|(ht|f)tp(s?)):\/\/).+/ );
       if ( !url_match ) {
-        notify( { 'message': 'Error: Invalid URL `' + url + '`' }, 3000, 'server', 'error' );
+        notify( { 'message': 'Error: Invalid URL `' + url + '`' }, 3000, this._getNotificationId(), 'error' );
         return;
       }
 
@@ -1166,7 +1205,7 @@ communicator
           } );
 
       } else {
-        notify( { 'message': 'Unknown server type: `' + addtype + '`' }, 3000, 'server', 'error' );
+        notify( { 'message': 'Unknown server type: `' + addtype + '`' }, 3000, this._getNotificationId(), 'error' );
       }
     } else if ( request.method == 'connect' ) {
       delugeConnection.connectToServer();
