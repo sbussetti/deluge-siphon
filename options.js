@@ -1,5 +1,6 @@
 /* global $, chrome, communicator */
 (function() {
+  var URLregexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
   // manages options
   var options = {
     CONNECTION_DEFAULTS: [
@@ -11,21 +12,16 @@
             if (!string)
               return string;
 
-            var regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
-            return regexp.test(string) && !string.match(/\/$/);
+            return URLregexp.test(string);
           },
           validate_message: 'Invalid server url.',
           required: true,
           scrubber: function(string) {
-            //no trailing / on url makes construction simpler..
             if (!string)
               return '';
 
             if (string.substring(0, 4) != 'http')
               string = 'http://' + string;
-
-            if (string.charAt(string.length - 1) == '/')
-              string = string.substring(0, string.length - 1);
 
             return string;
           }

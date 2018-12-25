@@ -155,11 +155,8 @@ DelugeConnection.prototype._serverError = function ( payload, silent ) { // this
   if ( payload.error ) {
     console.error( '_serverError', payload );
     var contextMessage = '' + ( payload.error.message || this.state );
-    if (!silent && !!contextMessage && contextMessage !== 'Not authenticated') {
-      notify( {
-        message: 'Your Deluge server responded with an error',
-        contextMessage: contextMessage
-      }, -1, this._getNotificationId(), 'error' );
+    if (!silent && !!contextMessage) {
+      notify( { message: 'Deluge server error', contextMessage: contextMessage }, -1, this._getNotificationId(), 'error' );
     }
     return true;
   }
@@ -169,7 +166,7 @@ DelugeConnection.prototype._serverError = function ( payload, silent ) { // this
 
 DelugeConnection.prototype._getNotificationId = function ( torrent_url ) {
 
-  return !!torrent_url ? '' + torrent_url.hashCode() : 'server';
+  return !!torrent_url ? '' + torrent_url.hashCode() : 'server-' + Date.now();
 
 };
 
@@ -203,7 +200,7 @@ DelugeConnection.prototype._request = function ( state, params, silent ) {
   var $d = jQuery.Deferred();
   this.state = state;
 
-  $.ajax( this.SERVER_URL + '/json', {
+  $.ajax( (new URL('json', this.SERVER_URL)).href, {
     contentType: "application/json",
     processData: false,
     data: JSON.stringify( params ),
@@ -998,7 +995,7 @@ function notify ( opts, decay, id, icon_type ) {
     options[ attr ] = opts[ attr ];
   }
 
-  // console.log( '[[[ NOTIFICATION ]]]', options, _decay, id, icon_type, '[[[ NOTIFICATION ]]]' );
+  console.log( '[[[ NOTIFICATION ]]]', options, _decay, id, icon_type, '[[[ NOTIFICATION ]]]' );
 
   chrome.notifications.create( id, options, function ( id ) {
     if ( notificationTimeouts[ id ] )
