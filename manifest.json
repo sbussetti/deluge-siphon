@@ -49,7 +49,6 @@
       "content_handler.js"
     ],
     "css": [
-      "content_reset.css",
       "lib/jquery.modal.css",
       "content_handler.css"
     ]
